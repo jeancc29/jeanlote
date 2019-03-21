@@ -179,7 +179,7 @@ return [
 
 
         /* Countries */
-        'Webpatser\Countries\CountriesServiceProvider',
+        //'Webpatser\Countries\CountriesServiceProvider',
 
     ],
 
@@ -229,7 +229,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'Countries' => 'Webpatser\Countries\CountriesFacade',
+        //'Countries' => 'Webpatser\Countries\CountriesFacade',
         'Image' => Intervention\Image\Facades\Image::class,
 
     ],
