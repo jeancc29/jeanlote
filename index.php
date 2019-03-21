@@ -7,8 +7,6 @@
  * @author   Taylor Otwell <taylor@laravel.com>
  */
 
- echo "<h1>Holaaaa</h1>";
- return;
 
 define('LARAVEL_START', microtime(true));
 
