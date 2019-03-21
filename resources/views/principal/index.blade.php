@@ -162,7 +162,7 @@
                                         <label  for="jugada" class="bmd-label-floating">Jugada</label>
                                         <input 
 
-                                            ng-click="prueba()"
+                                            
                                             ng-blur="monto_disponible(true)"
                                             ng-model="datos.jugada"
                                             ng-keyup="inputJugadaKeyup($event)"
@@ -531,7 +531,7 @@
     <!-- BOTONES REPORTES -->
 
     <div class="row">
-        <div class="col-12 text-center" ng-click="recargar()">
+        <div class="col-12 text-center" >
             <button class="btn btn-success" data-toggle="modal" data-target=".bd-example-modal-lg">Monitoreo</button>
             <button ng-click="" class="btn btn-success" data-toggle="modal" data-target=".modal-ventas">Ventas</button>
             <button ng-click="venta_guardar()" class="btn btn-success">Crear ticket</button>

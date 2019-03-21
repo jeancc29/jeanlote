@@ -203,7 +203,7 @@ var myApp = angular
         
             if(Number($scope.datos.jugada) != $scope.datos.jugada)
                 {
-                    $('#inputJugada').focus();
+                    //$('#inputJugada').focus(); Este focus bloquea toda la pagina asi que dicidi comentarlo
                     $scope.datos.monto = null;
                     $scope.datos.jugada = null;
                     $scope.jugada = null;
