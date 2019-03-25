@@ -204,46 +204,110 @@ var myApp = angular
             'pagosCombinaciones' :{
                 'loterias' : [],
                 'selectedLoteria' : {}
+            },
+            'bloqueoJugada' : {
+                "jugada" : null,
+                "monto" : null,
+                "fechaDesde" : new Date(),
+                "fechaHasta" : new Date(),
             }
         }
 
         
-        $scope.inicializarDatos = function(todos, idUsuario = 0){
+        $scope.inicializarDatos = function(idUsuario = 0, response = null, responseJugadas = null){
                
-            $http.get("/api/horarios")
-             .then(function(response){
-                console.log('Bancas: ', response.data);
-
-                if(todos){
-                    $scope.datos.id = 0;
-                    $scope.datos.descripcion = null;
-                    $scope.datos.codigo = null;
-                    $scope.datos.ip = null;
-                    $scope.datos.dueno = null;
-                    $scope.datos.localidad = null;
-
-                    $scope.datos.porcentajeCaida = null;
-                    $scope.datos.balanceDesactivacion = null;
-                    $scope.datos.limiteVenta = null;
-                    $scope.datos.descontar = null;
-                    $scope.datos.deCada = null;
-                    $scope.datos.minutosCancelarTicket = null;
-                    $scope.datos.piepagina1 = null;
-                    $scope.datos.piepagina2 = null;
-                    $scope.datos.piepagina3 = null;
-                    $scope.datos.piepagina4 = null;
-
-                    $scope.datos.estado = true;
-                    $scope.datos.idTipoUsuario = 0;
-
-                    $scope.datos.permisos = [];
-                    $scope.datos.ckbPermisosAdicionales = [];
-                   
-
-                }
-
+            if(response != null){
+                 
+                $scope.datos.optionsTipoBloqueos = [{'idTipoBloqueo' : 1, 'descripcion' : 'General para grupo'}, {'idTipoBloqueo': 2, 'descripcion' : 'General por banca'}];
+                $scope.datos.selectedTipoBloqueos = $scope.datos.optionsTipoBloqueos[0];
 
                 var jsonLoterias = response.data.loterias;
+                $scope.datos.optionsBancas = [];
+                $scope.datos.optionsBancas = response.data.bancas;
+                $scope.datos.selectedBanca = $scope.datos.optionsBancas[0];
+
+
+                
+
+
+                $scope.datos.loterias= [];
+                jsonLoterias.forEach(function(valor, indice, array){
+                    array[indice].seleccionado = false;
+                    $scope.datos.loterias.push(array[indice]);
+                });
+
+
+                $scope.datos.ckbDias = [];
+                var jsonDias = response.data.dias;
+                jsonDias.forEach(function(valor, indice, array){
+                    $scope.datos.ckbDias.push({'id' :array[indice].id, 'descripcion': array[indice].descripcion, 'existe' : true});
+                });
+
+                var jsonSorteos = response.data.sorteos;
+                $scope.datos.sorteos = [];
+                jsonSorteos.forEach(function(valor, indice, array){
+                    array[indice].monto = '';
+                    $scope.datos.sorteos.push(array[indice]);
+                });
+
+
+
+              
+                
+
+                $timeout(function() {
+                    // anything you want can go here and will safely be run on the next digest.
+                    //$('#multiselect').selectpicker('val', []);
+                    $('#multiselect').selectpicker("refresh");
+                    $('.selectpicker').selectpicker("refresh");
+                    // $('#cbxBanca').selectpicker('val', [])
+                  })
+
+                return;
+            }
+            if(responseJugadas != null){
+                 
+                $scope.datos.bloqueoJugada.optionsTipoBloqueos = [{'idTipoBloqueo' : 1, 'descripcion' : 'General para grupo'}, {'idTipoBloqueo': 2, 'descripcion' : 'General por banca'}];
+                $scope.datos.bloqueoJugada.selectedTipoBloqueos = $scope.datos.bloqueoJugada.optionsTipoBloqueos[0];
+
+                var jsonLoterias = responseJugadas.data.loterias;
+                $scope.datos.bloqueoJugada.optionsBancas = [];
+                $scope.datos.bloqueoJugada.optionsBancas = responseJugadas.data.bancas;
+                $scope.datos.bloqueoJugada.selectedBanca = $scope.datos.bloqueoJugada.optionsBancas[0];
+
+
+
+                $scope.datos.bloqueoJugada.loterias= [];
+                jsonLoterias.forEach(function(valor, indice, array){
+                    array[indice].seleccionado = false;
+                    $scope.datos.bloqueoJugada.loterias.push(array[indice]);
+                });
+
+                $timeout(function() {
+                    // anything you want can go here and will safely be run on the next digest.
+                    //$('#multiselect').selectpicker('val', []);
+                    $('#multiselect').selectpicker("refresh");
+                    $('.selectpicker').selectpicker("refresh");
+                    // $('#cbxBanca').selectpicker('val', [])
+                  })
+
+                return;
+            }
+            $http.get("/api/bloqueos")
+             .then(function(response){
+                console.log('Bancas: ', response.bancas);
+
+                
+
+                
+                $scope.datos.optionsTipoBloqueos = [{'idTipoBloqueo' : 1, 'descripcion' : 'General para grupo'}, {'idTipoBloqueo': 2, 'descripcion' : 'General por banca'}];
+                $scope.datos.selectedTipoBloqueos = $scope.datos.optionsTipoBloqueos[0];
+
+                var jsonLoterias = response.data.loterias;
+                $scope.datos.optionsBancas = response.data.bancas;
+                $scope.datos.selectedBanca = $scope.datos.optionsBancas[0];
+
+
                 
 
 
@@ -259,17 +323,39 @@ var myApp = angular
                     $scope.datos.ckbDias.push({'id' :array[indice].id, 'descripcion': array[indice].descripcion, 'existe' : true});
                 });
 
+                var jsonSorteos = response.data.sorteos;
+                $scope.datos.sorteos = [];
+                jsonSorteos.forEach(function(valor, indice, array){
+                    array[indice].monto = '';
+                    $scope.datos.sorteos.push(array[indice]);
+                });
+
 
 
               
-                
+                $scope.datos.bloqueoJugada.optionsTipoBloqueos = [{'idTipoBloqueo' : 1, 'descripcion' : 'General para grupo'}, {'idTipoBloqueo': 2, 'descripcion' : 'General por banca'}];
+                $scope.datos.bloqueoJugada.selectedTipoBloqueos = $scope.datos.bloqueoJugada.optionsTipoBloqueos[0];
+
+                jsonLoterias = response.data.loterias;
+                $scope.datos.bloqueoJugada.optionsBancas = [];
+                $scope.datos.bloqueoJugada.optionsBancas = response.data.bancas;
+                $scope.datos.bloqueoJugada.selectedBanca = $scope.datos.bloqueoJugada.optionsBancas[0];
+
+
+
+                $scope.datos.bloqueoJugada.loterias= [];
+                jsonLoterias.forEach(function(valor, indice, array){
+                    array[indice].seleccionado = false;
+                    $scope.datos.bloqueoJugada.loterias.push(array[indice]);
+                });
+
 
                 $timeout(function() {
                     // anything you want can go here and will safely be run on the next digest.
                     //$('#multiselect').selectpicker('val', []);
                     $('#multiselect').selectpicker("refresh");
                     $('.selectpicker').selectpicker("refresh");
-                    $('.selectpicker').selectpicker('val', [])
+                    // $('#cbxBanca').selectpicker('val', [])
                   })
                
                 
@@ -292,121 +378,110 @@ var myApp = angular
         
 
 
-        $scope.editar = function(esNuevo, d){
-            
-            $scope.datos.mostrarFormEditar = true;
-
-            if(esNuevo){
-                $scope.inicializarDatos(true);
-
-                $scope.datos.ckbLoterias.forEach(function(valor, indice, array){
-
-                    array[indice].existe = true;
-
-                 });
-            }
-            else{
-                //$scope.inicializarDatos();
-                //$scope.datos.mostrarFormEditar = true;
-
-                $('.form-group').addClass('is-filled');
-
-
-                $scope.rbxLoteriasChanged(d);
-                $scope.selectedLoteria.lunes.status = 0;
-                $scope.selectedLoteria.martes.status = 0;
-                $scope.selectedLoteria.miercoles.status = 0;
-                $scope.selectedLoteria.jueves.status = 0;
-                $scope.selectedLoteria.viernes.status = 0;
-                $scope.selectedLoteria.sabado.status = 0;
-                $scope.selectedLoteria.domingo.status = 0;
-
-                
-                d.dias.forEach(function(valor, indice, array){
-                    if(array[indice].descripcion == "Lunes"){
-                        $scope.selectedLoteria.lunes.status = 1;
-                        $scope.selectedLoteria.lunes.apertura = array[indice].pivot.horaApertura;
-                        $scope.selectedLoteria.lunes.apertura = array[indice].pivot.horaCierre;
-                    }
-                    else if(array[indice].descripcion == "Martes"){
-                        $scope.selectedLoteria.martes.status = 1;
-                        $scope.selectedLoteria.martes.apertura = array[indice].pivot.horaApertura;
-                        $scope.selectedLoteria.martes.apertura = array[indice].pivot.horaCierre;
-                    }
-                    else if(array[indice].descripcion == "Miercoles"){
-                        $scope.selectedLoteria.miercoles.status = 1;
-                        $scope.selectedLoteria.miercoles.apertura = array[indice].pivot.horaApertura;
-                        $scope.selectedLoteria.miercoles.apertura = array[indice].pivot.horaCierre;
-                    }
-                    else if(array[indice].descripcion == "Jueves"){
-                        $scope.selectedLoteria.jueves.status = 1;
-                        $scope.selectedLoteria.jueves.apertura = array[indice].pivot.horaApertura;
-                        $scope.selectedLoteria.jueves.apertura = array[indice].pivot.horaCierre;
-                    }
-                    else if(array[indice].descripcion == "Viernes"){
-                        $scope.selectedLoteria.viernes.status = 1;
-                        $scope.selectedLoteria.viernes.apertura = array[indice].pivot.horaApertura;
-                        $scope.selectedLoteria.viernes.apertura = array[indice].pivot.horaCierre;
-                    }
-                    else if(array[indice].descripcion == "Sabado"){
-                        $scope.selectedLoteria.sabado.status = 1;
-                        $scope.selectedLoteria.sabado.apertura = array[indice].pivot.horaApertura;
-                        $scope.selectedLoteria.sabado.apertura = array[indice].pivot.horaCierre;
-                    }
-                    else{
-                        $scope.selectedLoteria.domingo.status = 1;
-                        $scope.selectedLoteria.domingo.apertura = array[indice].pivot.horaApertura;
-                        $scope.selectedLoteria.domingo.apertura = array[indice].pivot.horaCierre;
-                    }
-                });
-
-               
-                
-
-                $scope.datos.ckbDias.forEach(function(valor, indice, array){
-
-                    if(d.dias.find(x => x.id == array[indice].id) == undefined)
-                        array[indice].existe = false;
-
-                 });
-
-
-                
-
-
-                $timeout(function() {
-                    // anything you want can go here and will safely be run on the next digest.
-                    $('.selectpicker').selectpicker("refresh");
-                  });
-            }
-        }
 
        
         
 
         $scope.actualizar = function(){
          
-          
-           
-           
+        //   var contador = 0;
+        //     $scope.datos.loterias.forEach(function(valor, indice, array){
+        //         if(array[indice].seleccionado == true)
+        //             contador++;
+        //     });
 
-            if(($scope.datos.loterias.length > 0) == false){
-                alert("No hay loterias");
-                return;
-            }
+        //     if(contador == 0){
+        //         alert("Debe seleccionar al menos una loteria");
+        //         return;
+        //     }
+           
+        //     contador = 0;
+        //     $scope.datos.sorteos.forEach(function(valor, indice, array){
+        //         if(array[indice].monto != undefined && array[indice].monto == null && array[indice].monto == '' && Number(array[indice].monto) == array[indice].monto)
+        //             contador++;
+        //     });
+
+        //     if(contador == 0){
+        //         alert("Todos los campos estan vacios");
+        //         return;
+        //     }
+
+        //     contador = 0;
+        //     $scope.datos.ckbDias.forEach(function(valor, indice, array){
+        //         if(array[indice].monto == true)
+        //             contador++;
+        //     });
+
+        //     if(contador == 0){
+        //         alert("Debe seleccionar los dias");
+        //         return;
+        //     }
             
+        console.log('sorteos: ', $scope.datos.sorteos);
 
- 
-            _convertir_apertura_y_cierre(true, true);
 
+        
+        if($scope.datos.selectedTipoBloqueos.idTipoBloqueo == 1){
+            $scope.datos.bancas =  $scope.datos.optionsBancas;
+        }
+     
+        // else
+        //     $scope.datos.bancas.push($scope.datos.selectedBanca);
             
            
-          $http.post("/api/horarios/normal/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
+          $http.post("/api/bloqueos/loteriasnuevo/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0){
                     
-                            $scope.inicializarDatos(true);
+                            $scope.inicializarDatos($scope.datos.idUsuario, response);
+                            alert("Se ha guardado correctamente");
+                     
+                }else{
+                    alert(response.data.mensaje);
+                    return;
+                }
+                
+            });
+        
+
+        }
+
+        $scope.actualizarJugadas = function(){
+         
+        //   var contador = 0;
+        //     $scope.datos.loterias.forEach(function(valor, indice, array){
+        //         if(array[indice].seleccionado == true)
+        //             contador++;
+        //     });
+
+        //     if(contador == 0){
+        //         alert("Debe seleccionar al menos una loteria");
+        //         return;
+        //     }
+           
+       
+
+       
+
+
+        
+        if($scope.datos.bloqueoJugada.selectedTipoBloqueos.idTipoBloqueo == 1){
+            $scope.datos.bloqueoJugada.bancas =  $scope.datos.bloqueoJugada.optionsBancas;
+        }
+     
+        // else
+        //     $scope.datos.bancas.push($scope.datos.selectedBanca);
+
+            $scope.datos.bloqueoJugada.idUsuario = $scope.datos.idUsuario;
+            
+           
+          $http.post("/api/bloqueos/jugadasnuevo/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos.bloqueoJugada})
+             .then(function(response){
+                console.log(response.data);
+                if(response.data.errores == 0){
+                    
+                            $scope.inicializarDatos($scope.datos.idUsuario, null, response);
                             alert("Se ha guardado correctamente");
                      
                 }else{
@@ -437,41 +512,46 @@ var myApp = angular
 
 
         $scope.ckbDias_changed = function(check, d){
-            console.log('ckbSorteos_changed: ', d);
-            if(d.existe){
-                if(d.descripcion == "Lunes")
-                    $scope.datos.selectedLoteria.lunes.status = 1;
-                if(d.descripcion == "Martes")
-                    $scope.datos.selectedLoteria.martes.status = 1;
-                if(d.descripcion == "Miercoles")
-                    $scope.datos.selectedLoteria.miercoles.status = 1;
-                if(d.descripcion == "Jueves")
-                    $scope.datos.selectedLoteria.jueves.status = 1;
-                if(d.descripcion == "Viernes")
-                    $scope.datos.selectedLoteria.viernes.status = 1;
-                if(d.descripcion == "Sabado")
-                    $scope.datos.selectedLoteria.sabado.status = 1;
-                if(d.descripcion == "Domingo")
-                    $scope.datos.selectedLoteria.domingo.status = 1;
-            }
-            else{
-                if(d.descripcion == "Lunes")
-                    $scope.datos.selectedLoteria.lunes.status = 0;
-                if(d.descripcion == "Martes")
-                    $scope.datos.selectedLoteria.martes.status = 0;
-                if(d.descripcion == "Miercoles")
-                    $scope.datos.selectedLoteria.miercoles.status = 0;
-                if(d.descripcion == "Jueves")
-                    $scope.datos.selectedLoteria.jueves.status = 0;
-                if(d.descripcion == "Viernes")
-                    $scope.datos.selectedLoteria.viernes.status = 0;
-                if(d.descripcion == "Sabado")
-                    $scope.datos.selectedLoteria.sabado.status = 0;
-                if(d.descripcion == "Domingo")
-                    $scope.datos.selectedLoteria.domingo.status = 0;
-            }
+            console.log('ckbDias changed: ', d);
+            // if(d.existe){
+            //     $scope.datos.dias.push(d);
+            // }
+            // else{
+            //     if($scope.datos.dias.find(x => x.id == d.id) != undefined){
+
+            //         let idx = $scope.datos.dias.findIndex(x => x.id == d.id);
+            //         $scope.datos.dias.splice(idx,1);
+            //     }
+            // }
             
         }
+
+        $scope.cbxTipoBloqueosChanged = function(){
+           
+               $scope.datos.bancas = [];
+
+               $timeout(function() {
+                // anything you want can go here and will safely be run on the next digest.
+                $('#multiselect').selectpicker("refresh");
+               
+              })
+           
+            
+        }
+
+        $scope.cbxTipoBloqueosJugadaChanged = function(){
+           
+               $scope.datos.bloqueoJugada.bancas = [];
+
+               $timeout(function() {
+                // anything you want can go here and will safely be run on the next digest.
+                $('#multiselect').selectpicker("refresh");
+               
+              })
+           
+            
+        }
+
 
 
         $scope.ckbPermisosAdicionales_changed = function(check, d){
@@ -519,6 +599,48 @@ var myApp = angular
                         
                         $scope.datos.loterias[idx].seleccionado = true;
                         $('#btnLoteria'+ idx).addClass('active2');
+                        console.log("rbxLoteriasChanged false, select: ",$scope.datos.loterias[idx].seleccionado , " hasClass ", $('#optionLabel'+ idx).hasClass('active'), ' index: ', idx);
+               
+                    }
+            }
+
+
+            
+
+            console.log("rbxLoteriasChanged, hasClass ", $('#optionLabel'+ idx).hasClass('active'), ' index: ', idx);
+               
+        }
+
+        $scope.rbxLoteriasJugadasChanged = function(d, idx){
+
+            $('#optionLabel'+ idx).removeClass('focus');
+            
+            if($scope.datos.loterias.find(x => x.id == d.id) != undefined){
+                let idx = $scope.datos.loterias.findIndex(x => x.id == d.id);
+                if($scope.datos.bloqueoJugada.loterias[idx].seleccionado == true){
+                    $scope.datos.bloqueoJugada.loterias[idx].seleccionado = false;
+                    console.log("rbxLoteriasChanged false, select: ",$scope.datos.loterias[idx].seleccionado , " hasClass ", $('#optionLabel'+ idx).hasClass('active'), ' index: ', idx);
+                    $('#btnLoteriaJugada'+ idx).removeClass('active2');
+                   
+                    // if($('#optionLabel'+ idx).hasClass('active2'))
+                    //     {
+                    //         $('#optionLabel'+ idx).removeClass('active2');
+                    //         $('#optionLabel'+ idx).removeClass('active');
+                    //         $('#optionLabel'+ idx).removeClass('focus');
+                    //     }
+                }
+                else
+                    {
+                        // $('#optionLabel'+ idx).addClass('active2');
+                        // if($('#optionLabel'+ idx).hasClass('active2') == false)
+                        //     {
+                        //         $('#optionLabel'+ idx).addClass('active2');
+                        //         $('#optionLabel'+ idx).removeClass('focus');
+                        //         $('#optionLabel'+ idx).removeClass('active');
+                        //     }
+                        
+                        $scope.datos.bloqueoJugada.loterias[idx].seleccionado = true;
+                        $('#btnLoteriaJugada'+ idx).addClass('active2');
                         console.log("rbxLoteriasChanged false, select: ",$scope.datos.loterias[idx].seleccionado , " hasClass ", $('#optionLabel'+ idx).hasClass('active'), ' index: ', idx);
                
                     }

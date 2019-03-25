@@ -62,6 +62,43 @@ class Branches extends Model
         return $this->hasMany('App\Commissions', 'idBanca');
     }
 
+    public function loteriaExiste($idLoteria){
+        if($this->loterias()->wherePivot('idLoteria', $idLoteria)->first() != null)
+            return true;
+        else
+            return false;
+    }
+
+    public function cerrada(){
+        $cerrado = false;
+        $fecha = getdate();
+        $hora = explode(':',$this->dias()->whereWday($fecha['wday'])->first()->pivot->horaCierre);
+        if((int)$fecha['hours'] > (int)$hora[0])
+            $cerrado = true;
+        else if((int)$hora[0] == (int)$fecha['hours']){
+            //Validamos si los minutos actuales son mayores que los minutos horaCierre  
+            if((int)$fecha['minutes'] > (int)$hora[1])
+                $cerrado = true;
+        }
+
+        return $cerrado;
+    }
+
+
+    public function abierta(){
+        $abierta = false;
+        $fecha = getdate();
+        $hora = explode(':',$this->dias()->whereWday($fecha['wday'])->first()->pivot->horaApertura);
+        if((int)$fecha['hours'] > (int)$hora[0])
+            $abierta = true;
+        else if((int)$hora[0] == (int)$fecha['hours']){
+            //Validamos si los minutos actuales son mayores que los minutos horaCierre  
+            if((int)$fecha['minutes'] > (int)$hora[1])
+                $abierta = true;
+        }
+
+        return $abierta;
+    }
    
 
 }

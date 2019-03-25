@@ -59,19 +59,35 @@
 
              <div class="col-12 text-center">
               <h3 class="card-title">
-                Horario normal
+                Bloqueos
               </h3>
             </div> <!-- END COL-12 -->
             </div> <!-- END ROW -->
            
           </div><!-- END CARD HEADER -->
-        
+          <div class="wizard-navigation">
+            <ul class="nav nav-pills">
+              <li ng-init="tabActiva = 1" class="nav-item">
+                <a class="nav-link" href="#buscar" data-toggle="tab" role="tab">
+                  Buscar
+                </a>
+              </li>
+              <li class="nav-item">
+                <a ng-click="tabActiva = 2" class="nav-link" href="#loterias" data-toggle="tab" role="tab">
+                  Loterias
+                </a>
+              </li>
+              <li class="nav-item">
+                <a ng-click="tabActiva = 3" class="nav-link" href="#jugadas" data-toggle="tab" role="tab">
+                  Jugadas
+                </a>
+              </li>
+            </ul>
+          </div>
           <div class="card-body">
-            <div class="">
+            <div class="tab-content">
               
-            
-
-              <div class="" id="horarios">
+              <div class="tab-pane active" id="buscar">
                 <!-- <h5 class="info-text"> What are you doing? (checkboxes) </h5> -->
                 <div class="row justify-content-center">
                   <div class="col-lg-12">
@@ -90,6 +106,105 @@
                       <div class="row">
                       
 
+                          
+
+                            
+                            <div class="col-12 text-center">
+                            <div class="input-group">
+                              
+                              <label class="d-none d-sm-block text-right col-sm-3 col-form-label  font-weight-bold " style="color: black;">Tipo regla</label>                              
+
+                                <div  class=" col-sm-8 col-10">
+                                <select 
+                                    ng-change="cbxTipoBloqueosChanged()"
+                                    ng-model="datos.selectedTipoBloqueos"
+                                    ng-options="o.descripcion for o in datos.optionsTipoBloqueos"
+                                    class="selectpicker col-12" 
+                                    data-style="select-with-transition" 
+                                    title="Select tipo regla">
+                              </select>
+                              </div>
+                            </div> <!-- END INPUT GROUP -->
+                          </div>
+                          
+
+                          <div ng-show="datos.selectedTipoBloqueos.idTipoBloqueo == 2" class="col-12 text-center">
+                            <div class="input-group">
+                              
+                              <label class="d-none d-sm-block text-right col-sm-3 col-form-label  font-weight-bold " style="color: black;">Bancas</label>                              
+
+                                <div  class=" col-sm-8 col-10">
+                                  <select 
+                                  id="multiselect"
+                                      ng-model="datos.bancas"
+                                      ng-options="o.descripcion for o in datos.optionsBancas track by o.id"
+                                      class="selectpicker col-12" 
+                                      data-style="select-with-transition" 
+                                      multiple title="Seleccionar bancas"
+                                      data-size="7" aria-setsize="2">
+                                  </select>
+                              </div>
+                            </div> <!-- END INPUT GROUP -->
+                          </div>
+
+                        <div class="col-12 col-md-2 ">
+                          <div class="row justify-content-center">
+
+                            <div class="col-12 ">
+                              <h3>Dias</h3>
+                            </div>
+
+                            <div class="col-sm-12 checkbox-radios">
+
+                              
+                              <div ng-repeat="d in datos.ckbDias" class="form-check form-check-inline">
+                                <label class="form-check-label">
+                                  <input ng-model="d.existe" ng-change="ckbDias_changed(ckbDias, d)" class="form-check-input" type="checkbox" value=""> @{{d.descripcion}}
+                                  <span class="form-check-sign">
+                                    <span class="check"></span>
+                                  </span>
+                                </label>
+                              </div>
+
+
+
+                            </div>
+                          </div> <!-- END ROW -->
+                        </div> <!-- END COL-4 -->
+                        
+                        <div class="col-8">
+
+                        <div class="row justify-content-center">
+                        
+                              <h3>Monto</h3>
+                            
+                        </div>
+
+                          <div ng-repeat="d in datos.sorteos" class="row my-0 justify-content-center">
+                            <div class="col-8">
+                                <div class="row my-0">
+                                  <label class="d-none d-sm-block text-right col-sm-3 col-form-label font-weight-bold mt-2" style="color: black;">@{{d.descripcion}}</label>
+                                  <div class="col-sm-5">
+                                    <div class="form-group">
+                                    <input ng-model="datos.sorteos[$index].monto" type="text"  name="@{{d.descripcion}}" id="@{{d.descripcion}}" type="text" class="form-control" >
+                                    </div>
+                                  </div>
+                                </div>
+                              </div> <!-- END COL-6 -->
+                          </div> <!-- END ROW -->
+
+                          
+                        
+                        </div> <!-- END COL-8 SORTEOS -->
+
+                        
+
+                      </div> <!-- END ROW -->
+
+                      <div class="row justify-content-center">
+                          <div class="col-12 text-center">
+                            <h3>Loterias</h3>
+                          </div>
                           <div class="col-12 text-center">
                                 <style>
                                   .btn-outline-info.active2{
@@ -126,6 +241,79 @@
                                       <!-- ng-init="rbxLoteriasChanged(l, $first)" -->
                                 
                               </div><!-- END COL-12 -->
+                        </div> <!-- END ROW LOTERIAS -->
+
+
+                        </form>
+
+                      </div> <!-- END DIV FORMULARIO -->
+
+
+                      
+                    </div> <!-- END ROW SECUNDARIO PRINCIPAL -->
+                  </div> <!-- END COL PRINCIPAL -->
+                </div> <!-- END ROW PRINCIPAL -->
+              </div> <!-- END TAB 3 -->
+
+              <div class="tab-pane " id="loterias">
+                <!-- <h5 class="info-text"> What are you doing? (checkboxes) </h5> -->
+                <div class="row justify-content-center">
+                  <div class="col-lg-12">
+                    <div class="row justify-content-center">
+
+                   
+                    
+                    
+                   
+
+                      <div class="col-12">
+                        <form novalidate>
+
+                        
+
+                      <div class="row">
+                      
+
+                          
+
+                            
+                            <div class="col-12 text-center">
+                            <div class="input-group">
+                              
+                              <label class="d-none d-sm-block text-right col-sm-3 col-form-label  font-weight-bold " style="color: black;">Tipo regla</label>                              
+
+                                <div  class=" col-sm-8 col-10">
+                                <select 
+                                    ng-change="cbxTipoBloqueosChanged()"
+                                    ng-model="datos.selectedTipoBloqueos"
+                                    ng-options="o.descripcion for o in datos.optionsTipoBloqueos"
+                                    class="selectpicker col-12" 
+                                    data-style="select-with-transition" 
+                                    title="Select tipo regla">
+                              </select>
+                              </div>
+                            </div> <!-- END INPUT GROUP -->
+                          </div>
+                          
+
+                          <div ng-show="datos.selectedTipoBloqueos.idTipoBloqueo == 2" class="col-12 text-center">
+                            <div class="input-group">
+                              
+                              <label class="d-none d-sm-block text-right col-sm-3 col-form-label  font-weight-bold " style="color: black;">Bancas</label>                              
+
+                                <div  class=" col-sm-8 col-10">
+                                  <select 
+                                  id="multiselect"
+                                      ng-model="datos.bancas"
+                                      ng-options="o.descripcion for o in datos.optionsBancas track by o.id"
+                                      class="selectpicker col-12" 
+                                      data-style="select-with-transition" 
+                                      multiple title="Seleccionar bancas"
+                                      data-size="7" aria-setsize="2">
+                                  </select>
+                              </div>
+                            </div> <!-- END INPUT GROUP -->
+                          </div>
 
                         <div class="col-12 col-md-2 ">
                           <div class="row justify-content-center">
@@ -152,59 +340,76 @@
                           </div> <!-- END ROW -->
                         </div> <!-- END COL-4 -->
                         
-                        <div class="col-12 col-sm-10">
-                          <div ng-click="actualizarHoraAperturaCierre()" class="row justify-content-center">
+                        <div class="col-8">
 
-                              
-
-                        <div class="row" ng-if="existeSorteo('Directo')">
-                    <div class="col-8">
-                        <div class="row mt-2">
-                          <label class="d-none d-sm-block text-right col-sm-3 col-form-label font-weight-bold mt-2" style="color: black;">Directo</label>
-                          <div class="col-sm-5">
-                            <div class="form-group">
-                            <input ng-model="datos.ckbLoterias[datos.indexLoteriaComisiones].comisiones.directo" type="text"  name="directo" id="directo" type="text" class="form-control" >
-                            </div>
-                          </div>
+                        <div class="row justify-content-center">
+                        
+                              <h3>Monto</h3>
+                            
                         </div>
-                      </div> <!-- END COL-6 -->
-                   </div> <!-- END ROW -->
 
-                   <div class="row" ng-if="existeSorteo('Pale')">
-                    <div class="col-8">
-                        <div class="row mt-2">
-                          <label class="d-none d-sm-block text-right col-sm-3 col-form-label font-weight-bold mt-2" style="color: black;">Pale</label>
-                          <div class="col-sm-5">
-                            <div class="form-group">
-                            <input ng-model="datos.ckbLoterias[datos.indexLoteriaComisiones].comisiones.pale" type="text"  name="pale" id="pale" type="text" class="form-control" >
-                            </div>
-                          </div>
-                        </div>
-                      </div> <!-- END COL-6 -->
-                   </div> <!-- END ROW -->
-
-                   <div class="row" ng-if="existeSorteo('Tripleta')">
-                    <div class="col-8">
-                        <div class="row mt-2">
-                          <label class="d-none d-sm-block text-right col-sm-3 col-form-label font-weight-bold mt-2" style="color: black;">Tripleta</label>
-                          <div class="col-sm-5">
-                            <div class="form-group">
-                            <input ng-model="datos.ckbLoterias[datos.indexLoteriaComisiones].comisiones.tripleta" type="text"  name="tripleta" id="tripleta" type="text" class="form-control" >
-                            </div>
-                          </div>
-                        </div>
-                      </div> <!-- END COL-6 -->
-                   </div> <!-- END ROW -->
-                              
-
-
+                          <div ng-repeat="d in datos.sorteos" class="row my-0 justify-content-center">
+                            <div class="col-8">
+                                <div class="row my-0">
+                                  <label class="d-none d-sm-block text-right col-sm-3 col-form-label font-weight-bold mt-2" style="color: black;">@{{d.descripcion}}</label>
+                                  <div class="col-sm-5">
+                                    <div class="form-group">
+                                    <input ng-model="datos.sorteos[$index].monto" type="text"  name="@{{d.descripcion}}" id="@{{d.descripcion}}" type="text" class="form-control" >
+                                    </div>
+                                  </div>
+                                </div>
+                              </div> <!-- END COL-6 -->
+                          </div> <!-- END ROW -->
 
                           
+                        
+                        </div> <!-- END COL-8 SORTEOS -->
 
-                          </div>
-                        </div> <!-- END COL-6 -->
+                        
 
                       </div> <!-- END ROW -->
+
+                      <div class="row justify-content-center">
+                          <div class="col-12 text-center">
+                            <h3>Loterias</h3>
+                          </div>
+                          <div class="col-12 text-center">
+                                <style>
+                                  .btn-outline-info.active2{
+                                    background-color: #00bcd4!important;
+                                    color: #fff!important;
+                                  }
+
+                                  .btn-group-toggle > .btn,
+                                    .btn-group-toggle2 > .btn-group > .btn {
+                                    margin-bottom: 0;
+                                    }
+
+                                    .btn-group-toggle2 > .btn input[type="radio"],
+                                    .btn-group-toggle2 > .btn input[type="checkbox"],
+                                    .btn-group-toggle2 > .btn-group > .btn input[type="radio"],
+                                    .btn-group-toggle2 > .btn-group > .btn input[type="checkbox"] {
+                                    position: absolute;
+                                    clip: rect(0, 0, 0, 0);
+                                    pointer-events: none;
+                                    }
+
+                                </style>
+                                <div class="btn-group btn-group-sm">
+                                    <button 
+                                    ng-repeat="l in datos.loterias"
+                                    ng-class="{'active2': l.seleccionada == 'true'}"
+                                    ng-click="rbxLoteriasChanged(l, $index)"
+                                    id="btnLoteria@{{$index}}"
+                                    type="button" 
+                                    class="btn btn-outline-info">@{{l.descripcion}}</button>
+                                    <!-- <button type="button" class="btn btn-outline-info">6</button>
+                                    <button type="button" class="btn btn-outline-info">7</button> -->
+                                </div>
+                                      <!-- ng-init="rbxLoteriasChanged(l, $first)" -->
+                                
+                              </div><!-- END COL-12 -->
+                        </div> <!-- END ROW LOTERIAS -->
 
 
                         </form>
@@ -219,6 +424,182 @@
               </div> <!-- END TAB 3 -->
               
           
+              <div class="tab-pane " id="jugadas">
+                <!-- <h5 class="info-text"> What are you doing? (checkboxes) </h5> -->
+                <div class="row justify-content-center">
+                  <div class="col-lg-12">
+                    <div class="row justify-content-center">
+
+                   
+                    
+                    
+                   
+
+                      <div class="col-12">
+                        <form novalidate>
+
+                        
+
+                      <div class="row justify-content-center">
+                      
+
+                          
+
+                            
+                            <div class="col-12 text-center">
+                            <div class="input-group">
+                              
+                              <label class="d-none d-sm-block text-right col-sm-3 col-form-label  font-weight-bold " style="color: black;">Tipo regla</label>                              
+
+                                <div  class=" col-sm-8 col-10">
+                                <select 
+                                    ng-change="cbxTipoBloqueosJugadaChanged()"
+                                    ng-model="datos.bloqueoJugada.selectedTipoBloqueos"
+                                    ng-options="o.descripcion for o in datos.bloqueoJugada.optionsTipoBloqueos"
+                                    class="selectpicker col-12" 
+                                    data-style="select-with-transition" 
+                                    title="Select tipo regla">
+                              </select>
+                              </div>
+                            </div> <!-- END INPUT GROUP -->
+                          </div>
+                          
+
+                          <div ng-show="datos.bloqueoJugada.selectedTipoBloqueos.idTipoBloqueo == 2" class="col-12 text-center">
+                            <div class="input-group">
+                              
+                              <label class="d-none d-sm-block text-right col-sm-3 col-form-label  font-weight-bold " style="color: black;">Bancas</label>                              
+
+                                <div  class=" col-sm-8 col-10">
+                                  <select 
+                                  id="multiselect"
+                                      ng-model="datos.bancas"
+                                      ng-options="o.descripcion for o in datos.bloqueoJugada.optionsBancas track by o.id"
+                                      class="selectpicker col-12" 
+                                      data-style="select-with-transition" 
+                                      multiple title="Seleccionar bancas"
+                                      data-size="7" aria-setsize="2">
+                                  </select>
+                              </div>
+                            </div> <!-- END INPUT GROUP -->
+                          </div>
+
+                          
+
+                          <div class="col-6">
+
+                          <div class="col-12 text-center">
+                            <h3>Datos</h3>
+                          </div>
+
+                            <div class="row justify-content-center">
+                              <div class="col-6">
+                                  <div id="divInputFechaDesde" class="form-group">
+                                      <label  for="jugada" class="bmd-label-floating">Fecha inicio</label>
+                                      <input ng-model="datos.bloqueoJugada.fechaDesde" id="fechaDesde" type="date" class="form-control" value="10/06/2018" required>
+                                  </div>
+                              </div>
+
+                              <div class="col-6">
+                                  <div id="divInputFechaHasta" class="form-group">
+                                      <label for="jugada" class="bmd-label-floating">Fecha fin</label>
+                                      <input ng-model="datos.bloqueoJugada.fechaHasta"  id="fechaHasta" type="date" class="form-control" value="10/06/2018" required>
+                                  </div>
+                              </div>
+
+                              
+
+                              <div class="col-12 col-md-12">
+                                  <div id="divInputJugada" class="form-group">
+                                                <label  for="jugada" class="bmd-label-floating">Jugada</label>
+                                                <input 
+                                                    ng-model="datos.bloqueoJugada.jugada"
+                                                    autocomplete="off"
+                                                    class="form-control h4" 
+                                                    id="inputJugada" 
+                                                    type="text" name="text" 
+                                                    minLength="2" maxLength="6"  />
+                                            </div>
+                              </div>
+
+                              <div class="col-12 col-md-12">
+                                  <div id="divInputJugada" class="form-group">
+                                                <label  for="jugada" class="bmd-label-floating">Monto</label>
+                                                <input 
+                                                    ng-model="datos.bloqueoJugada.monto"
+                                                    autocomplete="off"
+                                                    class="form-control h4" 
+                                                    type="text" name="text" 
+                                                />
+                                            </div>
+                              </div>
+
+                              
+
+                            </div> <!-- END ROW JUGADAS -->
+                          
+                          
+                          </div> <!-- END COL-8 JUGADAS -->
+                                
+                         
+
+                        
+
+                      </div> <!-- END ROW -->
+
+                      <div class="row justify-content-center">
+                          <div class="col-12 text-center">
+                            <h3>Loterias</h3>
+                          </div>
+                          <div class="col-12 text-center">
+                                <style>
+                                  .btn-outline-info.active2{
+                                    background-color: #00bcd4!important;
+                                    color: #fff!important;
+                                  }
+
+                                  .btn-group-toggle > .btn,
+                                    .btn-group-toggle2 > .btn-group > .btn {
+                                    margin-bottom: 0;
+                                    }
+
+                                    .btn-group-toggle2 > .btn input[type="radio"],
+                                    .btn-group-toggle2 > .btn input[type="checkbox"],
+                                    .btn-group-toggle2 > .btn-group > .btn input[type="radio"],
+                                    .btn-group-toggle2 > .btn-group > .btn input[type="checkbox"] {
+                                    position: absolute;
+                                    clip: rect(0, 0, 0, 0);
+                                    pointer-events: none;
+                                    }
+
+                                </style>
+                                <div class="btn-group btn-group-sm">
+                                    <button 
+                                    ng-repeat="l in datos.bloqueoJugada.loterias"
+                                    ng-class="{'active2': l.seleccionada == 'true'}"
+                                    ng-click="rbxLoteriasJugadasChanged(l, $index)"
+                                    id="btnLoteriaJugada@{{$index}}"
+                                    type="button" 
+                                    class="btn btn-outline-info">@{{l.descripcion}}</button>
+                                    <!-- <button type="button" class="btn btn-outline-info">6</button>
+                                    <button type="button" class="btn btn-outline-info">7</button> -->
+                                </div>
+                                      <!-- ng-init="rbxLoteriasChanged(l, $first)" -->
+                                
+                              </div><!-- END COL-12 -->
+                        </div> <!-- END ROW LOTERIAS -->
+
+
+                        </form>
+
+                      </div> <!-- END DIV FORMULARIO -->
+
+
+                      
+                    </div> <!-- END ROW SECUNDARIO PRINCIPAL -->
+                  </div> <!-- END COL PRINCIPAL -->
+                </div> <!-- END ROW PRINCIPAL -->
+              </div> <!-- END TAB 3 -->
 
             
 
@@ -226,8 +607,12 @@
             </div>
           </div>
           <div class="card-footer">
-            <div ng-show="!mostrarBloqueosJugadas" class="row justify-content-end w-100">
+            <div ng-show="tabActiva == 2" class="row justify-content-end w-100">
               <input ng-click="actualizar()" type="button" class="btn btn-info " name="guardar" value="Guardar">
+            </div>
+
+            <div ng-show="tabActiva == 3" class="row justify-content-end w-100">
+              <input ng-click="actualizarJugadas()" type="button" class="btn btn-success " name="guardar" value="Guardar">
             </div>
             
           </div>

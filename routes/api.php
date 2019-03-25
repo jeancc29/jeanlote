@@ -27,6 +27,8 @@ use App\Http\Resources\BranchesResource;
 use App\Http\Resources\RolesResource;
 use App\Http\Resources\UsersResource;
 
+use Illuminate\Support\Facades\Crypt;
+
 date_default_timezone_set("America/Santiago");
 
 
@@ -51,10 +53,10 @@ Route::get('/principal', function(){
     // return TaskResource::collection(Task::all());
     
     $fecha = getdate();
-    $idVentas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+    $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
             ->where('status', '!=', 0)->get();
 
-    $idVentas = collect($idVentas)->map(function($id){
+    $idVentas = collect($ventas)->map(function($id){
         return $id->id;
     });
 
@@ -62,7 +64,10 @@ Route::get('/principal', function(){
         'loterias' => Lotteries::whereStatus(1)->get(),
         'caracteristicasGenerales' =>  Generals::all(),
         'total_ventas' => Sales::whereIn('id', $idVentas)->sum('total'),
-        'total_jugadas' => Salesdetails::whereIn('idVenta', $idVentas)->count('jugada')
+        'total_jugadas' => Salesdetails::whereIn('idVenta', $idVentas)->count('jugada'),
+        'ventas' => SalesResource::collection($ventas),
+        'Cerrado' => Lotteries::whereId(1)->first()->cerrada(),
+        // 'abierta' => Lotteries::whereId(1)->first()->abierta()
     ], 201);
 });
 
@@ -74,12 +79,15 @@ Route::post('/principal/montodisponible', function(){
     
     $datos = request()->validate([
         'datos.jugada' => 'required|min:2|max:6',
-        'datos.idLoteria' => 'required'
+        'datos.idLoteria' => 'required',
+        'datos.idBanca' => 'required'
     ])['datos'];
 
     $fecha = getdate();
     $idSorteo = 0;
     $bloqueo = 0;
+
+    $idDia = Days::whereWday($fecha['wday'])->first()->id;
 
     
 
@@ -93,13 +101,18 @@ Route::post('/principal/montodisponible', function(){
         $idSorteo = 3;
    }
 
-   $bloqueo = Stock::where(['idLoteria' => $datos['idLoteria'], 'jugada' => $datos['jugada']])
+   $bloqueo = Stock::where([   
+       'idLoteria' => $datos['idLoteria'], 
+       'idBanca' => $datos['idBanca'], 
+       'jugada' => $datos['jugada']
+    ])
    ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))->value('monto');
    
 //Verificamos que la variable $stock no sea nula
 if($bloqueo == null){
     $bloqueo = Blocksplays::where(
         [
+            'idBanca' => $datos['idBanca'],
             'idLoteria' => $datos['idLoteria'], 
             'jugada' => $datos['jugada'],
             'status' => 1
@@ -109,7 +122,9 @@ if($bloqueo == null){
 
     if($bloqueo == null){
         $bloqueo = Blockslotteries::where([
+            'idBanca' => $datos['idBanca'], 
             'idLoteria' => $datos['idLoteria'], 
+            'idDia' => $idDia,
             'idSorteo' => $idSorteo
         ])->value('monto');
     }
@@ -123,6 +138,7 @@ if($bloqueo == null){
         'monto' => $bloqueo
     ], 201);
 });
+
 
 
 Route::post('/principal/guardar', function(Faker $faker){
@@ -151,6 +167,43 @@ Route::post('/principal/guardar', function(Faker $faker){
     $mensaje = '';
     $codigoBarra = '';
     $sale = null;
+    $idDia = Days::whereWday($fecha['wday'])->first()->id;
+
+    $usuario = Users::whereId($datos['idUsuario'])->first();
+    if(!$usuario->tienePermiso('Vender tickets')){
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'No tiene permisos para realizar esta accion'
+        ], 201);
+    }
+
+    if(!$usuario->esBancaAsignada($datos['idBanca'])){
+        if(!$usuario->tienePermiso('Jugar como cualquier banca')){
+            return Response::json([
+                'errores' => 1,
+                'mensaje' => 'No tiene permisos para realizar esta accion'
+            ], 201);
+        }
+    }
+
+
+    if(!Branches::whereId($datos['idBanca'])->first()->abierta()){
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'La banca aun no ha abierto'
+        ], 201);
+    }
+
+    if(Branches::whereId($datos['idBanca'])->first()->cerrada()){
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'La banca ha cerrado'
+        ], 201);
+    }
+
+    
+
+   
 
     //Generamos y guardamos codigo de barra
     while($codigoBarraCorrecto != true){
@@ -182,52 +235,52 @@ Route::post('/principal/guardar', function(Faker $faker){
                 $idSorteo = 3;
            }
 
-           
+           $loteria = Lotteries::whereId($d['idLoteria'])->first();
+
+           if(Branches::whereId($datos['idBanca'])->first()->loteriaExiste($loteria->id) == false){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'La loteria ' . $loteria->descripcion . ' no esta permitida en esta banca'
+                ], 201);
+            }
+
+           if(!$loteria->sorteoExiste($d['jugada'])){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'El sorteo no existe para la loteria' . $loteria->descripcion
+                ], 201);
+            }
+
+           if(!$loteria->abreHoy()){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'La loteria' . $loteria->descripcion . ' no habre hoy'
+                ], 201);
+            }
+
+           if(!$loteria->abierta()){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'La loteria' . $loteria->descripcion . ' aun no ha abierto'
+                ], 201);
+            }
+        
+            if($loteria->cerrada()){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'La loteria' . $loteria->descripcion . ' ha cerrado'
+                ], 201);
+            }
+    
 
            //Obtenemos los datos correspondiente a la loteria y jugada dada que estan en la tabla inventario (stcoks)
-           $stock = Stock::where(['idLoteria' => $d['idLoteria'], 'jugada' => $d['jugada']])
+           $stock = Stock::where([
+                'idBanca' => $datos['idBanca'], 
+                'idLoteria' => $d['idLoteria'], 
+                'jugada' => $d['jugada']])
                 ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))->first();
                
-                /************* VALIDAMOS DIAS DE LA LOTERIA ***************/
-                $loteria = Lotteries::whereId($d['idLoteria'])->get()->first();
-
-                $loteriaWday = $loteria->dias()->whereWday(getdate()['wday'])->get()->first();
-                if($loteriaWday == null){
-                    $errores = 1;
-                    $mensaje = 'La loteria ' . $loteria['descripcion'] .' no abre este dia ';
-                    break;
-                }
-                /************* END VALIDAMOS DIAS DE LA LOTERIA ***************/
-
-                //Obtenemos la fecha actual y la hora de cierre de la loteria
-                $fechaActual = getdate();
-                $horaCierre = $loteria->dias()->whereWday(getdate()['wday'])->first()->pivot->horaCierre;
-
                
-            
-                //Convertimos la hora de cierre en una fecha completa
-                $horaCierreFecha = getdate(strtotime($fechaActual['year'] .'-'. $fechaActual['mon'] . '-' . $fechaActual['mday'] . ' '. $horaCierre));
-                $horaCierre = explode(':', $horaCierre);
-            
-                //Convertimos la hora y minutos en segundo y despues lo sumamos
-                // $sumHoraMinutosActual = ($fechaActual['hours'] *  3600) + ($fechaActual['minutes'] *  60);
-                // $sumHoraMinutosCierre = ($horaCierreFecha['hours'] *  3600) + ($horaCierreFecha['minutes'] *  60);
-                $sumHoraMinutosActual = ($fechaActual['hours'] *  3600) + ($fechaActual['minutes'] *  60);
-                $sumHoraMinutosCierre = ((int)$horaCierre[0] *  3600) + ((int)$horaCierre[1] *  60);
-
-                // if(!($sumHoraMinutosActual <  $sumHoraMinutosCierre)){
-                //     return Response::json([
-                //         'errores' => 1,
-                //         'mensaje' => $mensaje,
-                //         'fecha' => $horaCierreFecha,
-                //         'horaCierre' => explode(':', $horaCierre),
-                //         'minCierre' => $sumHoraMinutosCierre,
-                //         'minActual' => $sumHoraMinutosActual
-                //     ], 201);
-                // }
-
-        //Si la variable $sumHoraMinutosActual es menor que la variable $sumHoraMinutosCierre entonces la loteria no ha cerrado
-        if($sumHoraMinutosActual <  $sumHoraMinutosCierre){
            //Verificamos que la variable $stock no sea nula
            if($stock != null){
                //Si el monto en la variable $stock es menor que el monto que se jugara entonces no hay exitencia suficiente
@@ -240,7 +293,9 @@ Route::post('/principal/guardar', function(Faker $faker){
 
                 //Obtenemos el stock de la jugada en el bloqueo jugada
                 $stock = Blocksplays::where(
-                    ['idLoteria' => $d['idLoteria'], 
+                    [
+                    'idBanca' => $datos['idBanca'],
+                    'idLoteria' => $d['idLoteria'], 
                     'jugada' => $d['jugada'], 'status' => 1])
                     ->where('fechaDesde', '<=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00')
                     ->where('fechaHasta', '>=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00')->first();
@@ -256,7 +311,9 @@ Route::post('/principal/guardar', function(Faker $faker){
                 }else{
                     //Como la variable $stock esta nula porque no se encontro bloqueo de la jugada entonces vamos a obtener el bloqueo de la loteria para el sorteo
                     $stock = Blockslotteries::where([
+                        'idBanca' => $datos['idBanca'],
                         'idLoteria' => $d['idLoteria'], 
+                        'idDia' => $fecha['wday'],
                         'idSorteo' => $idSorteo
                     ])->first();
 
@@ -279,12 +336,6 @@ Route::post('/principal/guardar', function(Faker $faker){
 
            }
            
-        }else{
-            $errores = 1;
-            $mensaje = 'La loteria ' . $d['descripcion'] .' ha cerrado ' . ' cierre '. $horaCierreFecha['hours'];
-            break;
-        } //END VALIDACION HORA CIERRE
-
         }
     //}
 
@@ -324,7 +375,7 @@ if($errores == 0){
             $idSorteo = 3;
        }
 
-       $stock = Stock::where(['idLoteria' => $d['idLoteria'], 'jugada' => $d['jugada']])
+       $stock = Stock::where(['idLoteria' => $d['idLoteria'],'idBanca' => $datos['idBanca'], 'jugada' => $d['jugada']])
                 ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))->first();
                 
            //Verificamos que la variable $stock no sea nula
@@ -335,7 +386,8 @@ if($errores == 0){
            }else{
                //Obtenemos el stock de la tabla bloqueo jugadas
                 $stock = Blocksplays::where(
-                    ['idLoteria' => $d['idLoteria'], 
+                    ['idBanca' => $datos['idBanca'], 
+                    'idLoteria' => $d['idLoteria'],
                     'jugada' => $d['jugada'], 'status' => 1])
                     ->where('fechaDesde', '<=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00')
                     ->where('fechaHasta', '>=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00')->first();
@@ -344,6 +396,7 @@ if($errores == 0){
                 if($stock != null){
                     //Si el monto en la variable $stock es mejor que el monto que se jugara entonces no hay exitencia suficiente
                     Stock::create([
+                        'idBanca' => $datos['idBanca'],
                         'idLoteria' => $d['idLoteria'],
                         'idSorteo' => $idSorteo,
                         'jugada' => $d['jugada'],
@@ -352,11 +405,13 @@ if($errores == 0){
                     ]);
                 }else{
                     $stock = Blockslotteries::where([
+                        'idBanca' => $datos['idBanca'], 
                         'idLoteria' => $d['idLoteria'], 
                         'idSorteo' => $idSorteo
                     ])->first();
 
                     Stock::create([
+                        'idBanca' => $datos['idBanca'],
                         'idLoteria' => $d['idLoteria'],
                         'idSorteo' => $idSorteo,
                         'jugada' => $d['jugada'],
@@ -397,13 +452,21 @@ if($errores == 0){
 Route::post('/reportes/monitoreo/', function(){
     // return TaskResource::collection(Task::all());
 
-    $fecha = request()->validate([
-        'datos.fecha' => 'required'
+    $datos = request()->validate([
+        'datos.fecha' => 'required',
+        'datos.idUsuario' => 'required'
     ])['datos'];
 
+    $usuario = Users::whereId($datos['idUsuario'])->first();
+    if(!$usuario->tienePermiso("Monitorear ticket")){
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'No tiene permisos para realizar esta accion'
+        ], 201);
+    }
     
 
-    $fecha = getdate(strtotime($fecha['fecha']));
+    $fecha = getdate(strtotime($datos['fecha']));
 
     // $monitoreo = Sales::join('tickets', 'sales.idTicket', '=', 'tickets.id')
     //             ->join('branches', 'sales.idBanca', '=', 'branches.id')
@@ -643,6 +706,14 @@ Route::post('/principal/pagar/', function(){
         'datos.idUsuario' => 'required'
     ])['datos'];
 
+    $usuario = Users::whereId($datos['idUsuario'])->first();
+    if(!$usuario->tienePermiso("Marcar ticket como pagado")){
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'No tiene permisos para realizar esta accion'
+        ], 201);
+    }
+
     $fecha = getdate();
 
     $errores = 0;
@@ -689,6 +760,13 @@ Route::post('/principal/cancelar/', function(){
         'datos.idUsuario' => 'required'
     ])['datos'];
 
+    $usuario = Users::whereId($datos['idUsuario'])->first();
+    if(!$usuario->tienePermiso("Cancelar tickets en cualquier momento")){
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'No tiene permisos para realizar esta accion'
+        ], 201);
+    }
 
    //return $datos;
     $fecha = getdate();
@@ -1286,14 +1364,183 @@ Route::get('/bloqueos', function(){
 
 
         $loterias = Lotteries::whereStatus(1)->get();
+        $bancas = Branches::whereStatus(1)->get();
 
 
     return Response::json([
         'loterias' => LotteriesResource::collection($loterias),
+        'bancas' => BranchesResource::collection($bancas),
         'sorteos' => Draws::all(),
-        'bloqueos'
+        'dias' => Days::all()
     ], 201);
 });
+
+
+Route::post('/bloqueos/loteriasnuevo/guardar', function(){
+    // return TaskResource::collection(Task::all());
+
+    $datos = request()->validate([
+        'datos.loterias' => 'required',
+        'datos.sorteos' => 'required',
+        'datos.idUsuario' => 'required',
+        'datos.bancas' => 'required',
+        'datos.ckbDias' => 'required'
+    ])['datos'];
+
+
+        $loterias = collect($datos['loterias']);
+        list($loterias_seleccionadas, $no) = $loterias->partition(function($l){
+            return $l['seleccionado'] == true && Lotteries::where(['id' => $l['id'], 'status' => 1])->first() != null;
+        });
+
+        $sorteos = collect($datos['sorteos']);
+        list($sorteos_seleccionadas, $no) = $sorteos->partition(function($l){
+            return $l['monto'] != null && $l['monto'] >= 0 && isset($l['monto']);
+        });
+
+        $dias = collect($datos['ckbDias']);
+        list($dias_seleccionadas, $no) = $dias->partition(function($l){
+            return $l['existe'] == true;
+        });
+       
+    
+
+
+foreach($datos['bancas'] as $banca):
+    foreach($loterias_seleccionadas as $l):
+       
+        if(Branches::whereId($banca['id'])->first()->loterias()->wherePivot('idLoteria', $l['id'])->first() == null)
+                continue;
+
+               
+       
+        foreach($sorteos_seleccionadas as $s):
+            if(Lotteries::whereId($l['id'])->first()->sorteos()->wherePivot('idSorteo', $s['id'])->first() == null)
+                continue;
+
+               
+
+            foreach($dias_seleccionadas as $d):
+                
+                $bloqueo = Blockslotteries::where(
+                        [
+                            'idBanca' => $banca['id'], 
+                            'idLoteria' => $l['id'], 
+                            'idSorteo' => $s['id'],
+                            'idDia' => $d['id']
+                        ])->get()->first();
+
+                if($bloqueo != null){
+                    $bloqueo['monto'] = $s['monto'];
+                    $bloqueo->save();
+                }else{
+                    Blockslotteries::create([
+                        'idBanca' => $banca['id'],
+                        'idLoteria' => $l['id'],
+                        'idSorteo' => $s['id'],
+                        'idDia' => $d['id'],
+                        'monto' => $s['monto']
+                    ]);
+                }
+            endforeach; //End foreach dias
+        endforeach;//End foreach sorteos
+        endforeach; //End foreahc loterias
+    endforeach; //End foreach banca
+
+    $loterias = Lotteries::whereStatus(1)->get();
+        $bancas = Branches::whereStatus(1)->get();
+
+
+    return Response::json([
+        'loterias' => LotteriesResource::collection($loterias),
+        'bancas' => BranchesResource::collection($bancas),
+        'sorteos' => Draws::all(),
+        'dias' => Days::all(),
+        'errores' => 0,
+        'mensaje' => 'Se ha guardado correctamente'
+    ], 201);
+});
+
+
+Route::post('/bloqueos/jugadasnuevo/guardar', function(){
+    // return TaskResource::collection(Task::all());
+
+    $datos = request()->validate([
+        'datos.loterias' => 'required',
+        'datos.idUsuario' => 'required',
+        'datos.bancas' => 'required',
+        'datos.jugada' => 'required',
+        'datos.monto' => 'required',
+        'datos.fechaDesde' => 'required',
+        'datos.fechaHasta' => 'required',
+    ])['datos'];
+
+
+        $loterias = collect($datos['loterias']);
+        list($loterias_seleccionadas, $no) = $loterias->partition(function($l){
+            return $l['seleccionado'] == true && Lotteries::where(['id' => $l['id'], 'status' => 1])->first() != null;
+        });
+
+        $fechaDesde = getdate(strtotime($datos['fechaDesde']));
+        $fechaHasta = getdate(strtotime($datos['fechaHasta']));
+        $fecha = getdate();
+
+        $loterias = Lotteries::whereStatus(1)->get();
+        $bancas = Branches::whereStatus(1)->get();
+
+foreach($datos['bancas'] as $banca):
+    foreach($loterias_seleccionadas as $l):
+       
+        if(Branches::whereId($banca['id'])->first()->loterias()->wherePivot('idLoteria', $l['id'])->first() == null)
+                continue;
+
+               
+
+                $bloqueo = Blocksplays::where(
+                    [
+                        'idBanca' => $banca['id'], 
+                        'idLoteria' => $l['id'], 
+                        'jugada' => $datos['jugada'],
+                        'status' => 1
+                    ])
+                    ->where('fechaDesde', '<=', $fechaDesde['year'].'-'.$fechaDesde['mon'].'-'.$fechaDesde['mday'] . ' 00:00:00')
+                    ->where('fechaHasta', '>=', $fechaHasta['year'].'-'.$fechaHasta['mon'].'-'.$fechaHasta['mday'] . ' 23:50:00')->first();
+
+
+                if($bloqueo != null){
+                    $bloqueo['monto'] = $datos['monto'];
+                    $bloqueo->save();
+                }else{
+                    Blocksplays::create([
+                        'idBanca' => $banca['id'],
+                        'idLoteria' => $l['id'],
+                        'idSorteo' => 1,
+                        'jugada' => $datos['jugada'],
+                        'montoInicial' => $datos['monto'],
+                        'monto' => $datos['monto'],
+                        'fechaDesde' => $fechaDesde['year'].'-'.$fechaDesde['mon'].'-'.$fechaDesde['mday'] . ' 00:00:00',
+                        'fechaHasta' => $fechaHasta['year'].'-'.$fechaHasta['mon'].'-'.$fechaHasta['mday'] . ' 23:50:00',
+                        'idUsuario' => $datos['idUsuario'],
+                        'status' => 1
+                    ]);
+                }
+               
+      
+        endforeach; //End foreahc loterias
+    endforeach; //End foreach banca
+
+    $loterias = Lotteries::whereStatus(1)->get();
+        $bancas = Branches::whereStatus(1)->get();
+
+
+    return Response::json([
+        'loterias' => LotteriesResource::collection($loterias),
+        'bancas' => BranchesResource::collection($bancas),
+        'errores' => 0,
+        'mensaje' => 'Se ha guardado correctamente'
+    ], 201);
+});
+
 
 
 Route::post('/bloqueos/loterias/guardar', function(){
@@ -1307,40 +1554,47 @@ Route::post('/bloqueos/loterias/guardar', function(){
     ])['datos'];
 
 
-    $bloqueo = Blockslotteries::where(['idLoteria' => $datos['idLoteria'], 'idSorteo' => 1])->get()->first();
+        $bloqueo = Blockslotteries::where(['idLoteria' => $datos['idLoteria'], 'idSorteo' => 1])->get()->first();
 
-    if($bloqueo != null){
-        $bloqueo['monto'] = $datos['quiniela'];
-        $bloqueo->save();
+        if($bloqueo != null){
+            $bloqueo['monto'] = $datos['quiniela'];
+            $bloqueo->save();
 
-        $bloqueo = Blockslotteries::where(['idLoteria' => $datos['idLoteria'], 'idSorteo' => 2])->get()->first();
-        $bloqueo['monto'] = $datos['pale'];
-        $bloqueo->save();
+            $bloqueo = Blockslotteries::where(['idLoteria' => $datos['idLoteria'], 'idSorteo' => 2])->get()->first();
+            $bloqueo['monto'] = $datos['pale'];
+            $bloqueo->save();
 
-        $bloqueo = Blockslotteries::where(['idLoteria' => $datos['idLoteria'], 'idSorteo' => 3])->get()->first();
-        $bloqueo['monto'] = $datos['tripleta'];
-        $bloqueo->save();
-    }else{
-        Blockslotteries::create([
-            'idLoteria' => $datos['idLoteria'],
-            'idSorteo' => 1,
-            'monto' => $datos['quiniela']
-        ]);
+            $bloqueo = Blockslotteries::where(['idLoteria' => $datos['idLoteria'], 'idSorteo' => 3])->get()->first();
+            $bloqueo['monto'] = $datos['tripleta'];
+            $bloqueo->save();
+        }else{
+            Blockslotteries::create([
+                'idLoteria' => $datos['idLoteria'],
+                'idSorteo' => 1,
+                'monto' => $datos['quiniela']
+            ]);
 
-        Blockslotteries::create([
-            'idLoteria' => $datos['idLoteria'],
-            'idSorteo' => 2,
-            'monto' => $datos['pale']
-        ]);
-        Blockslotteries::create([
-            'idLoteria' => $datos['idLoteria'],
-            'idSorteo' => 3,
-            'monto' => $datos['tripleta']
-        ]);
-    }
+            Blockslotteries::create([
+                'idLoteria' => $datos['idLoteria'],
+                'idSorteo' => 2,
+                'monto' => $datos['pale']
+            ]);
+            Blockslotteries::create([
+                'idLoteria' => $datos['idLoteria'],
+                'idSorteo' => 3,
+                'monto' => $datos['tripleta']
+            ]);
+        }
+
+        $loterias = Lotteries::whereStatus(1)->get();
+        $bancas = Branches::whereStatus(1)->get();
 
 
     return Response::json([
+        'loterias' => LotteriesResource::collection($loterias),
+        'bancas' => BranchesResource::collection($bancas),
+        'sorteos' => Draws::all(),
+        'dias' => Days::all(),
         'errores' => 0,
         'mensaje' => 'Se ha guardado correctamente'
     ], 201);
@@ -1520,7 +1774,13 @@ Route::post('/bancas/guardar', function(){
     $mensaje = '';
 
     
-    
+    $usuario = Users::whereId($datos['idUsuario'])->first();
+    if(!$usuario->tienePermiso('Manejar bancas')){
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'No tiene permisos para realizar esta accion'
+        ], 201);
+    }
 
    
     $banca = Branches::whereId($datos['id'])->get()->first();
@@ -1752,6 +2012,14 @@ Route::post('/usuarios/guardar', function(){
     ])['datos'];
 
 
+    $usuario = Users::whereId($datos['idUsuario'])->first();
+    if(!$usuario->tienePermiso('Manejar usuarios')){
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'No tiene permisos para realizar esta accion'
+        ], 201);
+    }
+
     $errores = 0;
     $mensaje = '';
 
@@ -1772,7 +2040,7 @@ Route::post('/usuarios/guardar', function(){
 
         if(!empty($datos['password']) && !empty($datos['confirmar'])){
             if($datos['password'] == $datos['confirmar']){
-                $usuario['password'] = $datos['password'];
+                $usuario['password'] = Crypt::encryptString($datos['password']);
             }
         }
 
@@ -1832,7 +2100,7 @@ Route::post('/usuarios/guardar', function(){
             'nombres' => $datos['nombres'],
             'email' => $datos['email'],
             'usuario' => $datos['usuario'],
-            'password' => $datos['password'],
+            'password' => Crypt::encryptString($datos['password']),
             'idRole' => $datos['idTipoUsuario'],
             'status' => $datos['status']
         ]);

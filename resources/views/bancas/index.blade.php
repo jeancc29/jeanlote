@@ -860,7 +860,8 @@
                       
                       <div ng-repeat="d in datos.ckbLoterias" class="form-check form-check-inline">
                         <label class="form-check-label">
-                          <input ng-model="d.existe" ng-change="ckbLoterias_changed(ckbDias, d)" class="form-check-input" type="checkbox" value=""> @{{d.descripcion}}
+                          <!-- ng-change="ckbLoterias_changed(ckbDias, d)" -->
+                          <input ng-model="d.existe"  class="form-check-input" type="checkbox" value=""> @{{d.descripcion}}
                           <span class="form-check-sign">
                             <span class="check"></span>
                           </span>

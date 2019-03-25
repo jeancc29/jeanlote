@@ -219,6 +219,38 @@ li.disabled a{
 
 
 
+
+.table-fixed-grid-pequeno thead,
+.table-fixed-grid-pequeno tfoot{
+  width: 97%;
+}
+
+.table-fixed-grid-pequeno tbody {
+  height: 60vh;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.table-fixed-grid-pequeno thead,
+.table-fixed-grid-pequeno tbody,
+.table-fixed-grid-pequeno tfoot,
+.table-fixed-grid-pequeno tr,
+.table-fixed-grid-pequeno td,
+.table-fixed-grid-pequeno th {
+  display: block;
+}
+
+.table-fixed-grid-pequeno tbody td,
+.table-fixed-grid-pequeno thead > tr> th,
+.table-fixed-grid-pequeno tfoot > tr> td{
+  float: left;
+  border-bottom-width: 0;
+}
+
+
+
+
+
 /* El codigo de la plantilla css comienza aqui */
 
 
@@ -24249,7 +24281,7 @@ li.disabled a{
  
  .card-wizard .tab-content {
      min-height: 340px;
-     padding: 20px 15px
+     /* padding: 20px 15px */
  }
  
  .card-wizard .wizard-footer {

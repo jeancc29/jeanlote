@@ -93,6 +93,7 @@
         {"jugada" : "02-70-05", "monto" : "20.00"}
       ];
       
+      console.log('Dentro ticket');
 
       var validarExistencia = function(ruta){
         if(getValue() == 0){

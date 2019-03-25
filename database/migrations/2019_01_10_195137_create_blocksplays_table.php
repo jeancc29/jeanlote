@@ -15,6 +15,7 @@ class CreateBlocksplaysTable extends Migration
     {
         Schema::create('blocksplays', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('idBanca');
             $table->unsignedInteger('idLoteria');
             $table->unsignedInteger('idSorteo');
             $table->string('jugada', 6);
@@ -26,6 +27,7 @@ class CreateBlocksplaysTable extends Migration
             $table->boolean('status');
             $table->timestamps();
 
+            $table->foreign('idBanca')->references('id')->on('branches');
             $table->foreign('idLoteria')->references('id')->on('lotteries');
         });
     }
@@ -37,6 +39,7 @@ class CreateBlocksplaysTable extends Migration
      */
     public function down()
     {
+        $table->dropForeign(['idBanca']);
         $table->dropForeign(['idLoteria']);
         Schema::dropIfExists('blocksplays');
     }

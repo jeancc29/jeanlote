@@ -320,13 +320,32 @@ demo = {
             $total = $wizard.find('.nav li').length;
             $li_width = 100 / $total;
 
+            /********* Modificado por mi *********/
+            //Obtener el li menu
+            var liMenu = document.getElementById( "nav-pills-menu" );
+
+            //Verificamos si existe
+            if(liMenu != undefined){
+                //Obtenemos el index del liMenu
+                var indexLiMenu = $wizard.find('.nav li').index(liMenu);
+
+                //Si el index obtenido a traves de la funcion refreshAnimation es igual al index liMenu eso quiere decir que se ha dado click 
+                //en el liMenu entonces lo que voy a hacer es evitar que el liMenu se marque como activo para ello le asigno el index del liJugar
+                //que es el index 1
+                if(index == indexLiMenu)
+                    index = 1;
+            }
             
 
             total_steps = $wizard.find('.nav li').length;
             move_distance = $wizard.width() / total_steps;
+            
            
             index_temp = index;
             vertical_level = 0;
+
+            
+            
 
             mobile_device = $(document).width() < 600 && $total > 3;
 

@@ -3,6 +3,8 @@ var myApp = angular
     .controller("myController", function($scope, $http, $timeout, $window, $document){
         $scope.busqueda = "";
         var ruta = '';
+        $scope.txtActive = 0;
+        $scope.es_movil = false;
         // $scope.optionsTipoUsuario = [{name:"Cliente", id:1}, {name:"Garante", id:2}, {name:"Usuario", id:3}];
         // $scope.selectedTipoUsuario = $scope.optionsTipoUsuario[0];
 
@@ -127,10 +129,12 @@ var myApp = angular
             $http.get("/api/principal")
              .then(function(response){
 
-                // console.log(response)
+                console.log(response)
 
-
+                $scope.datos.optionsVentas = (response.ventas != undefined) ? response.ventas : [{'id': 1, 'ticket' : 'No hay ventas'}];
+                $scope.datos.selectedVentas = $scope.datos.optionsVentas[0];
                  $scope.datos.optionsLoterias =response.data.loterias;
+                 console.log('select: ',$scope.datos.selectedVentas);
                 //  console.log($scope.datos.optionsLoterias);
                 $scope.datos.jugadasReporte.optionsLoterias = response.data.loterias;
                 $scope.datos.jugadasReporte.selectedLoteria = $scope.datos.jugadasReporte.optionsLoterias[0];
@@ -173,8 +177,74 @@ var myApp = angular
           console.log('clase: ', a.nombre);
         }
 
-      
+        function eliminarUltimoCaracter(d){
+            if (d == undefined)
+                return;
+                
+            var da = '';
+            for(var i=0; i < d.length - 1; i++){
+                da += d[i];          
+            }
 
+            return da;
+        }
+
+        $scope.quitarOPonerClaseActive = function(){
+            // $('#menu').
+            if($('#nav-pills-menu').hasClass('active')){
+                $('#nav-pills-jugar').addClass('active')
+            }
+        }
+
+      
+        $scope.tecladoClick = function(d){
+            console.log(d);
+
+            if(d.toLowerCase() === 'enter'){
+                if($scope.txtActive == 1){
+                    $scope.monto_disponible();
+                    $scope.txtActive = 2;
+                }else if($scope.txtActive == 2){
+                    $scope.jugada_insertar(1, true);
+                    $scope.txtActive = 1;
+                }
+
+                return;
+            }
+
+            if(d.toLowerCase() === 'backspace'){
+                if($scope.txtActive == 1){
+                    if($scope.datos.jugada != undefined){
+                        $scope.datos.jugada = eliminarUltimoCaracter($scope.datos.jugada);
+                    }
+                        
+                }else if($scope.txtActive == 2){
+                    if($scope.datos.monto != undefined)
+                        $scope.datos.monto = eliminarUltimoCaracter($scope.datos.monto);
+                }
+
+                
+                return;
+            }
+
+            if(d.toLowerCase() !== 'enter'){
+                if($scope.txtActive == 1){
+                    if(Number(d) == d){
+                        if($scope.datos.jugada == undefined || $scope.datos.jugada == null)
+                            $scope.datos.jugada =d; 
+                        else
+                            $scope.datos.jugada +=d; 
+                    }
+                }else if($scope.txtActive == 2){
+                    if(Number(d) == d){
+                        if($scope.datos.monto == undefined || $scope.datos.monto == null)
+                            $scope.datos.monto =d; 
+                        else
+                            $scope.datos.monto +=d; 
+                    }
+                }
+            }
+        }
 
 
         $scope.actualizar = function(){
@@ -251,9 +321,13 @@ var myApp = angular
           }
   
   
-          $scope.jugada_insertar = function(evento){
+          $scope.jugada_insertar = function(evento, sinevento = false){
            
            
+                if(sinevento){
+                    evento = {};
+                    evento.keyCode = 13;
+                }
 
                 if($scope.datos.jugada != null && evento.keyCode == 13){
                     $scope.datos.loterias.forEach(function(valor, indice, array){
@@ -592,7 +666,7 @@ var myApp = angular
                             // console.log(response);
                           alert(response.data.mensaje);
                           $scope.inicializarDatos();
-                          $scope.imprimirTicket(response.data.venta);
+                          $scope.imprimirTicket(response.data.venta, (e == 1) ? true : false);
                         }
                     else{
                         alert(response.data.mensaje);
@@ -650,13 +724,20 @@ var myApp = angular
             // console.log('recargar: ', window.stop);
         }
 
-        $scope.imprimirTicket = function(ticket){
+        $scope.imprimirTicket = function(ticket, es_movil){
             // window.print();
             $window.sessionStorage.removeItem('ticket');
             $window.sessionStorage.setItem('ticket', JSON.stringify(ticket));
             // console.log(ruta);
             
-            a=window.frames['iframeOculto'].src= ruta;
+            //a=window.frames['iframeOculto'].src= ruta;
+
+            if(!es_movil)
+                $('#iframeOculto').attr('src',ruta);
+            else
+                $('#iframeOcultoMovil').attr('src',ruta);
+
+            console.log('iframe: ', $('#iframeOculto'));
 
 
             var json = [];
@@ -683,27 +764,32 @@ var myApp = angular
             
             console.log('monitoreo after addClass',$scope.datos.monitoreo);
             
-
+            $scope.datos.monitoreo.idUsuario = $scope.datos.idUsuario;
           
           $http.post("api/reportes/monitoreo", {'action':'sp_ventas_buscar', 'datos': $scope.datos.monitoreo})
              .then(function(response){
                 console.log('monitoreo ',response);
-                $scope.datos.monitoreo.ventas = response.data.monitoreo;
+                if(response.data.errores == 0){
+                    $scope.datos.monitoreo.ventas = response.data.monitoreo;
 
-                $scope.datos.monitoreo.total_todos = Object.keys($scope.datos.monitoreo.ventas).length;
-                $scope.datos.monitoreo.total_pendientes = 0;
-                $scope.datos.monitoreo.total_ganadores = 0;
-                $scope.datos.monitoreo.total_perdedores = 0;
-                $scope.datos.monitoreo.total_cancelados = 0;
+                    $scope.datos.monitoreo.total_todos = Object.keys($scope.datos.monitoreo.ventas).length;
+                    $scope.datos.monitoreo.total_pendientes = 0;
+                    $scope.datos.monitoreo.total_ganadores = 0;
+                    $scope.datos.monitoreo.total_perdedores = 0;
+                    $scope.datos.monitoreo.total_cancelados = 0;
 
-                $scope.datos.monitoreo.ventas.forEach(function(valor, indice, array){
+                    $scope.datos.monitoreo.ventas.forEach(function(valor, indice, array){
 
-                    if(array[indice].status == 1) $scope.datos.monitoreo.total_pendientes ++;
-                    if(array[indice].status == 2) $scope.datos.monitoreo.total_ganadores ++;
-                    if(array[indice].status == 3) $scope.datos.monitoreo.total_perdedores ++;
-                    if(array[indice].status == 0) $scope.datos.monitoreo.total_cancelados ++;
-    
-                 });
+                        if(array[indice].status == 1) $scope.datos.monitoreo.total_pendientes ++;
+                        if(array[indice].status == 2) $scope.datos.monitoreo.total_ganadores ++;
+                        if(array[indice].status == 3) $scope.datos.monitoreo.total_perdedores ++;
+                        if(array[indice].status == 0) $scope.datos.monitoreo.total_cancelados ++;
+        
+                    });
+                }else{
+                    alert(response.data.mensaje);
+                    return;
+                }
 
                 // if(response.data[0].errores == 0){
                 //     $scope.inicializarDatos($scope.datos.idLoteria, $scope.datos.idSorteo);
@@ -971,7 +1057,18 @@ var myApp = angular
         }
 
 
-
+        $scope.cancelarDesdeMovil = function(){
+            
+            if($scope.datos.selectedVentas.codigoBarra != undefined && $scope.datos.selectedVentas.codigoBarra != 'NO HAY VENTAS'){
+                $scope.es_movil = true;
+                $scope.datos.cancelar.codigoBarra = $scope.datos.selectedVentas.codigoBarra;
+                $('#modal-cancelar').modal('toggle');
+            }
+            else{
+                    $scope.es_movil = false;
+                    console.log('else escondar');
+            }
+        }
 
         $scope.cancelar = function(){
 

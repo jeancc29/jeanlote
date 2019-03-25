@@ -38,4 +38,20 @@ class Users extends Authenticatable
     {
         return $this->hasOne('App\Roles', 'id', 'idRole');
     }
+
+    public function tienePermiso($permiso){
+        if($this->permisos()->whereDescripcion($permiso)->first() != null && $this->status == 1)
+            return true;
+        else
+            return false;
+    }
+
+    public function esBancaAsignada($idBanca){
+        $banca = Branches::whereId($idBanca)->first();
+        if($banca != null){
+            if($banca->id == $idBanca)
+                return true;
+        }
+        return false;
+    }
 }

@@ -36,4 +36,76 @@ class Lotteries extends Model
     {
         return $this->hasOne('App\Blocksplays', 'idLoteria');
     }
+
+    public function sorteoExiste($jugada){
+        if(strlen($jugada) == 2){
+            $sorteo = 'Directo';
+        }
+        else if(strlen($jugada) == 4){
+                $sorteo = 'Pale';
+        }
+        else if(strlen($jugada) == 6){
+                $sorteo = 'Tripleta';
+        }else if(strlen($jugada) == 5){
+            //Falta validar si el quinto caracter es un signo de mas
+            $sorteo = 'Super pale';
+        }
+
+        if($this->sorteos()->where('descripcion', $sorteo)->first() != null)
+            return true;
+        else
+            return false;
+    }
+
+    public function abreHoy(){
+        $abre = false;
+        $fecha = getdate();
+        if($this->dias()->whereWday($fecha['wday'])->first() != null)
+            $abre = true;   
+        
+        return $abre;
+    }
+
+
+    public function cerrada(){
+        $cerrado = false;
+        $fecha = getdate();
+
+        if($this->abreHoy()){
+            $hora = explode(':',$this->dias()->whereWday($fecha['wday'])->first()->pivot->horaCierre);
+            if((int)$fecha['hours'] > (int)$hora[0])
+                $cerrado = true;
+            else if((int)$hora[0] == (int)$fecha['hours']){
+                //Validamos si los minutos actuales son mayores que los minutos horaCierre  
+                if((int)$fecha['minutes'] > (int)$hora[1])
+                    $cerrado = true;
+            }
+        }else{
+            $cerrado = true;
+        }
+
+        
+
+        return $cerrado;
+    }
+
+
+    public function abierta(){
+        $abierta = false;
+        $fecha = getdate();
+
+        if($this->abreHoy()){
+            $hora = explode(':',$this->dias()->whereWday($fecha['wday'])->first()->pivot->horaApertura);
+            if((int)$fecha['hours'] > (int)$hora[0])
+                $abierta = true;
+            else if((int)$hora[0] == (int)$fecha['hours']){
+                //Validamos si los minutos actuales son mayores que los minutos horaCierre  
+                if((int)$fecha['minutes'] > (int)$hora[1])
+                    $abierta = true;
+            }
+        }
+
+        return $abierta;
+    }
+
 }

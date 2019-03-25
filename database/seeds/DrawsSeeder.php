@@ -32,5 +32,12 @@ class DrawsSeeder extends Seeder
             'cantidadNumeros' => 6,
             'status' => 1
         ]);
+        
+        d::create([
+            'descripcion' => 'Super pale',
+            'bolos' => 3,
+            'cantidadNumeros' => 6,
+            'status' => 1
+        ]);
     }
 }

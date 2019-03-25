@@ -7,7 +7,7 @@
 
 
 <!-- Navbar  bg-info -->
-<nav class="navbar navbar-expand-lg mx-2 mb-2 d-none d-sm-block" id="navigation-example">
+<nav class="navbar navbar-expand-lg mx-2 mb-2 d-none d-md-flex" id="navigation-example">
         <div class="container-fluid">
         <div class="navbar-wrapper">
           
@@ -93,39 +93,11 @@
 <div class="content">
                       <!-- <div class="container-fluid"> -->
 <div class="">
-    <div class="row">
+    <div class="row d-none d-md-flex">
         <div class="col-md-12">
         <div class="card mt-0 mb-2 p-0">
             <div class="card-body">
-                <!-- <div class="row">
-                    <label class="col-sm-2 col-form-label label-checkbox">Inline checkboxes</label>
-                    <div class="col-sm-10 checkbox-radios">
-                    <div class="form-check form-check-inline">
-                        <label class="form-check-label">
-                        <input class="form-check-input" type="checkbox" value=""> a
-                        <span class="form-check-sign">
-                            <span class="check"></span>
-                        </span>
-                        </label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <label class="form-check-label">
-                        <input class="form-check-input" type="checkbox" value=""> b
-                        <span class="form-check-sign">
-                            <span class="check"></span>
-                        </span>
-                        </label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <label class="form-check-label">
-                        <input class="form-check-input" type="checkbox" value=""> c
-                        <span class="form-check-sign">
-                            <span class="check"></span>
-                        </span>
-                        </label>
-                    </div>
-                    </div>
-                </div> -->
+               
 
                 <div class="row">
                        
@@ -155,7 +127,7 @@
                     </div>
 
                     
-                            
+                        
                             <div class="col-sm-2 col-4">
                                 <form>
                                     <div id="divInputJugada" class="form-group">
@@ -193,11 +165,12 @@
                                         type="text" name="number" number="true" minLength="1" required="true" />
                                 </div>
                             </div>
-                                
+                    
+
                 </div>
 
 
-                <div class="row justify-content-md-center">
+                <div class="row justify-content-md-center" >
                     <div class="col-4 col-md-3">
                         <h4 class="font-weight-bold">
                         Monto: <span class="bg-info p-1 text-white rounded">@{{datos.monto_a_pagar | currency}}</span>
@@ -215,63 +188,320 @@
                     </div>
                 </div>
 
-            <!-- <ul class="nav nav-pills nav-pills-warning" role="tablist">
-                <li class="nav-item">
-                <a class="nav-link active px-0" >
-                    Profile
-                </a>
-                </li>
-                <li class="nav-item">
-                <a class="nav-link active px-0" >
-                    Settings
-                </a>
-                </li>
-                <li class="nav-item">
-                <a class="nav-link active px-0">
-                    Options
-                </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active px-0" >
-                    Profile
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active px-0" >
-                    Settings
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active px-0">
-                    Options
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active px-0" >
-                        Profile
-                    </a>
-                    </li>
-                    <li class="nav-item">
-                    <a class="nav-link active px-0" >
-                        Settings
-                    </a>
-                    </li>
-                    <li class="nav-item">
-                    <a class="nav-link active px-0">
-                        Options
-                    </a>
-                    </li>
-            </ul>
-            -->
             </div>
         </div>
         </div>
         
     </div>
 
+
+    <!--      Wizard container        -->
+        <!-- class="wizard-container" -->
+    <div class="row bg-primary d-md-none" style="margin-top: 0px!important; margin-bottom: 0px!important; height: 100vh;">
+      <div 
+            class="card card-wizard mt-0 m-0" 
+            data-color="blue" 
+            id="wizardProfile"
+            style="height: 100vh;"
+        >
+        <form novalidate>
+          <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
+          <div class="card-header">
+            <div class="row justify-content-center">
+           
+              <h5 class="card-title m-0 p-0">
+                Nombre banca o combobox bancas
+              </h5>
+           
+            </div>
+           
+          </div>
+          <div class="wizard-navigation">
+            <ul class="nav nav-pills">
+              <li ng-click="quitarOPonerClaseActive()" id="nav-pills-menu" class="nav-item p-0">
+                <a class="nav-link navbar-toggler" aria-disabled="true" href="#" data-toggle="tab" role="tab" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation" data-target="#navigation-example">
+                  Menu
+                </a>
+              </li>
+              <li id="nav-pills-jugar" class="nav-item active p-0">
+                <a ng-init="mostrarPagos = false" ng-click="mostrarPagos = false" class="nav-link" href="#about" data-toggle="tab" role="tab">
+                  Jugar
+                </a>
+              </li>
+              <li class="nav-item">
+                <a ng-click="mostrarPagos = true" class="nav-link" href="#account" data-toggle="tab" role="tab">
+                  Jugadas
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body">
+            <div class="tab-content">
+              <div class="tab-pane active" id="about">
+                <!-- <h5 class="info-text"> Let's start with the basic information (with validation)</h5> -->
+                <div class="row">
+                    <iframe id="iframeOcultoMovil" name="iframeOcultoMovil"  style="width:0px; height:0px; border:0px; margin:0px;"></iframe>
+                    <div class="col-sm-1 col-2 text-center">
+                                <div class="form-check mt-3">
+                                <label class="form-check-label">
+                                    <input ng-model="datos.hayDescuento" ng-change="calcularTotal()" class="form-check-input" type="checkbox" value=""> Desc
+                                    <span class="form-check-sign">
+                                    <span class="check"></span>
+                                    </span>
+                                </label>
+                                </div>
+                    </div>
+
+                    <div  class=" col-10">
+                            <select 
+                            id="multiselect"
+                                ng-change="calcularTotal()"
+                                ng-model="datos.loterias"
+                                ng-options="o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id"
+                                class="selectpicker col-12" 
+                                data-style="select-with-transition" 
+                                multiple title="Seleccionar loteria"
+                                data-size="7" aria-setsize="2">
+                            </select>
+                    </div>
+                 
+                </div>
+
+                <div class="col-12 mt-2">
+                    <style>
+                        .txtActive {
+                            outline: dotted 15px;
+                            outline: -webkit-focus-ring-color auto 15px
+                        }
+                    </style>
+                    <div class="row">
+                        <div 
+                            ng-click="txtActive = 1"
+                            ng-class="{'txtActive': (txtActive == 1)}"
+                            class="col-4 text-center py-3 border"
+                            style="cursor: pointer;">
+                            <p style="font-size: 18px;" class="mt-1 font-weight-bold">@{{(datos.jugada != undefined && datos.jugada != '') ? datos.jugada : 'Jugada'}}</p>
+                        </div>
+                        <div 
+                            class="col-4 text-center py-3 border">
+                            <p style="font-size: 18px; color:grey" class="mt-1 font-weight-bold text-secundary">@{{(datos.montoExistente != undefined) ? datos.montoExistente : 'Disponible'}}</p>
+                        </div>
+                        <div 
+                            ng-click="txtActive = 2"
+                            ng-class="{'txtActive': (txtActive == 2)}"
+                            class="col-4 text-center py-3 border"
+                            style="cursor: pointer;">
+                            <p style="font-size: 18px;" class="mt-1 font-weight-bold">@{{(datos.monto != undefined && datos.monto != '') ? datos.monto : 'Monto'}}</p>
+                        </div>
+
+                    </div>
+                                
+                </div><!-- END COL-12 -->
+
+                <div class="col-12 mt-2 ">
+                    <div class="row py-0 mb-0">
+                        <div ng-click="tecladoClick('.')" class="col-2  text-center btn btn-warning mr-2">
+                            <h4 class="mt-1">.</h4>
+                        </div>
+                        <div ng-click="tecladoClick('D')" class="col-2  text-center btn btn-warning mr-2">
+                            <h4 class="mt-1">D</h4>
+                        </div>
+                        <div ng-click="tecladoClick('Q')" class="col-2  text-center btn btn-warning mr-2">
+                            <h4 class="mt-1">Q</h4>
+                        </div>
+                        <div ng-click="tecladoClick('BACKSPACE')" class="col-5 text-center btn btn-secundary">
+                            <h4 class="mt-1">BACKSPACE</h4>
+                        </div>
+                    </div>
+                    <div class="row py-0 mb-0">
+                        <div ng-click="tecladoClick('7')" class="col-2  text-center btn btn-info mr-2">
+                            <h4 class="mt-1">7</h4>
+                        </div>
+                        <div ng-click="tecladoClick('8')" class="col-2  text-center btn btn-info mr-2">
+                            <h4 class="mt-1">8</h4>
+                        </div>
+                        <div ng-click="tecladoClick('9')" class="col-2  text-center btn btn-info mr-2">
+                            <h4 class="mt-1">9</h4>
+                        </div>
+                        <div ng-click="tecladoClick('/')" class="col-5 text-center btn btn-secundary">
+                            <h4 class="mt-1">/</h4>
+                        </div>
+                    </div>
+                    <div class="row py-0 my-0">
+                        <div ng-click="tecladoClick('4')" class="col-2  text-center btn btn-info mr-2">
+                            <h4 class="mt-1">4</h4>
+                        </div>
+                        <div ng-click="tecladoClick('5')" class="col-2  text-center btn btn-info mr-2">
+                            <h4 class="mt-1">5</h4>
+                        </div>
+                        <div ng-click="tecladoClick('6')" class="col-2  text-center btn btn-info mr-2">
+                            <h4 class="mt-1">6</h4>
+                        </div>
+                        <div ng-click="tecladoClick('-')" class="col-5 text-center btn btn-secundary">
+                            <h4 class="mt-1">-</h4>
+                        </div>
+                    </div>
+                    <div class="row py-0 my-0">
+                        <div ng-click="tecladoClick('1')" class="col-2  text-center btn btn-info mr-2">
+                            <h4 class="mt-1">1</h4>
+                        </div>
+                        <div ng-click="tecladoClick('2')" class="col-2  text-center btn btn-info mr-2">
+                            <h4 class="mt-1">2</h4>
+                        </div>
+                        <div ng-click="tecladoClick('3')" class="col-2  text-center btn btn-info mr-2">
+                            <h4 class="mt-1">3</h4>
+                        </div>
+                        <div ng-click="tecladoClick('+')" class="col-5 text-center btn btn-secundary">
+                            <h4 class="mt-1">+</h4>
+                        </div>
+                    </div>
+                    <div class="row py-0 my-0">
+                        <div ng-click="tecladoClick('0')" class="col-5  text-center btn btn-info mr-2 mb-0">
+                            <h4 class="mt-1">0</h4>
+                        </div>
+                        <div ng-click="tecladoClick('ENTER')" class="col-6 text-center btn btn-secundary ml-3  mb-0">
+                            <h4 class="mt-1">ENTER</h4>
+                        </div>
+                    </div>
+                    <div class="row py-0 my-0">
+                        <div class="col-3 text-center" ng-click="venta_guardar(1)" style="cursor: pointer">
+                            <i class="material-icons text-success mt-2" style="font-size: 37px;">print</i>
+                        </div>
+                        <div class="col-9">
+                            <div class="row">
+                                <div ng-click="cancelarDesdeMovil()" 
+                                   
+                                    class="input-group form-control-lg m-0 p-0">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                        <i class="material-icons text-danger" style="font-size: 35px;">delete_forever</i>
+                                        </span>
+                                    </div>
+                                    <div class="form-group col-9 m-0 p-0">
+                                        <select 
+                                            ng-model="datos.selectedVentas"
+                                            ng-options="o.ticket for o in datos.optionsVentas"
+                                            class="selectpicker w-100" 
+                                            data-style="select-with-transition" 
+                                            title="Select Ticket">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- END COL-6 -->
+                    </div>
+                                
+                </div><!-- END COL-12 -->
+                <!-- END ROW PRINCIPAL -->
+              </div> <!-- END TAB 1 -->
+
+        
+
+              <div class="tab-pane" id="account">
+                <!-- <h5 class="info-text"> What are you doing? (checkboxes) </h5> -->
+                <div class="row justify-content-center ">
+                  <div class="col-lg-12">
+                    <div class="row justify-content-center">
+
+                             <div class="table-responsive">
+                    <table class="table table-fixed-grid-pequeno">
+                    <thead>
+                        <tr>
+                        <th style="font-size:13px" class="text-center font-weight-bold col-3 col-sm-5">LOTERIA</th>
+                        <th style="font-size:13px" class="text-center font-weight-bold col-3">JUGADA</th>
+                        <th style="font-size:13px" class="text-center font-weight-bold col-3">MONTO</th>
+                        <th style="font-size:13px" class="text-center font-weight-bold col-3">ELIMINAR</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody" class="">
+                    
+                        <tr ng-repeat="c in datos.jugadas ">
+                        <td style="font-size:12px" class="col-3 text-center col-sm-5">@{{c.abreviatura}}</td>
+                        <td style="font-size:12px" class="col-3 text-center">@{{agregar_guion(c.jugada)}}</td>
+                        <td style="font-size:12px" class="text-center col-3">@{{c.monto}}</td>
+                        <td style="font-size:12px; cursor: pointer;" class="text-center col-3" ng-click="jugada_eliminar(c.jugada)">
+                            <!-- <button ng-click="jugada_eliminar(c.jugada)" type="button" rel="tooltip" data-placement="left" title="Remove item" class="btn btn-link text-center btn-danger">
+                                <i class="material-icons text-center">close</i>
+                            </button> -->
+                            <i class="material-icons text-center b-0 p-0" style="margin:0px!important;padding:0px!important;font-size: 15px;">close</i>
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                    </table>
+                    <hr class="mb-0">
+                    <div class="float-right">
+                            <div style="font-size: 17px;" class="font-weight-bold">
+                                Total
+                                <small class="">@{{datos.monto_a_pagar | currency}}</small>
+                            </div>   
+                    </div>
+                    <!-- <div class="float-right mt-3">
+                            <div style="font-size: 16px;" class="font-weight-bold">
+                                Total
+                                <small class="h3 ml-3">&euro;0</small>
+                            </div> 
+                            
+                    </div> -->
+                    
+                </div>
+                      
+                    </div> <!-- END ROW SECUNDARIO -->
+                  </div> <!-- END COL-LG-12 PRINCIPAL -->
+                </div> <!-- END ROW PRINCIPAL -->
+              </div> <!-- END TAB -->
+              <div class="tab-pane" id="address">
+                <div class="row justify-content-center">
+                  <div class="col-sm-12">
+                    <h5 class="info-text"> Are you living in a nice area? </h5>
+                  </div>
+                  <div class="col-sm-7">
+                    <div class="form-group">
+                      <label>Street Name</label>
+                      <input type="text" class="form-control">
+                    </div>
+                  </div>
+                  <div class="col-sm-3">
+                    <div class="form-group">
+                      <label>Street No.</label>
+                      <input type="text" class="form-control">
+                    </div>
+                  </div>
+                  <div class="col-sm-5">
+                    <div class="form-group">
+                      <label>City</label>
+                      <input type="text" class="form-control">
+                    </div>
+                  </div>
+                  <div class="col-sm-5">
+                    <div class="form-group select-wizard">
+                      <label>Country</label>
+                      <select class="selectpicker" data-size="7" data-style="select-with-transition" title="Single Select">
+                        <option value="Afghanistan"> Afghanistan </option>
+                        <option value="Albania"> Albania </option>
+                        <option value="Algeria"> Algeria </option>
+                        <option value="American Samoa"> American Samoa </option>
+                        <option value="Andorra"> Andorra </option>
+                        <option value="Angola"> Angola </option>
+                        <option value="Anguilla"> Anguilla </option>
+                        <option value="Antarctica"> Antarctica </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+    <!-- wizard container -->
+    
+
     <div class="row justify-content-center">
-        <div class="col-md-12 d-none d-md-none d-lg-block text-center">
-            <div class="card my-0 mx-4 d-inline-block " style="min-height: 370px; max-height: 370px; width: 24.7%;"> <!-- min-height: 455px; max-height: 455px; -->
+        <div class="col-md-12 d-none d-sm-none d-md-block text-center">
+            <div class="card my-0 mx-2 d-inline-block " style="min-height: 370px; max-height: 370px; width: 29.7%;"> <!-- min-height: 455px; max-height: 455px; ultima modificacion min-height: 370px; max-height: 370px; width: 24.7%;-->
                 <div class="card-header card-header-info card-header-icon">
                 <div class="card-icon">
                     <i class="material-icons">assignment</i>
@@ -285,7 +515,8 @@
                         <tr>
                         <th class="font-weight-bold col-2 col-sm-3" style="font-size: 14px">LOT</th>
                         <th class="font-weight-bold col-4" style="font-size: 14px">NUM</th>
-                        <th class="text-right font-weight-bold col-4" style="font-size: 14px">MONTO</th>
+                        <th class="text-right font-weight-bold col-4 d-md-none d-lg-block" style="font-size: 14px">MONTO</th>
+                        <th class="text-right font-weight-bold col-4 d-md-block d-lg-none" style="font-size: 14px">MONT</th>
                         <!-- <th class="text-center col-1 col-sm-2" style="font-size: 15px">..</th> -->
                         </tr>
                     </thead>
@@ -337,7 +568,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card my-0 mx-4 d-inline-block mx-0" style="min-height: 370px; max-height: 370px; width: 24.7%;"> <!-- min-height: 455px; max-height: 455px; -->
+            <div class="card my-0 mx-2 d-inline-block mx-0" style="min-height: 370px; max-height: 370px; width: 29.7%;"> <!-- min-height: 455px; max-height: 455px; -->
                 <div class="card-header card-header-info card-header-icon">
                 <div class="card-icon">
                     <i class="material-icons">assignment</i>
@@ -351,7 +582,8 @@
                         <tr>
                         <th class="font-weight-bold col-2 col-sm-3" style="font-size: 14px">LOT</th>
                         <th class="font-weight-bold col-4" style="font-size: 14px">NUM</th>
-                        <th class="text-right font-weight-bold col-4" style="font-size: 14px">MONTO</th>
+                        <th class="text-right font-weight-bold col-4 d-md-none d-lg-block" style="font-size: 14px">MONTO</th>
+                        <th class="text-right font-weight-bold col-4 d-md-block d-lg-none" style="font-size: 14px">MONT</th>
                         <!-- <th class="text-center col-1 col-sm-2" style="font-size: 15px">..</th> -->
                         </tr>
                     </thead>
@@ -392,7 +624,7 @@
                 </div>
             </div>
 
-            <div class="card my-0 mx-4 d-inline-block mx-0" style="min-height: 370px; max-height: 370px; width: 24.7%;"> <!-- min-height: 455px; max-height: 455px; -->
+            <div class="card my-0 mx-2 d-inline-block mx-0" style="min-height: 370px; max-height: 370px; width: 29.7%;"> <!-- min-height: 455px; max-height: 455px; -->
                 <div class="card-header card-header-info card-header-icon">
                 <div class="card-icon">
                     <i class="material-icons">assignment</i>
@@ -406,7 +638,8 @@
                         <tr>
                         <th class="font-weight-bold col-2 col-sm-3" style="font-size: 14px">LOT</th>
                         <th class="font-weight-bold col-4" style="font-size: 14px">NUM</th>
-                        <th class="text-right font-weight-bold col-4" style="font-size: 14px">MONTO</th>
+                        <th class="text-right font-weight-bold col-4 d-md-none d-lg-block" style="font-size: 14px">MONTO</th>
+                        <th class="text-right font-weight-bold col-4 d-md-block d-lg-none" style="font-size: 14px">MONT</th>
                         <!-- <th class="text-center col-1 col-sm-2" style="font-size: 15px">..</th> -->
                         </tr>
                     </thead>
@@ -463,9 +696,10 @@
 
     </div>
 
+      
 
     <!-- Grid grande -->
-    <div class="row">
+    <div class="row d-none">
         <div class="col-md-12 d-lg-none">
             <div class="card my-0" style="min-height: 400px; max-height: 200px;"> <!-- min-height: 455px; max-height: 455px; -->
                 <div class="card-header card-header-info card-header-icon">
@@ -479,19 +713,19 @@
                     <table class="table table-fixed">
                     <thead>
                         <tr>
-                        <th class="font-weight-bold col-2 col-sm-5">LOT</th>
-                        <th class="font-weight-bold col-2">NUM</th>
-                        <th class="text-right font-weight-bold col-4">Monto</th>
-                        <th class="text-right font-weight-bold">Quit</th>
+                        <th style="font-size:15px" class="font-weight-bold col-2 col-sm-5">LOT</th>
+                        <th style="font-size:15px" class="font-weight-bold col-2">NUM</th>
+                        <th style="font-size:15px" class="text-right font-weight-bold col-4">Monto</th>
+                        <th style="font-size:15px" class="text-right font-weight-bold">Quit</th>
                         </tr>
                     </thead>
                     <tbody class="">
                     
                         <tr ng-repeat="c in datos.jugadas ">
-                        <td class="col-sm-5">@{{c.abreviatura}}</td>
-                        <td class="col-2">@{{agregar_guion(c.jugada)}}</td>
-                        <td class="text-right col-4">@{{c.monto}}</td>
-                        <td class="td-actions text-center col-1">
+                        <td style="font-size:12px" class="col-sm-5">@{{c.abreviatura}}</td>
+                        <td style="font-size:12px" class="col-2">@{{agregar_guion(c.jugada)}}</td>
+                        <td style="font-size:12px" class="text-right col-4">@{{c.monto}}</td>
+                        <td style="font-size:12px" class="td-actions text-center col-1">
                             <button ng-click="jugada_eliminar(c.jugada)" type="button" rel="tooltip" data-placement="left" title="Remove item" class="btn btn-link">
                                 <i class="material-icons">close</i>
                             </button>
@@ -530,15 +764,15 @@
 
     <!-- BOTONES REPORTES -->
 
-    <div class="row">
+    <div class="row d-none d-md-flex">
         <div class="col-12 text-center" >
             <button class="btn btn-success" data-toggle="modal" data-target=".bd-example-modal-lg">Monitoreo</button>
             <button ng-click="" class="btn btn-success" data-toggle="modal" data-target=".modal-ventas">Ventas</button>
-            <button ng-click="venta_guardar()" class="btn btn-success">Crear ticket</button>
+            <button ng-click="venta_guardar(2)" class="btn btn-success">Crear ticket</button>
             <button ng-click="" class="btn btn-success" data-toggle="modal" data-target=".modal-duplicar">Duplicar</button>
             <button ng-click="" class="btn btn-success" data-toggle="modal" data-target=".modal-jugadas">Jugadas</button>
             <button ng-click="" class="btn btn-success" data-toggle="modal" data-target=".modal-pagar">Pagar</button>
-            <button ng-click="" class="btn btn-success" data-toggle="modal" data-target=".modal-cancelar">Cancelar</button>
+            <button class="btn btn-success" data-toggle="modal" data-target=".modal-cancelar">Cancelar</button>
         </div>
         <!-- <div class="col-1">
             <button ng-click="buscar()" class="btn btn-success" data-toggle="modal" data-target=".bd-example-modal-lg">Monitoreo</button>
@@ -558,6 +792,7 @@
         <iframe id="iframeOculto" name="iframeOcultoDX"  style="width:0px; height:0px; border:0px; margin:0px;"></iframe>
 
     </div>
+    <!-- <iframe id="iframeOculto" name="iframeOcultoDX"  style="width:0px; height:0px; border:0px; margin:0px;"></iframe> -->
 
 
     <!-- FIN BOTONES REPORTES -->
@@ -1262,7 +1497,7 @@
                     </form> -->
 
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div ng-show="es_movil == false" class="col-sm-3">
                             <div id="fechaBusqueda" class="form-group">
                             <label for="fechaBusqueda" class="bmd-label-floating">Codigo</label>
                             <input ng-model="datos.cancelar.codigoBarra" id="fechaBusqueda" type="text" class="form-control" required>
@@ -1389,6 +1624,22 @@
   
   <script>
   $(document).ready(function(){
+
+    // Initialise the wizard
+    demo.initMaterialWizard();
+    setTimeout(function() {
+      $('.card.card-wizard').addClass('active');
+    }, 600);
+
+
+     // initialise Datetimepicker and Sliders
+     md.initFormExtendedDatetimepickers();
+    if($('.slider').length != 0){
+      md.initSliders();
+    }
+
+   
+
     
     
     $('#facebook').sharrre({

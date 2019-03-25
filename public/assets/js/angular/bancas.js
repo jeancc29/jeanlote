@@ -211,7 +211,7 @@ var myApp = angular
                
             $http.get("/api/bancas")
              .then(function(response){
-                //console.log('Bancas: ', response.data);
+                console.log('Bancas: ', response.data);
 
                 if(todos){
                     $scope.datos.id = 0;
@@ -420,31 +420,35 @@ var myApp = angular
                             let idx = $scope.datos.ckbLoterias.findIndex(x => x.id == parseInt(array[indice].id));
                             $scope.datos.ckbLoterias[idx].existe = true;
                             $scope.datos.loteriasSeleccionadas.push($scope.datos.ckbLoterias[idx]);
+                        }else{
+                            $scope.datos.ckbLoterias[idx].existe = false;
                         }
 
                      });
                 }
 
-                $scope.datos.loteriasSeleccionadas.forEach(function(valor, indice, array){
-                    if($scope.datos.comisiones.loterias.find(x => x.id == array[indice].idLoteria) == undefined){
-                        $scope.datos.comisiones.loterias.push(array[indice]);
-                    }
-                    if($scope.datos.pagosCombinaciones.loterias.find(x => x.id == array[indice].idLoteria) == undefined){
-                        $scope.datos.pagosCombinaciones.loterias.push(array[indice]);
-                    }
-                });
+                // $scope.datos.loteriasSeleccionadas.forEach(function(valor, indice, array){
+                //     if($scope.datos.comisiones.loterias.find(x => x.id == array[indice].idLoteria) == undefined){
+                //         $scope.datos.comisiones.loterias.push(array[indice]);
+                //     }
+                //     if($scope.datos.pagosCombinaciones.loterias.find(x => x.id == array[indice].idLoteria) == undefined){
+                //         $scope.datos.pagosCombinaciones.loterias.push(array[indice]);
+                //     }
+                // });
 
                 $scope.datos.comisiones.loterias = [];
                 d.comisiones.forEach(function(valor, indice, array){
                     if($scope.datos.ckbLoterias.find(x => x.id == array[indice].idLoteria) != undefined){
                         let idx = $scope.datos.ckbLoterias.findIndex(x => x.id == parseInt(array[indice].idLoteria));
                         if($scope.datos.ckbLoterias[idx].existe){
+                            console.log('comision existe');
                             $scope.datos.ckbLoterias[idx].comisiones.directo = array[indice].directo;
                             $scope.datos.ckbLoterias[idx].comisiones.pale = array[indice].pale;
                             $scope.datos.ckbLoterias[idx].comisiones.tripleta = array[indice].tripleta;
 
                             $scope.datos.comisiones.loterias.push($scope.datos.ckbLoterias[idx]);
                         }else{
+                            console.log('comision noo existe');
                             $scope.datos.ckbLoterias[idx].comisiones.directo = 0;
                             $scope.datos.ckbLoterias[idx].comisiones.pale = 0;
                             $scope.datos.ckbLoterias[idx].comisiones.tripleta = 0;
@@ -460,6 +464,7 @@ var myApp = angular
                     if($scope.datos.ckbLoterias.find(x => x.id == array[indice].idLoteria) != undefined){
                         let idx = $scope.datos.ckbLoterias.findIndex(x => x.id == parseInt(array[indice].idLoteria));
                         if($scope.datos.ckbLoterias[idx].existe){
+                            console.log('pagosCombinaciones existe');
                             $scope.datos.ckbLoterias[idx].pagosCombinaciones.primera = array[indice].primera;
                             $scope.datos.ckbLoterias[idx].pagosCombinaciones.segunda = array[indice].segunda;
                             $scope.datos.ckbLoterias[idx].pagosCombinaciones.tercera = array[indice].tercera;
@@ -471,6 +476,7 @@ var myApp = angular
 
                             $scope.datos.pagosCombinaciones.loterias.push($scope.datos.ckbLoterias[idx]);
                         }else{
+                            console.log('pagosCombinaciones noo existe');
                             $scope.datos.ckbLoterias[idx].pagosCombinaciones.primera = 0;
                             $scope.datos.ckbLoterias[idx].pagosCombinaciones.segunda = 0;
                             $scope.datos.ckbLoterias[idx].pagosCombinaciones.tercera = 0;
@@ -509,6 +515,7 @@ var myApp = angular
          
             //$scope.datos.horaCierre = moment($scope.datos.horaCierre, ['HH:mm']).format('HH:mm');
             
+            console.log('actualizar: ', $scope.datos);
            
            
 
@@ -577,7 +584,7 @@ var myApp = angular
                 if(array[indice].sorteos.find(x => x.descripcion == "Directo") != undefined){
                     if(Number(array[indice].pagosCombinaciones.primera) == undefined || array[indice].pagosCombinaciones.primera == '' || array[indice].pagosCombinaciones.primera == null || Number(array[indice].pagosCombinaciones.primera) <= 0){
                         errores = true;
-                        console.log('Hay campos de premios vacios en la loteria ',  array[indice].pagosCombinaciones, ' ', array[indice]);
+                        alert('Hay campos de premios vacios en la loteria ',  array[indice].pagosCombinaciones, ' ', array[indice]);
                     }
                 }
             });

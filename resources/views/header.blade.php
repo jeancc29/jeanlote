@@ -803,6 +803,7 @@
           <!-- ********************* MEDIA QUERY QUE MANEJA MENU DESPLEGABLE ******************/ -->
     @if($controlador != 'login')
     <div 
+        id="menu"
         style="display:<?php if($controlador == 'login') echo 'none'; ?>"
         class="sidebar" 
         data-color="rose" 
