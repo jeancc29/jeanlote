@@ -202,6 +202,7 @@ var myApp = angular
 
             if(d.toLowerCase() === 'enter'){
                 if($scope.txtActive == 1){
+                    Android.showToast("Desde la web");
                     $scope.monto_disponible();
                     $scope.txtActive = 2;
                 }else if($scope.txtActive == 2){
