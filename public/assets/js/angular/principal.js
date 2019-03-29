@@ -202,7 +202,7 @@ var myApp = angular
 
             if(d.toLowerCase() === 'enter'){
                 if($scope.txtActive == 1){
-                    Android.showToast("Desde la web");
+                    //Android.showToast("Desde la web");
                     $scope.monto_disponible();
                     $scope.txtActive = 2;
                 }else if($scope.txtActive == 2){
@@ -660,7 +660,7 @@ var myApp = angular
                 $http.post("/api/principal/guardar",{'datos':$scope.datos, 'action':'sp_ventas_actualiza'})
                 .then(function(response){
 
-                    //console.log(response);
+                    console.log(response);
  
                     if(response.data.errores == 0)
                         {

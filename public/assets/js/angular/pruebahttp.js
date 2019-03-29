@@ -8,9 +8,12 @@ var myApp = angular
 
        
 
+        $scope.datos = {
+            'mensaje' : 'Hola mi amor'
+        }
       
 
-        $http.get("/api/prueba")
+        $http.get("/api/loterias", {'datos' : $scope.datos})
         .then(function(response){
 
            console.log(response)
@@ -20,13 +23,13 @@ var myApp = angular
 
 
        $scope.obtener = function(){
-                $http.get("/api/prueba")
-                .then(function(response){
+        $http.get("/api/loterias", {'datos' : $scope.datos})
+        .then(function(response){
 
-                console.log(response.data)
+           console.log(response)
 
 
-            });
+       });
        }
 
 

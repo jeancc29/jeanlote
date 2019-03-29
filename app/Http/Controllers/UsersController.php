@@ -3,8 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Users;
-use Illuminate\Http\Request;
+use Request;
 use Illuminate\Support\Facades\Route; 
+use Illuminate\Support\Facades\Response;
+
+use Faker\Generator as Faker;
+use App\Lotteries;
+use App\Generals;
+use App\Sales;
+use App\Salesdetails;
+use App\Blockslotteries;
+use App\Blocksplays;
+use App\Stock;
+use App\Tickets;
+use App\Cancellations;
+use App\Days;
+use App\Payscombinations;
+use App\Awards;
+use App\Draws;
+use App\Branches;
+use App\Roles;
+use App\Commissions;
+use App\Permissions;
+
+use App\Http\Resources\LotteriesResource;
+use App\Http\Resources\SalesResource;
+use App\Http\Resources\BranchesResource;
+use App\Http\Resources\RolesResource;
+use App\Http\Resources\UsersResource;
+
+use Illuminate\Support\Facades\Crypt;
 
 class UsersController extends Controller
 {
@@ -16,13 +44,17 @@ class UsersController extends Controller
     public function index()
     {
         $controlador = Route::getCurrentRoute()->getName(); 
-        // $route = Route();
-        //echo $controlador;
+        if(!strpos(Request::url(), '/api/')){
+            return view('usuarios.index', compact('controlador'));
+        }
 
-       // dd($controlador);
 
-        
-        return view('usuarios.index', compact('controlador'));
+
+        return Response::json([
+            'usuarios' => UsersResource::collection(Users::whereIn('status', array(0, 1))->get()),
+            'usuariosTipos' => RolesResource::collection(Roles::all()),
+            'permisos' => Permissions::all()
+        ], 201);
     }
 
     /**
@@ -43,7 +75,132 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $datos = request()->validate([
+            'datos.idUsuario' => 'required',
+            'datos.id' => 'required',
+            'datos.nombres' => 'required',
+            'datos.email' => 'required|email',
+            'datos.usuario' => 'required',
+            'datos.password' => '',
+            'datos.confirmar' => '',
+            'datos.permisos' => 'required',
+            'datos.status' => 'required',
+            'datos.idTipoUsuario' => 'required'
+        ])['datos'];
+    
+    
+        $usuario = Users::whereId($datos['idUsuario'])->first();
+        if(!$usuario->tienePermiso('Manejar usuarios')){
+            return Response::json([
+                'errores' => 1,
+                'mensaje' => 'No tiene permisos para realizar esta accion'
+            ], 201);
+        }
+    
+        $errores = 0;
+        $mensaje = '';
+    
+        
+        //Verificar si el usuario tiene permisos
+        //$permiso = Users
+    
+       
+        $usuario = Users::whereId($datos['id'])->get()->first();
+        
+    
+        if($usuario != null){
+            $usuario['nombres'] = $datos['nombres'];
+            $usuario['email'] = $datos['email'];
+            $usuario['usuario'] = $datos['usuario'];
+            $usuario['idRole'] = $datos['idTipoUsuario'];
+            $usuario['status'] = $datos['status'];
+    
+            if(!empty($datos['password']) && !empty($datos['confirmar'])){
+                if($datos['password'] == $datos['confirmar']){
+                    $usuario['password'] = Crypt::encryptString($datos['password']);
+                }
+            }
+    
+            $id = Users::whereEmail($datos['email'])->first();
+            if($id != null){
+                if($usuario->id != $id->id){
+                    return Response::json([
+                        'errores' => 1,
+                        'mensaje' => 'El correo ya existe, elija uno diferente'
+                    ], 201);
+                }
+            }
+    
+            $id = Users::whereEmail($datos['usuario'])->first();
+           if($id != null){
+            if($usuario->id != $id->id){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'El usuario ya existe, elija uno diferente'
+                ], 201);
+            }
+           }
+    
+    
+            $usuario->save();
+    
+        }else{
+    
+            if(empty($datos['password']) && empty($datos['confirmar'])){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'Contraseña no valida'
+                ], 201);
+            }
+    
+            if($datos['password'] != $datos['confirmar']){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'Contraseña no valida'
+                ], 201);
+            }
+            
+            if(Users::whereEmail($datos['email'])->first() != null){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'El correo ya existe, elija uno diferente'
+                ], 201);
+            }
+            if(Users::whereEmail($datos['usuario'])->first() != null){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'El usuario ya existe, elija uno diferente'
+                ], 201);
+            }
+    
+            $usuario = Users::create([
+                'nombres' => $datos['nombres'],
+                'email' => $datos['email'],
+                'usuario' => $datos['usuario'],
+                'password' => Crypt::encryptString($datos['password']),
+                'idRole' => $datos['idTipoUsuario'],
+                'status' => $datos['status']
+            ]);
+           
+        }
+    
+          /********************* PERMISOS ************************/
+            //Eliminamos los PERMISOS para luego agregarlos nuevamentes
+            $usuario->permisos()->detach();
+            $permisos = collect($datos['permisos'])->map(function($d) use($usuario, $datos){
+                return ['idPermiso' => $d['id'], 'idUsuario' => $usuario['id']];
+            });
+           
+            $usuario->permisos()->attach($permisos);
+    
+    
+           
+            
+    
+        return Response::json([
+            'errores' => 0,
+            'mensaje' => 'Se ha guardado correctamente'
+        ], 201);
     }
 
     /**

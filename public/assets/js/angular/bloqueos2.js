@@ -429,7 +429,7 @@ var myApp = angular
         //     $scope.datos.bancas.push($scope.datos.selectedBanca);
             
            
-          $http.post("/api/bloqueos/loteriasnuevo/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
+          $http.post("/api/bloqueos/loterias/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0){
@@ -476,7 +476,7 @@ var myApp = angular
             $scope.datos.bloqueoJugada.idUsuario = $scope.datos.idUsuario;
             
            
-          $http.post("/api/bloqueos/jugadasnuevo/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos.bloqueoJugada})
+          $http.post("/api/bloqueos/jugadas/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos.bloqueoJugada})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0){

@@ -1,0 +1,297 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Sales;
+use Request;
+
+
+use Faker\Generator as Faker;
+use App\Lotteries;
+use App\Generals;
+use App\Salesdetails;
+use App\Blockslotteries;
+use App\Blocksplays;
+use App\Stock;
+use App\Tickets;
+use App\Cancellations;
+use App\Days;
+use App\Payscombinations;
+use App\Awards;
+use App\Draws;
+use App\Branches;
+use App\Users;
+use App\Roles;
+use App\Commissions;
+use App\Permissions;
+
+use App\Http\Resources\LotteriesResource;
+use App\Http\Resources\SalesResource;
+use App\Http\Resources\BranchesResource;
+use App\Http\Resources\RolesResource;
+use App\Http\Resources\UsersResource;
+
+use Illuminate\Support\Facades\Crypt;
+
+class ReportesController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        //
+    }
+
+    public function jugadas()
+    {
+        $datos = request()->validate([
+            'datos.idLoteria' => 'required',
+            'datos.fecha' => 'required'
+        ])['datos'];
+    
+        $fecha = getdate(strtotime($datos['fecha']));
+    
+        $errores = 0;
+        $mensaje = '';
+        $loterias = null;
+        $jugadas = null;
+    
+    
+        $idVentas = Sales::select('id')
+                ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                ->where('status', '!=', 0)
+                ->get();
+    
+        $idVentas = collect($idVentas)->map(function($id){
+            return $id->id;
+        });
+    
+    
+        $jugadas = Salesdetails::
+                    where('idLoteria', $datos['idLoteria'])
+                    ->whereIn('idVenta', $idVentas)
+                    ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->get();
+    
+        
+    
+        
+      
+        
+    
+        return Response::json([
+            'jugadas' => $jugadas,
+            'errores' => $errores,
+            'mensaje' => $mensaje
+        ], 201);
+    }
+
+
+    public function ventas()
+    {
+        $fecha = request()->validate([
+            'datos.fecha' => 'required'
+        ])['datos'];
+    
+        
+    
+        $fecha = getdate(strtotime($fecha['fecha']));
+    
+        $pendientes = Sales::
+                    whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->whereStatus(1)
+                    ->count();
+    
+        $ganadores = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->whereStatus('2')
+                    ->count();
+        $perdedores = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->whereStatus('3')
+                    ->count();
+    
+        $total = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->whereIn('status', array(1,2,3))
+                    ->count();
+    
+                    $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->where('status', '!=', '0')
+                    ->sum('total');
+    
+                    //AQUI COMIENSA LAS COMISIONES
+    
+                    //AQUI TERMINAN LAS COMISIONES
+    
+                    $descuentos = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->where('status', '!=', 0)
+                    ->sum('descuentoMonto');
+    
+                    $premios = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->whereIn('status', array(1,2))
+                    ->sum('premios');
+    
+                    //Obtener loterias con el monto total jugado y con los premios totales
+    
+                    
+    
+                    $fechaInicial = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00';
+                    $fechaFinal = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00';
+                    $loterias = Lotteries::
+                            selectRaw('
+                                id, 
+                                descripcion, 
+                                (select sum(sd.monto) from salesdetails as sd inner join sales as s on s.id = sd.idVenta where s.status != 0 and sd.idLoteria = lotteries.id and s.created_at between ? and ?) as ventas,
+                                (select sum(sd.premio) from salesdetails as sd inner join sales as s on s.id = sd.idVenta where s.status != 0 and sd.idLoteria = lotteries.id and s.created_at between ? and ?) as premios,
+                                (select substring(numeroGanador, 1, 2) from awards where idLoteria = lotteries.id and created_at between ? and ?) as primera,
+                                (select substring(numeroGanador, 3, 2) from awards where idLoteria = lotteries.id and created_at between ? and ?) as segunda,
+                                (select substring(numeroGanador, 5, 2) from awards where idLoteria = lotteries.id and created_at between ? and ?) as tercera
+                                ', [$fechaInicial, $fechaFinal, //Parametros para ventas
+                                    $fechaInicial, $fechaFinal, //Parametros para premios
+                                    $fechaInicial, $fechaFinal, //Parametros primera
+                                    $fechaInicial, $fechaFinal, //Parametros segunda
+                                    $fechaInicial, $fechaFinal //Parametros tercera
+                                    ])
+                            ->where('lotteries.status', '=', '1')
+                            ->get();
+    
+      
+        $ticketsGanadores = Sales::
+            whereStatus(2)
+            ->wherePagado(0)
+            ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+            ->get();
+    
+        return Response::json([
+            'pendientes' => $pendientes,
+            'perdedores' => $perdedores,
+            'ganadores' => $ganadores,
+            'total' => $total,
+            'ventas' => $ventas,
+            'descuentos' => $descuentos,
+            'premios' => $premios,
+            'neto_final' => ($ventas - $premios - $descuentos),
+            'loterias' => $loterias,
+            'ticketsGanadores' => SalesResource::collection($ticketsGanadores)
+        ], 201);
+    }
+
+    public function monitoreo()
+    {
+        $datos = request()->validate([
+            'datos.fecha' => 'required',
+            'datos.idUsuario' => 'required'
+        ])['datos'];
+    
+        $usuario = Users::whereId($datos['idUsuario'])->first();
+        if(!$usuario->tienePermiso("Monitorear ticket")){
+            return Response::json([
+                'errores' => 1,
+                'mensaje' => 'No tiene permisos para realizar esta accion'
+            ], 201);
+        }
+        
+    
+        $fecha = getdate(strtotime($datos['fecha']));
+    
+        // $monitoreo = Sales::join('tickets', 'sales.idTicket', '=', 'tickets.id')
+        //             ->join('branches', 'sales.idBanca', '=', 'branches.id')
+        //             ->join('users', 'sales.idUsuario', '=', 'users.id')
+        //             //->join('salesdetails', 'sales.id', '=', 'salesdetails.idVenta')
+        //             ->leftJoin('cancellations', 'sales.idTicket', '=', 'cancellations.idTicket')
+                    
+        //             ->selectRaw('
+        //                 sales.*, tickets.codigoBarra, branches.codigo, 
+        //                 users.usuario, 
+        //                 (select sum(premio) from salesdetails where idVenta = sales.id) as premio,
+        //                 cancellations.razon,
+        //                 cancellations.created_at as fechaCancelacion
+        //                 ')
+        //             // ->groupBy('sales.id')
+        //             //->sum('sales.id')
+        //             ->whereBetween('sales.created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+        //             ->get();
+    
+    
+        $monitoreo = Sales::whereBetween('sales.created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->get();
+    
+       // return $ventas;
+        
+    
+        return Response::json([
+            'monitoreo' => SalesResource::collection($monitoreo),
+            'loterias' => Lotteries::whereStatus(1)->get(),
+            'caracteristicasGenerales' =>  Generals::all(),
+            'total_ventas' => Sales::sum('total'),
+            'total_jugadas' => Salesdetails::count('jugada')
+        ], 201);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Sales  $sales
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Sales $sales)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Sales  $sales
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Sales $sales)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Sales  $sales
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Sales $sales)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Sales  $sales
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Sales $sales)
+    {
+        //
+    }
+}
