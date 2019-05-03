@@ -25,6 +25,7 @@ class CreatePayscombinationsTable extends Migration
             $table->decimal('segundaTercera', 10, 2)->default(0);
             $table->decimal('tresNumeros', 10, 2)->default(0);
             $table->decimal('dosNumeros', 10, 2)->default(0);
+            $table->decimal('primerPago', 10, 2)->default(0);
             $table->timestamps();
 
             $table->foreign('idLoteria')->references('id')->on('lotteries');

@@ -209,7 +209,7 @@ var myApp = angular
         
         $scope.inicializarDatos = function(todos, idUsuario = 0){
                
-            $http.get("/api/bancas")
+            $http.get(rutaGlobal+"/api/bancas")
              .then(function(response){
                 //console.log('Bancas: ', response.data);
 
@@ -621,7 +621,7 @@ var myApp = angular
            
    
             _convertir_apertura_y_cierre(true);
-          $http.post("/api/bancas/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
+          $http.post(rutaGlobal+"/api/bancas/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0){
@@ -655,7 +655,7 @@ var myApp = angular
 
         $scope.eliminar = function(d){
             console.log('bancas eliminar: ',d);
-            $http.post("/api/bancas/eliminar", {'action':'sp_bancas_elimnar', 'datos': d})
+            $http.post(rutaGlobal+"/api/bancas/eliminar", {'action':'sp_bancas_elimnar', 'datos': d})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0)

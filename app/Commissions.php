@@ -11,6 +11,7 @@ class Commissions extends Model
         'idLoteria', 
         'directo', 
         'pale',
-        'tripleta'
+        'tripleta',
+        'superPale'
     ];
 }

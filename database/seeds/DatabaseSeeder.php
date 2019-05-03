@@ -15,7 +15,14 @@ class DatabaseSeeder extends Seeder
                     'users','permissions', 
                     'roles', 'permission_role', 
                     'lotteries', 'draws', 
-                    'blockslotteries', 'blocksplays', 'branches', 'generals', 'days']);
+                    'blockslotteries', 
+                    'blocksplays', 
+                    'branches', 
+                    'generals', 
+                    'days', 
+                    'types', 
+                    'entities', 
+                    'drawsrelations', 'frecuencies']);
 
         $this->call('CountriesSeeder');
         $this->call('PermissionSeeder');
@@ -28,6 +35,9 @@ class DatabaseSeeder extends Seeder
         $this->call('BranchesSeeder');
         $this->call('GeneralsSeeder');
         $this->call('DaysSeeder');
+        $this->call('FrecuencySeeder');
+        $this->call('TypesSeeder');
+        $this->call('EntitySeeder');
     }
 
 

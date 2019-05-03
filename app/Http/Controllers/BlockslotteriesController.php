@@ -8,6 +8,7 @@ use Request;
 use Illuminate\Support\Facades\Route; 
 use Illuminate\Support\Facades\Response;
 
+
 use Faker\Generator as Faker;
 use App\Lotteries;
 use App\Generals;

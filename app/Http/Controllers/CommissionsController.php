@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Commissions;
 use Illuminate\Http\Request;
 
+
 class CommissionsController extends Controller
 {
     /**

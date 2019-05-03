@@ -28,6 +28,11 @@ class Lotteries extends Model
         return $this->belongsToMany('App\Draws', 'draw_lottery', 'idLoteria', 'idSorteo');
     }
 
+    public function drawRelations()
+    {
+        return $this->belongsToMany('App\Draws', 'drawsrelations', 'idLoteriaPertenece', 'idSorteo')->withPivot('idLoteria');;
+    }
+
     public function pagosCombinaciones()
     {
         return $this->hasOne('App\Payscombinations', 'idLoteria');
@@ -37,21 +42,22 @@ class Lotteries extends Model
         return $this->hasOne('App\Blocksplays', 'idLoteria');
     }
 
-    public function sorteoExiste($jugada){
-        if(strlen($jugada) == 2){
-            $sorteo = 'Directo';
-        }
-        else if(strlen($jugada) == 4){
-                $sorteo = 'Pale';
-        }
-        else if(strlen($jugada) == 6){
-                $sorteo = 'Tripleta';
-        }else if(strlen($jugada) == 5){
-            //Falta validar si el quinto caracter es un signo de mas
-            $sorteo = 'Super pale';
-        }
+    public function sorteoExiste($idSorteo){
+        // if(strlen($jugada) == 2){
+        //     $sorteo = 'Directo';
+        // }
+        // else if(strlen($jugada) == 4){
+        //         $sorteo = 'Pale';
+        // }
+        // else if(strlen($jugada) == 6){
+        //         $sorteo = 'Tripleta';
+        // }else if(strlen($jugada) == 5){
+        //     //Falta validar si el quinto caracter es un signo de mas
+        //     $sorteo = 'Super pale';
+        // }
 
-        if($this->sorteos()->where('descripcion', $sorteo)->first() != null)
+        
+        if($this->sorteos()->wherePivot('idSorteo', $idSorteo)->first() != null)
             return true;
         else
             return false;

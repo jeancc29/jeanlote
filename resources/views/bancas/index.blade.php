@@ -105,6 +105,11 @@
                   Loterias
                 </a>
               </li>
+               <li class="nav-item">
+                <a  ng-click="mostrarPagos = true" class="nav-link" href="#gastos" data-toggle="tab" role="tab">
+                  Gastos
+                </a>
+              </li>
               
             </ul>
           </div>
@@ -675,6 +680,19 @@
                       </div> <!-- END COL-6 -->
                    </div> <!-- END ROW -->
 
+                   <div class="row" ng-if="existeSorteo('Super pale')">
+                    <div class="col-8">
+                        <div class="row mt-2">
+                          <label class="d-none d-sm-block text-right col-sm-3 col-form-label font-weight-bold mt-2" style="color: black;">Super pale</label>
+                          <div class="col-sm-5">
+                            <div class="form-group">
+                            <input ng-model="datos.ckbLoterias[datos.indexLoteriaComisiones].comisiones.superPale" type="text"  name="superPale" id="superPale" type="text" class="form-control" >
+                            </div>
+                          </div>
+                        </div>
+                      </div> <!-- END COL-6 -->
+                   </div> <!-- END ROW -->
+
                   </div> <!-- END COL 12 PRINCIPAL -->
                  
                 </div>
@@ -834,6 +852,25 @@
                         </div> <!-- END ROW COL-LG-4 -->
                       </div> <!-- END COL-LG-4 -->
 
+                      <div class="col-lg-4" ng-if="existeSorteo('Super pale', false)">
+                        <div class="row">
+                            <div class="col-12 text-center">
+                            <h3 class="font-weight-bold m-0">Super pale</h3>
+                            </div>
+                            <div class="col-12">
+                              <div class="row ">
+                                <label class="d-none d-sm-block text-right col-sm-4 col-form-label  mt-2" style="color: black;">Primer pago</label>
+                                <div class="col-sm-5">
+                                  <div class="form-group">
+                                  <input ng-model="datos.ckbLoterias[datos.indexLoteriaPagosCombinaciones].pagosCombinaciones.primerPago" type="text"  name="primerPago" id="primerPago" type="text" class="form-control" >
+                                  </div>
+                                </div>
+                              </div>
+                            </div> <!-- END COL-12 -->
+                            
+                        </div> <!-- END ROW COL-LG-4 -->
+                      </div> <!-- END COL-LG-4 -->
+
                    </div> <!-- END ROW -->
 
                    
@@ -878,6 +915,60 @@
                 </div>
               </div> <!-- END TAB -->
 
+              <div class="tab-pane" id="gastos">
+                <!-- <h5 class="info-text"> Let's start with the basic information (with validation)</h5> -->
+                <div class="row justify-content-center">
+  
+                  
+                 <div class="col-12 text-center">
+                  <button ng-click="gastoEditar(true, null)" class="btn btn-success" data-toggle="modal" data-target=".modal-gasto">Agregar gasto</button>
+                 </div>
+
+                 <div class="col-12">
+                  <table class="table table-sm">
+                        <thead>
+                            <tr>
+                            <th scope="col" class="text-center">ID</th>
+                            <th scope="col" class="text-center">Gasto</th>
+                            <th scope="col" class="text-center">Monto</th>
+                            <!-- <th scope="col" class="text-center">Cerrado</th> -->
+                            <th scope="col" class="text-center">Frec.</th>
+                            <th scope="col" class="text-center">Inicio</th>
+                            <th scope="col" class="text-center">Proximo</th>
+                            <th scope="col" class="text-center">Editar</th>
+                            
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <!-- | filter:datos.monitoreo.datosBusqueda -->
+                            <tr ng-repeat="c in datos.gastos">
+                                <td scope="col" class="text-center" style="font-size: 14px">@{{$index + 1}}</td>
+                                <!-- <td scope="col" class="text-center">@{{Cerrado}}</td> -->
+                                <td scope="col" class="text-center">@{{c.descripcion}}</td>
+                                <td scope="col" class="text-center">@{{c.monto | currency}}</td>
+                                <td scope="col" class="text-center">@{{c.frecuencia.descripcion}}</td>
+                                <td scope="col" class="text-center">@{{toFecha(c.fechaInicio) | date:"dd/MM/yyyy"}}</td>
+                                <td scope="col" class="text-center">@{{toFecha(c.fechaProximoGasto) | date:"dd/MM/yyyy"}}</td>
+                                
+                                
+                                <td>
+                                  <a style="cursor: pointer" data-toggle="modal" data-target=".modal-gasto" ng-click="gastoEditar(false, c)" class="ion-edit d-inline bg-primary py-1 text-white rounded abrir-wizard-editar"><i class="material-icons">edit</i></a>
+                                  <a style="cursor: pointer" ng-click="gastoEliminar(c)" class="ion-android-delete d-inline  ml-2 bg-danger py-1 text-white rounded"><i class="material-icons">delete_forever</i></a>
+                                </td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                 </div>
+                 
+
+
+
+                 
+                </div> <!-- END ROW PRINCIPAL -->
+              </div> <!-- END TAB 1 -->
+
 
             </div>
           </div>
@@ -901,7 +992,141 @@
 
 
 
+<!-- MODAL DUPLICAR TICKET -->
 
+    <div id="modal-gasto mt-0" class="modal fade modal-gasto" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog mt-0">
+            <div class="modal-content mt-0">
+
+                 <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLabel">Gastos automaticas</h3>
+                    <!-- <div style="display: @{{seleccionado}}" class="alert alert-primary d-inline ml-5 " role="alert">
+                        @{{titulo_seleccionado}} : @{{seleccionado.nombre}} - @{{seleccionado.identificacion}}
+                    </div> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+
+                    <div class="modal-body">
+
+                  
+
+                    <!-- <div class="row">
+                        <div class="col-sm-8">
+                            <div id="fechaBusqueda" class="form-group">
+                            <label for="fechaBusqueda" class="bmd-label-floating">Numero ticket</label>
+                            <input ng-model="datos.duplicar.numeroticket" id="fechaBusqueda" type="text" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <input ng-click="duplicar()" type="submit" class="btn btn-primary" value="Duplicar">   
+                        </div>
+                    </div> -->
+
+                    <div class="row justify-content-center">
+
+                    <div class="col-12 text-center my-0 py-0">
+                              <p>Frecuencia:</p>
+                          </div>
+                          <div class="col-12 text-center my-0 py-0">
+                              <div class="btn-group btn-group-toggle btn-group-sm" data-toggle="buttons">
+                                <label class="btn btn-outline-info" 
+                                  ng-repeat="l in datos.radioFrecuencias track by l.id"
+                                  
+                                  ng-class="{'active': datos.gasto.indexFrecuencia == $index}"
+                                  id="labelFrecuencia@{{l.descripcion}}"
+                                  ng-click="datos.gasto.frecuencia = l">
+                                  <input  type="radio" name="options" id="optionFrecuencia@{{$index + 1}}" autocomplete="off" checked> @{{l.descripcion}}
+                                </label>
+                            </div> <!-- END DIV BTN-GROUP -->
+                          </div> <!-- END COL-12 -->
+
+                          <div class="col-12 text-center">
+                            <p>@{{datos.gasto.frecuencia.observacion}}</p>
+                          </div>
+                        
+                  <div class="col-12 my-0 py-0">
+                      <div class="input-group form-control-lg">
+                            <div class="form-group w-100">
+                              <label for="abreviatura" class="bmd-label-floating">Descripcion</label>
+                              <input ng-model="datos.gasto.descripcion" type="text" class="form-control" id="gastosDescripcion" name="gastosDescripcion">
+                            </div>
+                          </div>
+                    </div>
+
+                    
+
+                  <div class="col-12 my-0 py-0">
+                      <div class="input-group form-control-lg">
+                            <div class="form-group w-100">
+                              <label for="abreviatura" class="bmd-label-floating">Monto</label>
+                              <input ng-model="datos.gasto.monto" type="number" class="form-control" id="gastosmonto" name="gastosmonto">
+                            </div>
+                          </div>
+                    </div>
+
+                    <!-- <div class="col-12 my-0 py-0">
+                        <div class="input-group form-control-lg">
+                            <div id="fechaGasto" class="form-group w-100">
+                              <label for="exampleInput1" class="bmd-label-floating">Fecha inicio</label>
+                              <input ng-model="datos.gasto.fechaInicio" id="gastosFecha" type="text" class="form-control datepicker" value="10/05/2016" required>
+                            </div>
+                          </div>
+                    </div> -->
+                         
+                          
+
+                      <style>
+                            .dropdown-menu{
+                                width: 100%;
+                            }
+                        </style>
+                          <div class="col-12">
+
+                            <div ng-show="datos.gasto.frecuencia.descripcion == 'Semanal'" class="input-group form-control-lg m-0 p-0">
+                                <div class="form-group w-100">
+                                <label for="porcentajecaid" class="bmd-label-floating">Entidad #1</label>
+                                <!-- <input ng-model="datos.porcentajeCaida" class="form-control" id="porcentajecaid" name="porcentajecaid"> -->
+                                <select 
+                                        ng-model="datos.selectedDia"
+                                        ng-options="o.descripcion for o in datos.optionsDias"
+                                        ng-change="cbxBancasChange(o)"
+                                        class="selectpicker w-100" 
+                                        id="entidad1"
+                                        data-style="select-with-transition" 
+                                        title="Select Usuario">
+                                </select>
+                                </div>
+                            </div>
+                          
+                          </div> <!-- END COL-12 -->
+                          
+
+                          <div class="col-12 text-right mt-2">
+                              <div class="form-group">
+                                <input ng-click="gastosAdd()" type="submit" class="btn btn-primary" value="Agregar">   
+                            </div>
+                          </div>
+                      
+                    </div> <!-- END ROW -->
+
+                    
+
+                    <div class="container">
+
+                        <!-- <div style="display: @{{seleccionado}}" class="alert alert-primary d-inline ml-5 " role="alert">
+                        @{{titulo_seleccionado}} : @{{seleccionado.nombre}} - @{{seleccionado.identificacion}}
+                        </div> -->
+                    </div>
+
+                </div> <!-- END MODAL-BODY -->
+                
+            </div> <!-- END MODAL-CONTENT-->
+        </div>
+    </div>
+
+    <!-- END MODAL DUPLICAR TICKET -->
 
 
 
@@ -910,7 +1135,7 @@
 
 <!-- TODAS LAS LOTERIAS -->
 <div ng-show="datos.mostrarFormEditar == false" class="row justify-content-center">
-  <div class="col-md-10">
+  <div class="col-md-12">
       <div class="card ">
         <div class="card-header card-header-info card-header-text">
           <div class="card-text">

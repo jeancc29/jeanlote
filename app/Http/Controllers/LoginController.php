@@ -58,6 +58,7 @@ class LoginController extends Controller
         //Session::put('idUsuario', $u->id);
 
        session(['idUsuario' => $u->id]);
+       session(['permisos' => $u->permisos]);
 
       
 

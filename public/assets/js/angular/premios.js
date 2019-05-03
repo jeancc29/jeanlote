@@ -34,7 +34,7 @@ var myApp = angular
         $scope.inicializarDatos = function(idLoteria, idSorteo){
             
 
-            $http.get("/api/premios", {'action':'sp_datosgenerales_obtener_todos'})
+            $http.get(rutaGlobal+"/api/premios", {'action':'sp_datosgenerales_obtener_todos'})
              .then(function(response){
                 console.log('Loteria ajav: ', response.data);
 
@@ -103,9 +103,8 @@ var myApp = angular
                 
               
 
-                if((array[indice].primera != undefined 
-                    && array[indice].primera != null
-                    ) && (array[indice].segunda != undefined && array[indice].segunda != null) && (array[indice].tercera != undefined && array[indice].tercera != null)){
+                //Verificamos que todos los datos no esten vacios y que el sorteo 'Super pale' no exista
+                if($scope.empty(array[indice].primera, 'number') == false && $scope.empty(array[indice].segunda, 'number') == false && $scope.empty(array[indice].tercera, 'number') == false && $scope.existeSorteo('Super pale', array[indice]) == false){
                     if(array[indice].primera.length != 2){
                         alert('El valor del compa 1era de la loteria ', array[indice].descripcion, ' debe ser numerico de dos digitos');
                         errores = true;
@@ -116,6 +115,17 @@ var myApp = angular
                     }
                     if(array[indice].tercera.length != 2){
                         alert('El valor del compa 3era de la loteria ', array[indice].descripcion, ' debe ser numerico de dos digitos');
+                        errores = true;
+                    }
+                }
+                //Verificamos que todos los datos no esten vacios, excepto la tripleta y que el sorteo 'Super pale' si exista
+                else if($scope.empty(array[indice].primera, 'number') == false && $scope.empty(array[indice].segunda, 'number') == false && $scope.empty(array[indice].tercera, 'number') == true && $scope.existeSorteo('Super pale', array[indice]) == true){
+                    if(array[indice].primera.length != 2){
+                        alert('El valor del compa 1era de la loteria ', array[indice].descripcion, ' debe ser numerico de dos digitos');
+                        errores = true;
+                    }
+                    if(array[indice].segunda.length != 2){
+                        alert('El valor del compa 2da de la loteria ', array[indice].descripcion, ' debe ser numerico de dos digitos');
                         errores = true;
                     }
                 }
@@ -155,7 +165,7 @@ var myApp = angular
    
             console.log('actualizar: ', $scope.datos);
           
-          $http.post("/api/premios/guardar", {'action':'sp_premios_actualiza', 'datos': $scope.datos})
+          $http.post(rutaGlobal+"/api/premios/guardar", {'action':'sp_premios_actualiza', 'datos': $scope.datos})
              .then(function(response){
                 console.log(response);
                 if(response.data.errores == 0){
@@ -270,6 +280,39 @@ var myApp = angular
             // }
 
             
+        }
+
+        $scope.empty = function(valor, tipo){
+            if(tipo === 'number'){
+                if(Number(valor) == undefined || valor == '' || valor == null || Number(valor) <= 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+
+        $scope.existeSorteo = function(sorteo, loteria){
+            //console.log('existesorteo: ', $scope.datos.comisiones.selectedLoteria);
+            var existe = false;
+
+            
+            
+            
+            if(loteria.sorteos == undefined)
+            return false;
+
+        
+            loteria.sorteos.forEach(function(valor, indice, array){
+                //console.log('existesorteo: parametro: ', sorteo, ' varia: ', array[indice].descripcion);
+                if(sorteo == array[indice].descripcion)
+                    existe = true;
+            });
+            
+
+            //console.log('sorteos: ',$scope.datos.selectedLoteriaPagosCombinaciones.sorteos,' sorteo: ', sorteo, ' ,pagos: ', $scope.datos.selectedLoteriaPagosCombinaciones.sorteos.find(x => x.descripcion == sorteo))
+
+            return existe;
         }
 
 

@@ -46,7 +46,7 @@ var myApp = angular
         $scope.inicializarDatos = function(idLoteria){
             
 
-            $http.get("/api/bloqueos")
+            $http.get(rutaGlobal+"/api/bloqueos")
              .then(function(response){
                 console.log('Loteria ajav: ', response.data);
 
@@ -175,7 +175,7 @@ var myApp = angular
             $scope.datos.idLoteria = $scope.datos.selectedLoteria.id;
    
           
-          $http.post("/api/bloqueos/loterias/guardar", {'action':'sp_bloqueosLoterias_actualiza', 'datos': $scope.datos})
+          $http.post(rutaGlobal+"/api/bloqueos/loterias/guardar", {'action':'sp_bloqueosLoterias_actualiza', 'datos': $scope.datos})
              .then(function(response){
                 console.log(response);
                 if(response.data.errores == 0){
@@ -232,7 +232,7 @@ var myApp = angular
             
    
           
-          $http.post("/api/bloqueos/jugadas/guardar", {'action':'sp_bloqueosJugadas_actualiza', 'datos': $scope.datos.bloqueoJugada})
+          $http.post(rutaGlobal+"/api/bloqueos/jugadas/guardar", {'action':'sp_bloqueosJugadas_actualiza', 'datos': $scope.datos.bloqueoJugada})
              .then(function(response){
                 console.log(response);
                 if(response.data.errores == 0){
@@ -248,7 +248,7 @@ var myApp = angular
         $scope.eliminar_bloqueo_jugada = function(d){
             console.log('eliminar_jugada: ', d);
             
-            $http.post("/api/bloqueos/jugadas/eliminar", {'action':'sp_bloqueosJugadas_eliminar', 'datos': d})
+            $http.post(rutaGlobal+"/api/bloqueos/jugadas/eliminar", {'action':'sp_bloqueosJugadas_eliminar', 'datos': d})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0){

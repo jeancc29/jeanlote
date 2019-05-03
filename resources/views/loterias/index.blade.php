@@ -100,7 +100,7 @@
                         <input ng-model="datos.descripcion" class="form-control" id="descripcion" name="descripcion">
                       </div>
                     </div>
-                    <div class="input-group form-control-lg">
+                    <!-- <div class="input-group form-control-lg">
                       <div class="input-group-prepend">
                         <span class="input-group-text">
                           <i class="material-icons">record_voice_over</i>
@@ -110,14 +110,25 @@
                         <label for="abreviatura" class="bmd-label-floating">Abreviatura</label>
                         <input ng-model="datos.abreviatura" type="text" class="form-control" id="abreviatura" name="abreviatura">
                       </div>
-                    </div>
+                    </div> -->
 
 
                     <div class="row">
                       
                       <div class="col-7">
+                        <div class="input-group form-control-lg">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            <i class="material-icons">record_voice_over</i>
+                          </span>
+                        </div>
+                        <div class="form-group">
+                          <label for="abreviatura" class="bmd-label-floating">Abreviatura</label>
+                          <input ng-model="datos.abreviatura" type="text" class="form-control" id="abreviatura" name="abreviatura">
+                        </div>
+                      </div>
 
-                          <div class="input-group form-control-lg">
+                          <!-- <div class="input-group form-control-lg">
                           <div class="input-group-prepend">
                             <span class="input-group-text">
                               <i class="material-icons">av_timer</i>
@@ -127,7 +138,7 @@
                             <label for="exampleInput1" class="bmd-label-floating">Hora de cierre</label>
                             <input ng-model="datos.horaCierre" id="horaCierre" type="text" class="form-control timepicker" value="10/05/2016" required>
                           </div>
-                        </div>
+                        </div> -->
 
                       </div>
 
@@ -198,6 +209,55 @@
 
                     </div>
                 </div>
+
+
+
+                <div class="col-12">
+                      <div class="row  mt-2">
+                          <!-- <div class="col-12 col-sm-3 text-right mt-3">
+                            <h5>relacionadas:</h5>
+                          </div> -->
+                          <div class="col-12 text-center">
+                            <h2>Relacionadas</h2>
+                          </div>
+                          <div class="col-12 col-sm-8 text-center">
+                                <style>
+                                  .btn-outline-info.active2{
+                                    background-color: #00bcd4!important;
+                                    color: #fff!important;
+                                  }
+
+                                  .btn-group-toggle > .btn,
+                                    .btn-group-toggle2 > .btn-group > .btn {
+                                    margin-bottom: 0;
+                                    }
+
+                                    .btn-group-toggle2 > .btn input[type="radio"],
+                                    .btn-group-toggle2 > .btn input[type="checkbox"],
+                                    .btn-group-toggle2 > .btn-group > .btn input[type="radio"],
+                                    .btn-group-toggle2 > .btn-group > .btn input[type="checkbox"] {
+                                    position: absolute;
+                                    clip: rect(0, 0, 0, 0);
+                                    pointer-events: none;
+                                    }
+
+                                </style>
+                                <div class="btn-group btn-group-sm">
+                                    <button 
+                                    ng-repeat="l in datos.loterias"
+                                    ng-class="{'active2': l.seleccionada == 'true'}"
+                                    ng-click="rbxLoteriasChanged(l, $index)"
+                                    id="btnLoteria@{{$index}}"
+                                    type="button" 
+                                    class="btn btn-outline-info">@{{l.descripcion}}</button>
+                                    <!-- <button type="button" class="btn btn-outline-info">6</button>
+                                    <button type="button" class="btn btn-outline-info">7</button> -->
+                                </div>
+                                      <!-- ng-init="rbxLoteriasChanged(l, $first)" -->
+                                
+                              </div><!-- END COL-12 -->
+                        </div> <!-- END ROW LOTERIAS -->
+                </div><!-- END COL-12 LOTERIAS -->
 
 
                 </form>
@@ -387,7 +447,7 @@
 
 <!-- TODAS LAS LOTERIAS -->
 <div ng-show="datos.mostrarFormEditar == false" class="row justify-content-center">
-  <div class="col-md-10">
+  <div class="col-md-12">
       <div class="card ">
         <div class="card-header card-header-info card-header-text">
           <div class="card-text">
@@ -404,7 +464,8 @@
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Loteria</th>
-                <th scope="col">Hora cierre</th>
+                <th scope="col">Abreviatura</th>
+                <!-- <th scope="col">Hora cierre</th> -->
                 <th scope="col">Editar</th>
               </tr>
             </thead>
@@ -412,7 +473,8 @@
               <tr ng-repeat="l in datos.loterias">
                 <th scope="row">@{{$index + 1}}</th>
                 <td>@{{l.descripcion}}</td>
-                <td>@{{l.horaCierre}}</td>
+                <td>@{{l.abreviatura}}</td>
+                <!-- <td>@{{l.horaCierre}}</td> -->
                 <td>
                   <a style="cursor: pointer" ng-click="editar(false, l)" class="ion-edit d-inline bg-primary py-1 text-white rounded abrir-wizard-editar"><i class="material-icons">edit</i></a>
                   <a style="cursor: pointer" ng-click="eliminar(l)" class="ion-android-delete d-inline  ml-2 bg-danger py-1 text-white rounded"><i class="material-icons">delete_forever</i></a>

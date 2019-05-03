@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Route; 
+use Illuminate\Support\Facades\Response; 
 
 use App\Sales;
 use Request;
@@ -47,9 +49,17 @@ class ReportesController extends Controller
 
     public function jugadas()
     {
+        $controlador = Route::getCurrentRoute()->getName();
+        if(!strpos(Request::url(), '/api/')){
+            // return "<h1>Dentro reporte jugadas: $controlador </h1>";
+           return view('reportes.jugadas', compact('controlador'));
+        }
+
+        
         $datos = request()->validate([
-            'datos.idLoteria' => 'required',
-            'datos.fecha' => 'required'
+            'datos.idLoteria' => '',
+            'datos.fecha' => '',
+            'datos.bancas' => ''
         ])['datos'];
     
         $fecha = getdate(strtotime($datos['fecha']));
@@ -60,21 +70,30 @@ class ReportesController extends Controller
         $jugadas = null;
     
     
-        $idVentas = Sales::select('id')
+        if($datos['idLoteria'] != null && $datos['fecha'] != null && $datos['bancas'] != null){
+            //Obtenemos todos los id bancas
+            $idBancas = collect($datos['bancas'])->map(function($id){
+                return $id['id'];
+            });
+
+
+            $idVentas = Sales::select('id')
                 ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
                 ->where('status', '!=', 0)
+                ->whereIn('idBanca', $idBancas)
                 ->get();
     
-        $idVentas = collect($idVentas)->map(function($id){
-            return $id->id;
-        });
-    
-    
-        $jugadas = Salesdetails::
-                    where('idLoteria', $datos['idLoteria'])
-                    ->whereIn('idVenta', $idVentas)
-                    ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
-                    ->get();
+            $idVentas = collect($idVentas)->map(function($id){
+                return $id->id;
+            });
+        
+        
+            $jugadas = Salesdetails::
+                        where('idLoteria', $datos['idLoteria'])
+                        ->whereIn('idVenta', $idVentas)
+                        ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                        ->get();
+        }
     
         
     
@@ -85,7 +104,9 @@ class ReportesController extends Controller
         return Response::json([
             'jugadas' => $jugadas,
             'errores' => $errores,
-            'mensaje' => $mensaje
+            'mensaje' => $mensaje,
+            'loterias' => Lotteries::whereStatus(1)->get(),
+            'bancas' => Branches::whereStatus(1)->get()
         ], 201);
     }
 
@@ -225,7 +246,8 @@ class ReportesController extends Controller
             'loterias' => Lotteries::whereStatus(1)->get(),
             'caracteristicasGenerales' =>  Generals::all(),
             'total_ventas' => Sales::sum('total'),
-            'total_jugadas' => Salesdetails::count('jugada')
+            'total_jugadas' => Salesdetails::count('jugada'),
+            'errores' => 0
         ], 201);
     }
 

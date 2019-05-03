@@ -17,7 +17,7 @@ class CreateLotteriesTable extends Migration
             $table->increments('id');
             $table->string('descripcion', 50);
             $table->string('abreviatura', 5);
-            $table->time('horaCierre');
+            // $table->time('horaCierre');
             $table->integer('status');
             $table->timestamps();
         });

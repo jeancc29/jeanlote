@@ -6,6 +6,7 @@ use App\Sales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route; 
 
+
 class DashboardController extends Controller
 {
     /**

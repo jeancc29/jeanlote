@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Days;
 use Illuminate\Http\Request;
 
+
 class DaysController extends Controller
 {
     /**

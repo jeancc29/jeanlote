@@ -32,6 +32,9 @@ var myApp = angular
         "loterias": [],
         "jugadas":[],
 
+        'optionsBancas' : [],
+        'selectedBancas' : {},
+
     'optionsLoterias':[],
     'loterias':[],
     'jugada':null,
@@ -101,7 +104,7 @@ var myApp = angular
             'razon' : null,
         },
     }
-        $scope.inicializarDatos = function(){
+        $scope.inicializarDatos = function(response = null){
 
            
             
@@ -125,13 +128,44 @@ var myApp = angular
             $scope.datos.jugadasReporte.optionsLoterias = [];
             $scope.datos.jugadasReporte.selectedLoteria = {};
             
+            if(response != null){
+                $scope.datos.optionsBancas = response.data.bancas;
+                let idx = 0;
+                if($scope.datos.optionsBancas.find(x => x.id == $scope.datos.idBanca) != undefined)
+                    idx = $scope.datos.optionsBancas.findIndex(x => x.id == $scope.datos.idBanca);
+                $scope.datos.selectedBancas = $scope.datos.optionsBancas[idx];
 
-            $http.get("/api/principal")
+
+                $scope.datos.optionsVentas = (response.data.ventas != undefined) ? response.data.ventas : [{'id': 1, 'codigoBarra' : 'No hay ventas'}];
+                $scope.datos.selectedVentas = $scope.datos.optionsVentas[0];
+                $scope.datos.optionsLoterias =response.data.loterias;
+                $scope.datos.jugadasReporte.optionsLoterias = response.data.loterias;
+                $scope.datos.jugadasReporte.selectedLoteria = $scope.datos.jugadasReporte.optionsLoterias[0];
+
+                $scope.datos.estadisticas_ventas.total_jugadas = response.data.total_jugadas;
+                $scope.datos.estadisticas_ventas.total = response.data.total_ventas;
+                
+                
+                $timeout(function() {
+                    $('#multiselect').selectpicker("refresh");
+                    $('.selectpicker').selectpicker("refresh");
+                  })
+
+                  return;
+            }
+
+            $http.get(rutaGlobal+"/api/principal")
              .then(function(response){
 
                 console.log(response)
 
-                $scope.datos.optionsVentas = (response.ventas != undefined) ? response.ventas : [{'id': 1, 'ticket' : 'No hay ventas'}];
+                $scope.datos.optionsBancas = response.data.bancas;
+                let idx = 0;
+                if($scope.datos.optionsBancas.find(x => x.id == $scope.datos.idBanca) != undefined)
+                    idx = $scope.datos.optionsBancas.findIndex(x => x.id == $scope.datos.idBanca);
+                $scope.datos.selectedBancas = $scope.datos.optionsBancas[idx];
+
+                $scope.datos.optionsVentas = (response.data.ventas != undefined) ? response.data.ventas : [{'id': 1, 'codigoBarra' : 'No hay ventas'}];
                 $scope.datos.selectedVentas = $scope.datos.optionsVentas[0];
                  $scope.datos.optionsLoterias =response.data.loterias;
                  console.log('select: ',$scope.datos.selectedVentas);
@@ -167,14 +201,14 @@ var myApp = angular
         $scope.load = function(codigo_usuario, ROOT_PATH, idBanca = 1){
             
             ruta = ROOT_PATH;
-            // console.log('ROOT_PATH: ', ruta);
+            console.log('ROOT_PATH: ', ruta);
             $scope.inicializarDatos();
 
           $scope.datos.idUsuario = codigo_usuario; //parseInt(codigo_usuario);
           $scope.datos.idBanca = idBanca; //parseInt(codigo_usuario);
 
           var a = new Hola("Jean", "Contreras");
-          console.log('clase: ', a.nombre);
+          console.log('clase: ', ruta);
         }
 
         function eliminarUltimoCaracter(d){
@@ -307,7 +341,7 @@ var myApp = angular
 
                     $scope.datos.idLoteria = $scope.datos.loterias[0].id;
                    
-                    $http.post("api/principal/montodisponible",{'datos':$scope.datos, 'action':'sp_jugadas_obtener_montoDisponible'})
+                    $http.post(rutaGlobal+"/api/principal/montodisponible",{'datos':$scope.datos, 'action':'sp_jugadas_obtener_montoDisponible'})
                       .then(function(response){
                             // console.log(response);
                          $scope.datos.montoExistente = response.data.monto;
@@ -559,7 +593,7 @@ var myApp = angular
              $scope.datos.total_tripleta = total_tripleta;
              $scope.datos.total_palet_tripleta =  total_palet_tripleta;
              $scope.datos.total_jugadas =  Object.keys($scope.datos.jugadas).length;
-             $scope.datos.descuentoMonto = ($scope.datos.hayDescuento) ? parseInt(parseFloat($scope.datos.monto_a_pagar) / parseFloat($scope.datos.caracteristicasGenerales[0].cantidadAplicar)) * parseFloat($scope.datos.caracteristicasGenerales[0].descuentoValor) : 0;
+             $scope.datos.descuentoMonto = ($scope.datos.hayDescuento) ? parseInt(parseFloat($scope.datos.monto_a_pagar) / parseFloat($scope.datos.selectedBancas.deCada)) * parseFloat($scope.datos.selectedBancas.descontar)  : 0;
              
 
              //Calcular total jugdasReporte
@@ -655,9 +689,10 @@ var myApp = angular
                 }
 
                 $scope.datos.total = $scope.datos.monto_a_pagar;
+                $scope.datos.idBanca = $scope.datos.selectedBancas.id;
                 
 
-                $http.post("/api/principal/guardar",{'datos':$scope.datos, 'action':'sp_ventas_actualiza'})
+                $http.post(rutaGlobal+"/api/principal/guardar",{'datos':$scope.datos, 'action':'sp_ventas_actualiza'})
                 .then(function(response){
 
                     console.log(response);
@@ -767,7 +802,7 @@ var myApp = angular
             
             $scope.datos.monitoreo.idUsuario = $scope.datos.idUsuario;
           
-          $http.post("api/reportes/monitoreo", {'action':'sp_ventas_buscar', 'datos': $scope.datos.monitoreo})
+          $http.post(rutaGlobal+"/api/reportes/monitoreo", {'action':'sp_ventas_buscar', 'datos': $scope.datos.monitoreo})
              .then(function(response){
                 console.log('monitoreo ',response);
                 if(response.data.errores == 0){
@@ -859,7 +894,7 @@ var myApp = angular
 
             $scope.datos.duplicar.codigoBarra = $scope.datos.duplicar.numeroticket;
 
-            $http.post("api/principal/duplicar", {'action':'sp_ventas_obtenerpor_numeroticket', 'datos': $scope.datos.duplicar})
+            $http.post(rutaGlobal+"/api/principal/duplicar", {'action':'sp_ventas_obtenerpor_numeroticket', 'datos': $scope.datos.duplicar})
              .then(function(response){
 
                
@@ -934,8 +969,10 @@ var myApp = angular
             
 
             $scope.datos.jugadasReporte.idLoteria = $scope.datos.jugadasReporte.selectedLoteria.id;
+            $scope.datos.jugadasReporte.bancas = [];
+            $scope.datos.jugadasReporte.bancas.push($scope.datos.selectedBancas);
           
-          $http.post("api/reportes/jugadas", {'action':'sp_jugadas_buscar', 'datos': $scope.datos.jugadasReporte})
+          $http.post(rutaGlobal+"/api/reportes/jugadas", {'action':'sp_jugadas_buscar', 'datos': $scope.datos.jugadasReporte})
              .then(function(response){
 
                 
@@ -982,7 +1019,7 @@ var myApp = angular
 
             // console.log($scope.datos.pagar, ' Pagar idUsuario');
 
-            $http.post("/api/principal/pagar", {'action':'sp_pagar_buscar', 'datos': $scope.datos.pagar})
+            $http.post(rutaGlobal+"/api/principal/pagar", {'action':'sp_pagar_buscar', 'datos': $scope.datos.pagar})
              .then(function(response){
 
 
@@ -1008,7 +1045,7 @@ var myApp = angular
             
 
           
-          $http.post("api/reportes/ventas", {'action':'sp_reporteVentas_buscar', 'datos': $scope.datos.ventasReporte})
+          $http.post(rutaGlobal+"/api/reportes/ventas", {'action':'sp_reporteVentas_buscar', 'datos': $scope.datos.ventasReporte})
              .then(function(response){
 
                 // console.log('ventasReporte_buscar: ', response);
@@ -1092,11 +1129,12 @@ var myApp = angular
             }
 
             $scope.datos.cancelar.idUsuario = $scope.datos.idUsuario;
+            $scope.datos.cancelar.idBanca = $scope.datos.selectedBancas.id;
            // $scope.datos.cancelar.codigoBarra = $scope.datos.idUsuario;
 
-            $http.post("api/principal/cancelar", {'action':'sp_ventas_cancelar', 'datos': $scope.datos.cancelar})
+            $http.post(rutaGlobal+"/api/principal/cancelar", {'action':'sp_ventas_cancelar', 'datos': $scope.datos.cancelar})
              .then(function(response){
-                // console.log(response.data);
+                console.log(response.data);
 
                 if(response.data.errores == 1){
                     $scope.datos.cancelar.codigoBarra = null;
@@ -1105,6 +1143,7 @@ var myApp = angular
                     return;
                 }else if(response.data.errores == 0){
                     $scope.datos.cancelar.codigoBarra = null;
+                    $scope.inicializarDatos(response);
                     alert(response.data.mensaje);
                 }
 

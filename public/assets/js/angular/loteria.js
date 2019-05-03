@@ -33,7 +33,7 @@ var myApp = angular
 
         $scope.inicializarDatos = function(todos){
                
-            $http.get("/api/loterias")
+            $http.get(rutaGlobal+"/api/loterias")
              .then(function(response){
                 console.log('Loteria ajav: ', response.data.loterias);
 
@@ -82,7 +82,13 @@ var myApp = angular
                     
                    }
 
-                $scope.datos.loterias =response.data.loterias;
+                $scope.datos.loterias= [];
+                var jsonLoterias = response.data.loterias;
+                jsonLoterias.forEach(function(valor, indice, array){
+                    array[indice].seleccionado = false;
+                    $scope.datos.loterias.push(array[indice]);
+                })
+               // $scope.datos.loterias =response.data.loterias;
             
                 
             });
@@ -149,7 +155,7 @@ var myApp = angular
 
         $scope.editar = function(esNuevo, d){
             
-            $scope.datos.mostrarFormEditar = true;
+            
             console.log('editar: ', d, ' es nuevo: ', esNuevo);
 
             if(esNuevo){
@@ -179,8 +185,8 @@ var myApp = angular
                 $scope.datos.descripcion = d.descripcion;
                 $scope.datos.abreviatura = d.abreviatura;
                 $scope.datos.status = (d.status == 1) ? true : false;
-                $scope.datos.horaCierre = d.horaCierre;
-                $scope.hora_convertir(false);
+                //$scope.datos.horaCierre = d.horaCierre;
+                //$scope.hora_convertir(false);
 
                 // $scope.datos.ckbDias.forEach(function(valor, indice, array){
 
@@ -225,6 +231,20 @@ var myApp = angular
                      });
                 }
 
+                if(d.loteriasRelacionadas != undefined){
+                    $scope.datos.loterias.forEach(function(valor, indice, array){
+                        console.log('Pivot: ', d.loteriasRelacionadas.find(x => x.pivot.idLoteria == array[indice].id));
+                        if(d.loteriasRelacionadas.find(x => x.pivot.idLoteria == array[indice].id)){
+                            array[indice].seleccionado = true;
+                            $('#btnLoteria'+ indice).addClass('active2');
+                        }else{
+                            array[indice].seleccionado = false;
+                            $('#btnLoteria'+ indice).removeClass('active2');
+                        }
+    
+                     });
+                }
+
                 /************* PAGOS COMBINACIONES ********************/
 
                 // if(d.pagosCombinaciones != undefined){
@@ -253,6 +273,8 @@ var myApp = angular
                 /************* END PAGOS COMBINACIONES ********************/
                 
             }
+
+            $scope.datos.mostrarFormEditar = true;
         }
 
         $scope.loteria_obtener_por_id = function(){
@@ -398,13 +420,13 @@ var myApp = angular
 
             $scope.datos.status = ($scope.datos.status) ? 1 : 0;
             $scope.datos.horaCierre = $('#horaCierre').val();
-            $scope.hora_convertir(true);
+            //$scope.hora_convertir(true);
 
 
     //   console.log($scope.datos);
 
 
-          $http.post("/api/loterias/guardar", {'action':'sp_loterias_actualiza', 'datos': $scope.datos})
+          $http.post(rutaGlobal+"/api/loterias/guardar", {'action':'sp_loterias_actualiza', 'datos': $scope.datos})
              .then(function(response){
                  console.log(response.data);
                 if(response.data.errores == 0){
@@ -416,7 +438,9 @@ var myApp = angular
                         $scope.datos.status = ($scope.datos.status == 1) ? true : false;
                     }
 
-                    $scope.hora_convertir(false);
+                    //$scope.hora_convertir(false);
+                }else{
+                    alert(response.data.mensaje);
                 }
             });
         
@@ -425,15 +449,14 @@ var myApp = angular
 
 
         $scope.eliminar = function(d){
-            $http.post($scope.ROOT_PATH +"clases/consultaajax.php", {'action':'sp_loterias_elimnar', 'datos': d})
+            $http.post(rutaGlobal+"/api/loterias/eliminar", {'action':'sp_loterias_elimnar', 'datos': d})
              .then(function(response){
-                console.log(response.data[0][0]);
-                var json = JSON.parse(response.data[0][0]);
-                console.log(json);
-                if(json[0].errores == 0)
+                console.log(response);
+            
+                if(response.data.errores == 0)
                 {
                     $scope.inicializarDatos(true);
-                    alert(json[0].mensaje);
+                    alert(response.data.mensaje);
                 }
                 
             });
@@ -508,6 +531,34 @@ var myApp = angular
                     $scope.datos.horaCierre = hora.toString() + ':' + a[1] + ' PM';
                 }
             }
+        }
+
+
+        $scope.rbxLoteriasChanged = function(d, idx){
+
+            $('#optionLabel'+ idx).removeClass('focus');
+            
+            if($scope.datos.loterias.find(x => x.id == d.id) != undefined){
+                let idx = $scope.datos.loterias.findIndex(x => x.id == d.id);
+                if($scope.datos.loterias[idx].seleccionado == true){
+                    $scope.datos.loterias[idx].seleccionado = false;
+                    console.log("rbxLoteriasChanged false, select: ",$scope.datos.loterias[idx].seleccionado , " hasClass ", $('#optionLabel'+ idx).hasClass('active'), ' index: ', idx);
+                    $('#btnLoteria'+ idx).removeClass('active2');
+                }
+                else
+                    {
+                        $scope.datos.loterias[idx].seleccionado = true;
+                        $('#btnLoteria'+ idx).addClass('active2');
+                        console.log("rbxLoteriasChanged false, select: ",$scope.datos.loterias[idx].seleccionado , " hasClass ", $('#optionLabel'+ idx).hasClass('active'), ' index: ', idx);
+               
+                    }
+            }
+
+
+            
+
+            console.log("rbxLoteriasChanged, hasClass ", $('#optionLabel'+ idx).hasClass('active'), ' index: ', idx);
+               
         }
 
 

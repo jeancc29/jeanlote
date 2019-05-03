@@ -78,7 +78,7 @@
                 <h5 class="info-text"> Let's start with the basic information (with validation)</h5>
                 <div class="row justify-content-center">
  
-                  <div class="col-12 col-sm-8">
+                  <div class="col-12 col-md-8">
 
                     <!-- <div class="row">
                       <div class="col-12">
@@ -134,8 +134,8 @@
                     <div class="row">
                         <div ng-repeat="l in datos.loterias" class="col-12">
                           <div class="row">
-                            <div class="col-3">
-                              <h4>@{{l.descripcion}}</h4>
+                            <div class="col-4 col-md-5 text-right mt-4">
+                              <h6>@{{l.descripcion}}</h6>
                             </div>
                             <div class="col-2">
                               <div class="input-group form-control-lg">
@@ -153,7 +153,7 @@
                                 </div>
                               </div>
                             </div> <!-- END COL-2 -->
-                            <div class="col-2">
+                            <div class="col-2" ng-hide="existeSorteo('Super pale', l)">
                               <div class="input-group form-control-lg">
                                 <div class="form-group">
                                   <label for="exampleInput1" class="bmd-label-floating">3era</label>

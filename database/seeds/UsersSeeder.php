@@ -32,5 +32,19 @@ class UsersSeeder extends Seeder
         });
        
         $usuario->permisos()->attach($permisos);
+
+
+
+        $usuario = u::create([
+            'nombres' => 'Sistema',
+            'apellidos' => 'Sistema',
+            'sexo' => 'Masculino',
+            'email' => 'jeancon29@gmail.com',
+            'celular' => '8294266800',
+            'idRole' => 1,
+            'usuario' => 'sistema',
+            'password' => Crypt::encryptString('Jean06091929'),
+            'status' => 3
+        ]);
     }
 }

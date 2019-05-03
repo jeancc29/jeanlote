@@ -20,7 +20,7 @@ class CreateAwardsTable extends Migration
             $table->string('numeroGanador', 6);
             $table->string('primera', 2);
             $table->string('segunda', 2);
-            $table->string('tercera', 2);
+            $table->string('tercera', 2)->nullable();
             $table->integer('idUsuario');
             $table->integer('status')->default(0);
             $table->timestamps();

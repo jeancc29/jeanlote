@@ -26,6 +26,7 @@ class LotteriesResource extends JsonResource
             'dias' => $this->dias,
             'sorteos' => $this->sorteos,
             'pagosCombinaciones' => $this->pagosCombinaciones,
+            'loteriasRelacionadas' => $this->drawRelations,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'quiniela' => Blockslotteries::where(['idLoteria' => $this->id, 'idSorteo' => 1])->value('monto'),

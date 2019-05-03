@@ -23,6 +23,7 @@ class SalesResource extends JsonResource
             'usuario' => $this->usuario->usuario,
             'idBanca' => $this->idBanca,
             'codigo' => $this->banca->codigo,
+            'banca' => $this->banca,
             'total' => $this->total,
             'descuentoPorcentaje' => $this->descuentoPorcentaje,
             'descuentoMonto' => $this->descuentoMonto,

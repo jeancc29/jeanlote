@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+date_default_timezone_set("America/Santiago");
 
 use App\Addresses;
 use Illuminate\Http\Request;

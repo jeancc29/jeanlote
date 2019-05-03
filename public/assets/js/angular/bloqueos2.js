@@ -293,7 +293,7 @@ var myApp = angular
 
                 return;
             }
-            $http.get("/api/bloqueos")
+            $http.get(rutaGlobal+"/api/bloqueos")
              .then(function(response){
                 console.log('Bancas: ', response.bancas);
 
@@ -429,7 +429,7 @@ var myApp = angular
         //     $scope.datos.bancas.push($scope.datos.selectedBanca);
             
            
-          $http.post("/api/bloqueos/loterias/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
+          $http.post(rutaGlobal+"/api/bloqueos/loterias/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0){
@@ -476,9 +476,9 @@ var myApp = angular
             $scope.datos.bloqueoJugada.idUsuario = $scope.datos.idUsuario;
             
            
-          $http.post("/api/bloqueos/jugadas/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos.bloqueoJugada})
+          $http.post(rutaGlobal+"/api/bloqueos/jugadas/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos.bloqueoJugada})
              .then(function(response){
-                console.log(response.data);
+                console.log(response);
                 if(response.data.errores == 0){
                     
                             $scope.inicializarDatos($scope.datos.idUsuario, null, response);
@@ -497,7 +497,7 @@ var myApp = angular
 
         $scope.eliminar = function(d){
             console.log('bancas eliminar: ',d);
-            $http.post("/api/bancas/eliminar", {'action':'sp_bancas_elimnar', 'datos': d})
+            $http.post(rutaGlobal+"/api/bancas/eliminar", {'action':'sp_bancas_elimnar', 'datos': d})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0)

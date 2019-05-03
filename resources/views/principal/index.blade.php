@@ -114,11 +114,12 @@
                     </div>
 
                     <div  class="col-lg-4 col-md-4 col-sm-4 col-10">
+                    <!-- o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id -->
                             <select 
                             id="multiselect"
                                 ng-change="calcularTotal()"
                                 ng-model="datos.loterias"
-                                ng-options="o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id"
+                                ng-options="o.descripcion for o in datos.optionsLoterias track by o.id"
                                 class="selectpicker col-12" 
                                 data-style="select-with-transition" 
                                 multiple title="Seleccionar loteria"
@@ -209,9 +210,43 @@
           <div class="card-header">
             <div class="row justify-content-center">
            
+              
+              @if($usuario->tienePermiso("Jugar como cualquier banca"))
               <h5 class="card-title m-0 p-0">
-                Nombre banca o combobox bancas
+                    <!-- <div class="form-group m-0 p-0 bg-primary">
+                        <select 
+                            ng-model="datos.selectedBancas" 
+                            ng-options="o.descripcion for o in datos.optionsBancas"
+                            class="selectpicker w-100 m-0 p-0" 
+                            data-style="select-with-transition" 
+                            title="Select Ticket">
+                        </select>
+                    </div> -->
+
+                    <style>
+                        .p{
+                            margin: 0px!important;
+                            padding: 0px!important;
+                        }
+                    </style>
+
+                    <div  class="">
+                    <!-- o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id -->
+                            <select 
+                                ng-model="datos.loterias"
+                                ng-options="o.descripcion for o in datos.optionsLoterias track by o.id"
+                                class="selectpicker p m-0 p-0" 
+                                data-style="select-with-transition" 
+                                 title="Seleccionar loteria"
+                                >
+                            </select>
+                    </div>
               </h5>
+              @else
+              <h5 class="card-title m-0 p-0">
+                {{datos.selectedBancas.descripcion}}
+              </h5>
+              @endif
            
             </div>
            
@@ -253,11 +288,12 @@
                     </div>
 
                     <div  class=" col-10">
+                    <!-- o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id -->
                             <select 
                             id="multiselect"
                                 ng-change="calcularTotal()"
                                 ng-model="datos.loterias"
-                                ng-options="o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id"
+                                ng-options="o.descripcion for o in datos.optionsLoterias track by o.id"
                                 class="selectpicker col-12" 
                                 data-style="select-with-transition" 
                                 multiple title="Seleccionar loteria"
@@ -369,18 +405,17 @@
                         </div>
                         <div class="col-9">
                             <div class="row">
-                                <div ng-click="cancelarDesdeMovil()" 
-                                   
+                                <div  
                                     class="input-group form-control-lg m-0 p-0">
-                                    <div class="input-group-prepend">
+                                    <div class="input-group-prepend" ng-click="cancelarDesdeMovil()">
                                         <span class="input-group-text">
                                         <i class="material-icons text-danger" style="font-size: 35px;">delete_forever</i>
                                         </span>
                                     </div>
                                     <div class="form-group col-9 m-0 p-0">
                                         <select 
-                                            ng-model="datos.selectedVentas"
-                                            ng-options="o.ticket for o in datos.optionsVentas"
+                                            ng-model="datos.selectedVentas" 
+                                            ng-options="o.codigoBarra for o in datos.optionsVentas | orderBy:id:'desc'"
                                             class="selectpicker w-100" 
                                             data-style="select-with-transition" 
                                             title="Select Ticket">

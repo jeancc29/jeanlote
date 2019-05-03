@@ -36,8 +36,15 @@ class DrawsSeeder extends Seeder
         d::create([
             'descripcion' => 'Super pale',
             'bolos' => 3,
-            'cantidadNumeros' => 6,
+            'cantidadNumeros' => 4,
             'status' => 1
         ]);
+
+        // d::create([
+        //     'descripcion' => 'Super pale real',
+        //     'bolos' => 3,
+        //     'cantidadNumeros' => 4,
+        //     'status' => 1
+        // ]);
     }
 }

@@ -15,6 +15,8 @@ class Payscombinations extends Model
         'primeraSegunda', 
         'primeraTercera', 
         'segundaTercera', 
-        'tresNumeros', 'dosNumeros'
+        'tresNumeros', 
+        'dosNumeros',
+        'primerPago'
     ];
 }

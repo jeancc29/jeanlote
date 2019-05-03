@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateFrequencyTable extends Migration
+class CreateTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,11 @@ class CreateFrequencyTable extends Migration
      */
     public function up()
     {
-        Schema::create('frequency', function (Blueprint $table) {
+        Schema::create('types', function (Blueprint $table) {
             $table->increments('id');
             $table->string('descripcion');
+            $table->string('renglon');
+            $table->integer('status');
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ class CreateFrequencyTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('frequency');
+        Schema::dropIfExists('types');
     }
 }

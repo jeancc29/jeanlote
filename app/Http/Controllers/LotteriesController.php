@@ -6,6 +6,7 @@ use App\Lotteries;
 use Request;
 use Illuminate\Support\Facades\Route; 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 
 use Faker\Generator as Faker;
@@ -61,9 +62,9 @@ class LotteriesController extends Controller
         
     
         return Response::json([
-            'loterias' => LotteriesResource::collection( Lotteries::whereIn('status', [1,0])->get()),
+            'loterias' => LotteriesResource::collection(Lotteries::whereIn('status', [1,0])->get()),
             'dias' => Days::all(),
-            'sorteos' => Draws::all(),
+            'sorteos' => Draws::all()
         ], 201);
 
         
@@ -105,75 +106,39 @@ class LotteriesController extends Controller
             'datos.descripcion' => 'required',
             'datos.abreviatura' => 'required|min:1|max:4',
             'datos.status' => 'required',
-            'datos.horaCierre' => 'required',
+            // 'datos.horaCierre' => 'required',
             'datos.sorteos' => 'required',
+            'datos.loterias' => '',
     
-            // 'datos.primera' => 'required',
-            // 'datos.segunda' => 'required',
-            // 'datos.tercera' => 'required',
-            // 'datos.primeraSegunda' => 'required',
-            // 'datos.primeraTercera' => 'required',
-            // 'datos.segundaTercera' => 'required',
-            // 'datos.tresNumeros' => 'required',
-            // 'datos.dosNumeros' => 'required',
-    
-            //'datos.dias' => 'required',
         ])['datos'];
     
         $errores = 0;
         $mensaje = '';
     
-       
+        $loterias = collect($datos['loterias']);
+        list($loterias_seleccionadas, $no) = $loterias->partition(function($l){
+            return $l['seleccionado'] == true && Lotteries::where(['id' => $l['id'], 'status' => 1])->first() != null;
+        });
+
+        
+        foreach($loterias_seleccionadas as $s){
+            if(Lotteries::whereId($s['id'])->first()->sorteos()->whereDescripcion('Pale')->first() == null){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'Debe asignarle el sorteo pale a la loteria ' . Lotteries::whereId($s['id'])->first()->descripcion
+                ], 201);
+            }
+        }
+    
+    
         $loteria = Lotteries::whereId($datos['id'])->get()->first();
-    
-        /********************* PAGOS COMBINACIONES ************************/
-        //$combinaciones = Payscombinations::where('idLoteria', $datos['id'])->get()->first();
-        /********************* END PAGOS COMBINACIONES ************************/
-    
         if($loteria != null){
             $loteria['descripcion'] = $datos['descripcion'];
             $loteria['abreviatura'] = $datos['abreviatura'];
             $loteria['status'] = $datos['status'];
-            $loteria['horaCierre'] = $datos['horaCierre'];
+            // $loteria['horaCierre'] = $datos['horaCierre'];
             $loteria->save();
     
-           /********************* PAGOS COMBINACIONES ************************/
-            // if($combinaciones != null){
-            //     $combinaciones['primera'] = $datos['primera'];
-            //     $combinaciones['segunda'] = $datos['segunda'];
-            //     $combinaciones['tercera'] = $datos['tercera'];
-            //     $combinaciones['primeraSegunda'] = $datos['primeraSegunda'];
-            //     $combinaciones['primeraTercera'] = $datos['primeraTercera'];
-            //     $combinaciones['segundaTercera'] = $datos['segundaTercera'];
-            //     $combinaciones['tresNumeros'] = $datos['tresNumeros'];
-            //     $combinaciones['dosNumeros'] = $datos['dosNumeros'];
-            //     $combinaciones->save();
-            // }else{
-            //     Payscombinations::create([
-            //         'idLoteria' => $loteria['id'],
-            //         'primera' => $datos['primera'],
-            //         'segunda' => $datos['segunda'],
-            //         'tercera' => $datos['tercera'],
-            //         'primeraSegunda' => $datos['primeraSegunda'],
-            //         'primeraTercera' => $datos['primeraTercera'],
-            //         'segundaTercera' => $datos['segundaTercera'],
-            //         'tresNumeros' => $datos['tresNumeros'],
-            //         'dosNumeros' => $datos['dosNumeros']
-            //     ]);
-            // }
-    
-            /********************* END PAGOS COMBINACIONES ************************/
-            
-    
-            /********************* DIAS ************************/
-            //Eliminamos los dias para luego agregarlos nuevamentes
-            // $loteria->dias()->detach();
-            // $dias = collect($datos['dias'])->map(function($d) use($loteria){
-                
-            //     return ['idDia' => $d['id'], 'idLoteria' => $loteria['id'] ];
-            // });
-            // $loteria->dias()->attach($dias);
-            /********************* END DIAS ************************/
     
             $loteria->sorteos()->detach();
             $sorteos = collect($datos['sorteos'])->map(function($s) use($loteria){
@@ -181,48 +146,104 @@ class LotteriesController extends Controller
                 return ['idSorteo' => $s['id'], 'idLoteria' => $loteria['id'] ];
             });
             $loteria->sorteos()->attach($sorteos);
+
+            foreach($datos['sorteos'] as $s){
+                $sorteo = Draws::whereId($s['id'])->first();
+                if($sorteo != null){
+                    if($sorteo['descripcion'] == "Super pale"){
+                        $loteria->drawRelations()->detach();
+                        // $loterias = collect($datos['loterias']);
+                        // list($loterias_seleccionadas, $no) = $loterias->partition(function($l){
+                        //     return $l['seleccionado'] == true && Lotteries::where(['id' => $l['id'], 'status' => 1])->first() != null;
+                        // });
+
+                        
+                        $loterias_seleccionadas = collect($loterias_seleccionadas)->map(function($d) use($sorteo, $loteria){
+                            return ['idSorteo' => $sorteo['id'], 'idLoteriaPertenece' => $loteria['id'], 'idLoteria' => $d['id'] ];
+                        });
+
+                        $loteria->drawRelations()->attach($loterias_seleccionadas);
+                    }
+                }
+            }
+            
+            // foreach($datos['sorteos'] as $s){
+            //     $sorteo = Draws::whereId($s['id'])->first();
+            //     if($sorteo != null){
+            //         if($sorteo['descripcion'] == "Super pale"){
+            //             DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+            //             $sorteo->loteriasRelacionadas()->where('idLoteriaPertenece', $loteria['id'])->delete();
+            //             DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+            //             $loteriasRelacionadas = collect($datos['loterias'])->map(function($d) use($sorteo, $loteria){
+                
+            //                 return ['idSorteo' => $sorteo['id'], 'idLoteriaPertenece' => $loteria['id'], 'idLoteria' => $d['id'] ];
+            //             });
+            //             $sorteo->loteriasRelacionadas()->attach($loteriasRelacionadas);
+            //         }
+            //     }
+            // }
     
         }else{
             $loteria = Lotteries::create([
                 'descripcion' => $datos['descripcion'],
                 'abreviatura' => $datos['abreviatura'],
-                'horaCierre' => $datos['horaCierre'],
+                // 'horaCierre' => $datos['horaCierre'],
                 'status' => $datos['status'],
             ]);
     
-            /********************* PAGOS COMBINACIONES ************************/
-            // Payscombinations::create([
-            //     'idLoteria' => $loteria['id'],
-            //     'primera' => $datos['primera'],
-            //     'segunda' => $datos['segunda'],
-            //     'tercera' => $datos['tercera'],
-            //     'primeraSegunda' => $datos['primeraSegunda'],
-            //     'primeraTercera' => $datos['primeraTercera'],
-            //     'segundaTercera' => $datos['segundaTercera'],
-            //     'tresNumeros' => $datos['tresNumeros'],
-            //     'dosNumeros' => $datos['dosNumeros']
-            // ]);
-            /********************* END PAGOS COMBINACIONES ************************/
-    
-            /********************* DIAS ************************/
-            //Eliminamos los dias para luego agregarlos nuevamentes
-            // $loteria->dias()->detach();
-            // $dias = collect($datos['dias'])->map(function($d) use($loteria){
-            //     return ['idDia' => $d['id'], 'idLoteria' => $loteria['id'] ];
-            // });
-            // $loteria->dias()->attach($dias);
-            /********************* END DIAS ************************/
+          
     
             $loteria->sorteos()->detach();
             $sorteos = collect($datos['sorteos'])->map(function($s) use($loteria){
                 return ['idSorteo' => $s['id'], 'idLoteria' => $loteria['id'] ];
             });
             $loteria->sorteos()->attach($sorteos);
+
+           
+
+            foreach($datos['sorteos'] as $s){
+                $sorteo = Draws::whereId($s['id'])->first();
+                if($sorteo != null){
+                    if($sorteo['descripcion'] == "Super pale"){
+                        $loteria->drawRelations()->detach();
+                        // $loterias = collect($datos['loterias']);
+                        // list($loterias_seleccionadas, $no) = $loterias->partition(function($l){
+                        //     return $l['seleccionado'] == true && Lotteries::where(['id' => $l['id'], 'status' => 1])->first() != null;
+                        // });
+
+                        $loterias_seleccionadas = collect($loterias_seleccionadas)->map(function($d) use($sorteo, $loteria){
+                            return ['idSorteo' => $sorteo['id'], 'idLoteriaPertenece' => $loteria['id'], 'idLoteria' => $d['id'] ];
+                        });
+                        $loteria->drawRelations()->attach($loterias_seleccionadas);
+                    }
+                }
+            }
+
+            // foreach($datos['sorteos'] as $s){
+            //     $sorteo = Draws::whereId($s['id'])->first();
+            //     if($sorteo != null){
+            //         if($sorteo['descripcion'] == "Super pale"){
+            //             DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+            //             $sorteo->loteriasRelacionadas()->where('idLoteriaPertenece', $loteria['id'])->delete();
+            //             DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+            //             $loteriasRelacionadas = collect($datos['loterias'])->map(function($d) use($sorteo, $loteria){
+                
+            //                 return ['idSorteo' => $sorteo['id'], 'idLoteriaPertenece' => $loteria['id'], 'idLoteria' => $d['id'] ];
+            //             });
+            //             $sorteo->loteriasRelacionadas()->attach($loteriasRelacionadas);
+            //         }
+            //     }
+            // }
+            
         }
     
         return Response::json([
             'errores' => 0,
-            'mensaje' => 'Se ha guardado correctamente'
+            'mensaje' => 'Se ha guardado correctamente',
+            'loterias' => LotteriesResource::collection(Lotteries::whereIn('status', [1,0])->get()),
+            'dias' => Days::all(),
+            'sorteos' => Draws::all(),
+            'aa' => $sorteos
         ], 201);
     }
 
@@ -268,6 +289,27 @@ class LotteriesController extends Controller
      */
     public function destroy(Lotteries $lotteries)
     {
-        //
+        $datos = request()->validate([
+            'datos.id' => 'required',
+            'datos.descripcion' => 'required',
+            'datos.abreviatura' => 'required|min:1|max:4',
+            'datos.status' => 'required'
+        ])['datos'];
+
+        $loteria = Lotteries::whereId($datos['id'])->first();
+        if($loteria != null){
+            $loteria->status = 2;
+            $loteria->save();
+
+            return Response::json([
+                'errores' => 0,
+                'mensaje' => 'Se ha eliminado correctamente'
+            ], 201);
+        }
+
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'Error al eliminar loteria'
+        ], 201);
     }
 }

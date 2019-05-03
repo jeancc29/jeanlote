@@ -26,9 +26,9 @@
     <div id="imprimir" class="col-12 col-sm-4 bg-primary text-center" style="min-width: 300px; max-width: 302px;">
         <h5 class="text-center my-0">**ORIGINAL**</h5>
         <h5 class="text-center my-0">{{datos[0].usuario}}</h5>
-        <p class="text-center my-0">{{datos[0].codigo + '-' + datos[0].idTicketSecuencia}}</p>
+        <p class="text-center my-0">{{datos[0].codigo + '-' + datos[0].idTicket}}</p>
         <p class="text-center my-0">Fecha: {{toFecha(datos[0].created_at.date) | date:"dd/MM/yyyy hh:mm a"}}</p>
-        <h5 class="text-center my-0">{{datos[0].codigoBarra}}</h5>
+        <h5 class="text-center my-0 font-weight-bold">{{datos[0].codigoBarra}}</h5>
         <div class="row justify-content-center"  ng-repeat="l in loterias">
           <div class="col-12 text-center">
             <p style="border-top-style: dashed; border-bottom-style: dashed;" class="text-center font-weight-bold py-1 mt-2 mb-0">{{l.descripcion}}: {{ l.total | number:2}}</p>
@@ -172,15 +172,15 @@
       var type = "jpeg";
       var filename = "htmltoimage";
       var blob = '';
-      $scope.datos = {
+      $scope.datosImagen = {
         "imagen" : null
       };
         html2canvas(elm).then(function(canvas){
 
           canvas = scaleCanvas(canvas, canvas.width, canvas.height);
         var dataUrl = canvas.toDataURL('image/png');
-        $scope.datos.imagen = dataUrl;
-        $http.post("/api/imagen/guardar",{'datos':$scope.datos, 'action':'sp_ventas_actualiza'})
+        $scope.datosImagen.imagen = dataUrl;
+        $http.post("/api/imagen/guardar",{'datos':$scope.datosImagen, 'action':'sp_ventas_actualiza'})
           .then(function(response){
 
               console.log('response imagen: ' , response);
@@ -321,7 +321,7 @@ function scaleCanvas (canvas, width, height) {
         //console.log(a[i].descripcion, ' ',a[i].jugadasTodas);
         
         if(Object.keys(a[i].jugadasTodas).length > 1){
-            var mitad = Object.keys(a[i].jugadasTodas).length / 2;
+            var mitad = Math.round(Object.keys(a[i].jugadasTodas).length / 2);
             $scope.loterias[idx].tamJugadas = Object.keys(a[i].jugadasTodas).length;
             a[i].jugadasTodas.forEach(function(valor, indice, array){
               total += Number(array[indice].monto);
@@ -361,7 +361,7 @@ function scaleCanvas (canvas, width, height) {
 
       
 
-
+      console.log('datos ticket: ', $scope.datos);
   
 
     });

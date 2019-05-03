@@ -66,6 +66,7 @@ Route::post('/imagen/guardar', 'PrincipalController@imagen');
 
 Route::get('/loterias', 'LotteriesController@index');
 Route::post('/loterias/guardar', 'LotteriesController@store');
+Route::post('/loterias/eliminar', 'LotteriesController@destroy');
 
 Route::get('/bancas', 'BranchesController@index');
 Route::post('/bancas/guardar', 'BranchesController@store');
@@ -73,6 +74,7 @@ Route::post('/bancas/eliminar', 'BranchesController@destroy');
 
 Route::get('/usuarios', 'UsersController@index');
 Route::post('/usuarios/guardar', 'UsersController@store');
+Route::post('/usuarios/eliminar', 'UsersController@destroy');
 
 Route::get('/horarios', 'HorariosController@index');
 Route::post('/horarios/normal/guardar', 'HorariosController@store');
@@ -90,3 +92,15 @@ Route::post('/bloqueos/jugadas/guardar', 'BlocksplaysController@store');
 Route::post('/reportes/monitoreo/', 'ReportesController@monitoreo');
 Route::post('/reportes/ventas/', 'ReportesController@ventas');
 Route::post('/reportes/jugadas/', 'ReportesController@jugadas');
+
+
+Route::get('/entidades', 'EntityController@index');
+Route::post('/entidades/guardar', 'EntityController@store');
+Route::post('/entidades/eliminar', 'EntityController@destroy');
+
+Route::get('/transacciones', 'TransactionsController@index');
+Route::get('/transacciones/grupo', 'TransactionsController@grupo');
+Route::post('/transacciones/saldo', 'TransactionsController@saldo');
+Route::post('/transacciones/guardar', 'TransactionsController@store');
+Route::post('/transacciones/buscar', 'TransactionsController@buscar');
+Route::post('/transacciones/buscarTransaccion', 'TransactionsController@buscarTransaccion');

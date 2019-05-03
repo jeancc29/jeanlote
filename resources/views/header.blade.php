@@ -48,6 +48,15 @@
 <!-- CSS Just for demo purpose, don't include it in your project -->
 <link href="{!!asset('assets/demo/demo.css') !!}" rel="stylesheet" />
 
+<script>
+    window.rutaGlobal = (false) ? "<?php echo url('') ?>" : '';
+    window.idUsuario = "<?php echo session('idUsuario') ?>";
+    // function setRuta(r){
+    //     rutaGlobal = r;
+    //     console.log('header ruta:', rutaGlobal);
+    // }
+</script>
+
 <script src="{{asset('assets/js/angular.min.js')}}" ></script>
 <script src="{{asset('assets/js/angular-route.min.js')}}" ></script>
 
@@ -83,7 +92,7 @@
         <script src="{{asset('assets/js/angular/premios.js')}}" ></script>
     <?php endif; ?>
 
-    <?php if($controlador == "reportes"):?>
+    <?php if($controlador == "reportes.jugadas"):?>
         <script src="{{asset('assets/js/angular/reportes.js')}}" ></script>
     <?php endif; ?>
 
@@ -99,6 +108,15 @@
     <?php endif; ?>
     <?php if($controlador == "bloqueos"):?>
         <script src="{{asset('assets/js/angular/bloqueos2.js')}}" ></script>
+    <?php endif; ?>
+    <?php if($controlador == "entidades"):?>
+        <script src="{{asset('assets/js/angular/entidades.js')}}" ></script>
+    <?php endif; ?>
+    <?php if($controlador == "transacciones" || $controlador == "transacciones"):?>
+        <script src="{{asset('assets/js/angular/transacciones.js')}}" ></script>
+    <?php endif; ?>
+    <?php if($controlador == "transacciones.grupo"):?>
+        <script src="{{asset('assets/js/angular/transacciones-grupo.js')}}" ></script>
     <?php endif; ?>
 
 <style>
@@ -797,6 +815,13 @@
     on-shift-tab="venta_guardar($event,'email')">
       <!-- ng-keyup="venta_guardar($event)" -->
 
+<?php 
+
+if(session('idUsuario') == null && $controlador != 'login'){
+    redirect()->route('login');
+}
+
+?>
 <!--  wrapper-full-page -->
 
 <div style="width: 100%;" class="wrapper">

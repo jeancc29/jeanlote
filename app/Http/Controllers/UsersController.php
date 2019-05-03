@@ -245,6 +245,27 @@ class UsersController extends Controller
      */
     public function destroy(Users $users)
     {
-        //
+        $datos = request()->validate([
+            'datos.id' => 'required',
+            'datos.usuario' => 'required',
+            'datos.nombres' => 'required',
+            'datos.status' => 'required'
+        ])['datos'];
+
+        $usuario = Users::whereId($datos['id'])->first();
+        if($usuario != null){
+            $usuario->status = 2;
+            $usuario->save();
+
+            return Response::json([
+                'errores' => 0,
+                'mensaje' => 'Se ha eliminado correctamente'
+            ], 201);
+        }
+
+        return Response::json([
+            'errores' => 1,
+            'mensaje' => 'Error al eliminar usuario'
+        ], 201);
     }
 }

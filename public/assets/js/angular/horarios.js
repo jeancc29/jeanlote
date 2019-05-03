@@ -209,8 +209,11 @@ var myApp = angular
 
         
         $scope.inicializarDatos = function(todos, idUsuario = 0){
+
+            console.log('ruta: ', rutaGlobal);
+            
                
-            $http.get("/api/horarios")
+            $http.get(rutaGlobal+"/api/horarios")
              .then(function(response){
                 console.log('Bancas: ', response.data);
 
@@ -393,7 +396,7 @@ var myApp = angular
         }
         
 
-        $scope.load = function(codigo_usuario){
+        $scope.load = function(codigo_usuario, ruta){
             $scope.inicializarDatos(true);
             $scope.datos.idUsuario = codigo_usuario;
  
@@ -512,7 +515,7 @@ var myApp = angular
 
             
            
-          $http.post("/api/horarios/normal/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
+          $http.post(rutaGlobal+"/api/horarios/normal/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0){
@@ -533,7 +536,7 @@ var myApp = angular
 
         $scope.eliminar = function(d){
             console.log('bancas eliminar: ',d);
-            $http.post("/api/bancas/eliminar", {'action':'sp_bancas_elimnar', 'datos': d})
+            $http.post(rutaGlobal+"/api/bancas/eliminar", {'action':'sp_bancas_elimnar', 'datos': d})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0)

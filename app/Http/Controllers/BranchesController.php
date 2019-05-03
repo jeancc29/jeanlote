@@ -6,6 +6,8 @@ use App\Branches;
 use Request;
 use Illuminate\Support\Facades\Route; 
 use Illuminate\Support\Facades\Response;
+use Carbon\Carbon;
+
 
 use Faker\Generator as Faker;
 use App\Lotteries;
@@ -25,6 +27,8 @@ use App\Users;
 use App\Roles;
 use App\Commissions;
 use App\Permissions;
+use App\Frecuency;
+use App\Automaticexpenses;
 
 use App\Http\Resources\LotteriesResource;
 use App\Http\Resources\SalesResource;
@@ -58,7 +62,9 @@ class BranchesController extends Controller
         return Response::json([
             'bancas' => BranchesResource::collection($bancas),
             'usuarios' => Users::whereIn('status', array(0, 1))->get(),
-            'loterias' => LotteriesResource::collection(Lotteries::whereStatus(1)->has('sorteos')->get())
+            'loterias' => LotteriesResource::collection(Lotteries::whereStatus(1)->has('sorteos')->get()),
+            'frecuencias' => Frecuency::all(),
+            'dias' => Days::all()
         ], 201);
     }
 
@@ -111,7 +117,8 @@ class BranchesController extends Controller
     
             'datos.comisiones' => 'required',
             'datos.pagosCombinaciones' => 'required',
-            'datos.loteriasSeleccionadas' => 'required'
+            'datos.loteriasSeleccionadas' => 'required',
+            'datos.gastos' => '',
         ])['datos'];
     
     
@@ -133,12 +140,12 @@ class BranchesController extends Controller
     
         if($banca != null){
     
-            if(Branches::where(['idUsuario'=> $datos['idUsuario'], 'status' => 1])->whereNotIn('id', [$banca->id])->first() != null){
-                return Response::json([
-                    'errores' => 1,
-                    'mensaje' => 'Este usuario ya tiene una banca registrada y solo se permite un usaurio por banca'
-                ], 201);
-            }
+            // if(Branches::where(['idUsuario'=> $datos['idUsuario'], 'status' => 1])->whereNotIn('id', [$banca->id])->first() != null){
+            //     return Response::json([
+            //         'errores' => 1,
+            //         'mensaje' => 'Este usuario ya tiene una banca registrada y solo se permite un usaurio por banca'
+            //     ], 201);
+            // }
             
             $banca['descripcion'] = $datos['descripcion'];
             $banca['ip'] = $datos['ip'];
@@ -159,13 +166,13 @@ class BranchesController extends Controller
             $banca->save();
     
         }else{
-            if(Branches::where(['idUsuario'=> $datos['idUsuario'], 'status' => 1])->count() > 0)
-            {
-                return Response::json([
-                    'errores' => 1,
-                    'mensaje' => 'Este usuario ya tiene una banca registrada y solo se permite un usaurio por banca'
-                ], 201);
-            }
+            // if(Branches::where(['idUsuario'=> $datos['idUsuario'], 'status' => 1])->count() > 0)
+            // {
+            //     return Response::json([
+            //         'errores' => 1,
+            //         'mensaje' => 'Este usuario ya tiene una banca registrada y solo se permite un usaurio por banca'
+            //     ], 201);
+            // }
             $banca = Branches::create([
                 'descripcion' => $datos['descripcion'],
                 'ip' => $datos['ip'],
@@ -257,6 +264,7 @@ class BranchesController extends Controller
                         'directo' => $l['comisiones']['directo'],
                         'pale' => $l['comisiones']['pale'],
                         'tripleta' => $l['comisiones']['tripleta'],
+                        'superPale' => $l['comisiones']['superPale'],
                     ]);
                 }
             }
@@ -283,11 +291,60 @@ class BranchesController extends Controller
                         'primeraTercera' => $l['pagosCombinaciones']['primeraTercera'],
                         'segundaTercera' => $l['pagosCombinaciones']['segundaTercera'],
                         'tresNumeros' => $l['pagosCombinaciones']['tresNumeros'],
-                        'dosNumeros' => $l['pagosCombinaciones']['dosNumeros']
+                        'dosNumeros' => $l['pagosCombinaciones']['dosNumeros'],
+                        'primerPago' => $l['pagosCombinaciones']['primerPago'],
                     ]);
                 }
             }
     
+
+             /********************* GASTOS AUTOMATICOS ************************/
+             $idGastos = collect($datos['gastos'])->map(function($d){
+                return $d['id'];
+            });
+             Automaticexpenses::where('idBanca', $banca['id'])->whereNotIn('id', $idGastos)->delete();
+             foreach($datos['gastos'] as $l){
+                $gasto = Automaticexpenses::where(['idBanca' => $banca['id'], 'id' => $l['id']])->first();
+                if($gasto != null){
+                    
+                    // if($l['fechaInicio'] != $gasto['fechaInicio']){
+                    //     //Fecha actual
+                    //     $first = Carbon::now();
+                    //     //Fecha modificada
+                    //     $second = new Carbon($l['fechaInicio']);
+                    //     if($first->greaterThan($second)){
+                    //         return Response::json([
+                    //             'errores' => 1,
+                    //             'mensaje' => 'La fecha modificada de un gasto debe ser mayor o igual a la fecha actual'
+                    //         ], 201);
+                    //     }
+                    // }
+
+                    $gasto['descripcion'] = $l['descripcion'];
+                    $gasto['monto'] = $l['monto'];
+                    $gasto['monto'] = $l['frecuencia']['id'];
+                    if(strtolower($l['frecuencia']['descripcion']) == strtolower("SEMANAL")){
+                        $gasto['idDia'] = $l['idDia'];
+                    }
+                    // $gasto['fechaInicio'] = $l['fechaInicio'];
+                    $gasto->save();
+                }else{
+                    $idDia = null;
+                    if(strtolower($l['frecuencia']['descripcion']) == strtolower("SEMANAL")){
+                        $idDia = $l['idDia'];
+                    }
+                    Automaticexpenses::create([
+                        'idBanca' => $banca['id'],
+                        'descripcion' => $l['descripcion'],
+                        'monto' => $l['monto'],
+                        'idFrecuencia' => $l['frecuencia']['id'],
+                        'idDia' => $idDia,
+                        // 'fechaInicio' => $l['fechaInicio'],
+                    ]);
+                }
+                
+             }
+             
     
             
             

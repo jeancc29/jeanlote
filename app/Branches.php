@@ -56,6 +56,12 @@ class Branches extends Model
         return $this->hasMany('App\Payscombinations', 'idBanca');
     }
 
+    public function gastos()
+    {
+        //Modelo, foreign key, foreign key, local key, local key
+        return $this->hasMany('App\Automaticexpenses', 'idBanca');
+    }
+
     public function comisiones()
     {
         //Modelo, foreign key, foreign key, local key, local key
@@ -98,6 +104,19 @@ class Branches extends Model
         }
 
         return $abierta;
+    }
+
+    public function limiteVenta($monto_a_vender){
+        $abierta = false;
+        $fecha = getdate();
+        
+       $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+            ->where('idBanca', $this->id)
+            ->where('status', '!=', 0)->sum('total');
+
+        $ventas += $monto_a_vender;
+
+        return ($ventas > $this->limiteVenta);
     }
    
 

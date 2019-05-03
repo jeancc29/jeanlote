@@ -34,7 +34,7 @@ var myApp = angular
         
         $scope.inicializarDatos = function(todos, idRole = 0){
                
-            $http.get("/api/usuarios")
+            $http.get(rutaGlobal+"/api/usuarios")
              .then(function(response){
                 console.log('Loteria ajav: ', response.data);
 
@@ -207,7 +207,7 @@ var myApp = angular
             $scope.datos.status = ($scope.datos.estado) ? 1 : 0;
            
 
-          $http.post("/api/usuarios/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
+          $http.post(rutaGlobal+"/api/usuarios/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
              .then(function(response){
                 console.log(response.data);
                 if(response.data.errores == 0){
@@ -234,16 +234,15 @@ var myApp = angular
 
 
         $scope.eliminar = function(d){
-            console.log('bancas eliminar: ',d);
-            $http.post($scope.ROOT_PATH +"clases/consultaajax.php", {'action':'sp_bancas_elimnar', 'datos': d})
+            console.log('usuarios eliminar: ',d);
+            $http.post(rutaGlobal+"/api/usuarios/eliminar", {'action':'sp_loterias_elimnar', 'datos': d})
              .then(function(response){
-                console.log(response.data[0][0]);
-                var json = JSON.parse(response.data[0][0]);
-                console.log(json);
-                if(json[0].errores == 0)
+                console.log(response);
+            
+                if(response.data.errores == 0)
                 {
                     $scope.inicializarDatos(true);
-                    alert(json[0].mensaje);
+                    alert(response.data.mensaje);
                 }
                 
             });

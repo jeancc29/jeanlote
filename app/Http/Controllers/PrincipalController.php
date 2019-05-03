@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Request;
 use Illuminate\Support\Facades\Route; 
 use Illuminate\Support\Facades\Response; 
+use Carbon\Carbon;
 
 use Faker\Generator as Faker;
 use App\Lotteries;
@@ -46,30 +47,31 @@ class PrincipalController extends Controller
     public function index()
     {
         $controlador = Route::getCurrentRoute()->getName();
+        $usuario = Users::whereId(session('idUsuario'))->first();
         if(!strpos(Request::url(), '/api/')){
-            return view('principal.index', compact('controlador'));
+            return view('principal.index', compact('controlador', 'usuario'));
         }
 
 
+       
         $fecha = getdate();
-            $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
-                    ->where('status', '!=', 0)->get();
-        
-            $idVentas = collect($ventas)->map(function($id){
-                return $id->id;
-            });
-        
-           if(strpos(Request::url(), '/api/')){
-            return Response::json([
-                'loterias' => Lotteries::whereStatus(1)->get(),
-                'caracteristicasGenerales' =>  Generals::all(),
-                'total_ventas' => Sales::whereIn('id', $idVentas)->sum('total'),
-                'total_jugadas' => Salesdetails::whereIn('idVenta', $idVentas)->count('jugada'),
-                'ventas' => SalesResource::collection($ventas),
-                'Cerrado' => Lotteries::whereId(1)->first()->cerrada(),
-                // 'abierta' => Lotteries::whereId(1)->first()->abierta()
-            ], 201);
-           }
+        $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                ->where('status', '!=', 0)->get();
+    
+        $idVentas = collect($ventas)->map(function($id){
+            return $id->id;
+        });
+    
+    
+    
+        return Response::json([
+            'loterias' => Lotteries::whereStatus(1)->get(),
+            'caracteristicasGenerales' =>  Generals::all(),
+            'total_ventas' => Sales::whereIn('id', $idVentas)->sum('total'),
+            'total_jugadas' => Salesdetails::whereIn('idVenta', $idVentas)->count('jugada'),
+            'ventas' => SalesResource::collection($ventas),
+            'bancas' => Branches::whereStatus(1)->get()
+        ], 201);
 
 
         
@@ -90,6 +92,7 @@ class PrincipalController extends Controller
             return view('principal.pruebahttp', compact('controlador'));
         }
 
+        
        
         
 
@@ -113,13 +116,35 @@ class PrincipalController extends Controller
 
         $timezone = date_default_timezone_get();
 
+       
+        $fechaCarbon = Carbon::now();
+        /***  ADD PARA AGREGAR Y SUB PARA QUITAR  */
+        // $fechaCarbon->addSecond()
+        // $fechaCarbon->addSeconds(10)
+        // $fechaCarbon->addMinute()
+        // $fechaCarbon->addMinutes(5)
+        // $fechaCarbon->addHour()
+        // $fechaCarbon->addHours(5)
+        // $fechaCarbon->addDays(5)
+        // $fechaCarbon->addWeek()
+        // $fechaCarbon->addWeeks(5)
+        // $fechaCarbon->addYear()
+        // $fechaCarbon->addYears(3)
+        // $fechaCarbon->subYears(3)
+        $fechaCarbon2 = Carbon::now()->addDay();
+        $a = new Carbon('2019-01-30 5:23');
+
         return Response::json([
             'ventas' => SalesResource::collection(Sales::whereId(12)->get()),
             'coleccion' => $loterias_seleccionadas,
             'bancas' => BranchesResource::collection($bancas),
             'busqueda' => strpos($cadena, $buscar),
             'fechaActual' => $fechaActual,
-            'timezone' => $timezone
+            'timezone' => $timezone,
+            'a' => $fechaCarbon,
+            'a1' => $fechaCarbon2 ,
+            'a2' => $a->addMonthNoOverflow(),
+            'a3' => $a->copy()->addMonthNoOverflow(),
         ], 201);
     }
 
@@ -227,7 +252,8 @@ class PrincipalController extends Controller
         $datos = request()->validate([
             'datos.codigoBarra' => 'required',
             'datos.razon' => 'required',
-            'datos.idUsuario' => 'required'
+            'datos.idUsuario' => 'required',
+            'datos.idBanca' => 'required'
         ])['datos'];
     
         $usuario = Users::whereId($datos['idUsuario'])->first();
@@ -257,39 +283,39 @@ class PrincipalController extends Controller
             
             
             if($venta != null){
-                $general = Generals::all()->first();
+                $banca = Branches::whereId($datos['idBanca'])->first();
                 $minutoTicketJugado =  getdate(strtotime($venta['created_at']));
                 $minutoActual = $fecha['minutes'];
     
                 if($minutoTicketJugado['year'] != $fecha['year']){
                     return Response::json([
                         'errores' => 1,
-                        'mensaje' => "Han pasado los " . $general['minutosParaCancelar'] ." minutos de plazo para cancelar",
+                        'mensaje' => "Han pasado los " . $banca[' minutosCancelarTicket'] ." minutos de plazo para cancelar",
                         'ticket' => $minutoTicketJugado
                     ], 201);
                 }
                 if($minutoTicketJugado['mon'] != $fecha['mon']){
                     return Response::json([
                         'errores' => 1,
-                        'mensaje' => "Han pasado los " . $general['minutosParaCancelar'] ." minutos de plazo para cancelar"
+                        'mensaje' => "Han pasado los " . $banca[' minutosCancelarTicket'] ." minutos de plazo para cancelar"
                     ], 201);
                 }
                 if($minutoTicketJugado['mday'] != $fecha['mday']){
                     return Response::json([
                         'errores' => 1,
-                        'mensaje' => "Han pasado los " . $general['minutosParaCancelar'] ." minutos de plazo para cancelar"
+                        'mensaje' => "Han pasado los " . $banca[' minutosCancelarTicket'] ." minutos de plazo para cancelar"
                     ], 201);
                 }
                 if($minutoTicketJugado['hours'] != $fecha['hours']){
                     return Response::json([
                         'errores' => 1,
-                        'mensaje' => "Han pasado los " . $general['minutosParaCancelar'] ." minutos de plazo para cancelar"
+                        'mensaje' => "Han pasado los " . $banca[' minutosCancelarTicket'] ." minutos de plazo para cancelar"
                     ], 201);
                 }
     
-               // return ($minutoActual - $minutoTicketJugado) . " - " .$general['minutosParaCancelar'];
+               // return ($minutoActual - $minutoTicketJugado) . " - " .$banca[' minutosCancelarTicket'];
     
-                if(($minutoActual - $minutoTicketJugado['minutes']) < $general['minutosParaCancelar']){
+                if(($minutoActual - $minutoTicketJugado['minutes']) < $banca['minutosCancelarTicket']){
                     $venta['status'] = 0;
                     $venta->save();
     
@@ -302,7 +328,7 @@ class PrincipalController extends Controller
                     $mensaje = "El ticket se ha cancelado correctamente";
                 }else{
                     $errores = 1;
-                    $mensaje = "Han pasado los " . $general['minutosParaCancelar'] ." minutos de plazo para cancelar";
+                    $mensaje = "Han pasado los " . $banca[' minutosCancelarTicket'] ." minutos de plazo para cancelar";
                     //$mensaje = "minutos actual: $minutoActual, minutosticket: $minutoTicketJugado";
                 }
                 
@@ -315,6 +341,15 @@ class PrincipalController extends Controller
                 $errores = 1;
                 $mensaje = "El numero de ticket no es correcto";
         }
+
+        $fecha = getdate();
+        $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                ->where('status', '!=', 0)->get();
+    
+        $idVentas = collect($ventas)->map(function($id){
+            return $id->id;
+        });
+    
     
     
         return Response::json([
@@ -322,7 +357,14 @@ class PrincipalController extends Controller
             'mensaje' => $mensaje,
             'resta' => ($minutoActual - $minutoTicketJugado['minutes']),
             'minutoActual' => $minutoActual,
-            'minutoTicketJugado' => $minutoTicketJugado
+            'minutoTicketJugado' => $minutoTicketJugado,
+
+            'loterias' => Lotteries::whereStatus(1)->get(),
+            'caracteristicasGenerales' =>  Generals::all(),
+            'total_ventas' => Sales::whereIn('id', $idVentas)->sum('total'),
+            'total_jugadas' => Salesdetails::whereIn('idVenta', $idVentas)->count('jugada'),
+            'ventas' => SalesResource::collection($ventas),
+            'bancas' => Branches::whereStatus(1)->get()
         ], 201);
     }
 
@@ -399,6 +441,13 @@ class PrincipalController extends Controller
                 'mensaje' => 'La banca ha cerrado'
             ], 201);
         }
+
+        if(Branches::whereId($datos['idBanca'])->first()->limiteVenta($datos['total'])){
+            return Response::json([
+                'errores' => 1,
+                'mensaje' => 'A excedido el limite de ventas de la banca'
+            ], 201);
+        }
     
         
     
@@ -410,10 +459,12 @@ class PrincipalController extends Controller
             //return 'codiog: ' . $codigoBarra . ' faker: ' . $faker->isbn10;
             //Verificamos de que el codigo de barra no exista
             if(Tickets::where('codigoBarra', $codigoBarra)->get()->first() == null){
-                Tickets::create(['idBanca' => $datos['idBanca'], 'codigoBarra' => $codigoBarra]);
-                $idTicket = Tickets::where('codigoBarra', $codigoBarra)->value('id');
-                $codigoBarraCorrecto = true;
-                break;
+                if(is_numeric($codigoBarra)){
+                    Tickets::create(['idBanca' => $datos['idBanca'], 'codigoBarra' => $codigoBarra]);
+                    $idTicket = Tickets::where('codigoBarra', $codigoBarra)->value('id');
+                    $codigoBarraCorrecto = true;
+                    break;
+                }
             }
         }
     
@@ -423,18 +474,22 @@ class PrincipalController extends Controller
         //foreach($datos['loterias'] as $l){
             foreach($datos['jugadas'] as $d){
                 
+                $loteria = Lotteries::whereId($d['idLoteria'])->first();
                 
                 if(strlen($d['jugada']) == 2){
                     $idSorteo = 1;
                }
                else if(strlen($d['jugada']) == 4){
-                    $idSorteo = 2;
+                   if($loteria->sorteos()->whereDescripcion('Super pale')->first() == null || $loteria->drawRelations->count() <= 1)
+                        $idSorteo = 2;
+                    else if($loteria->sorteos()->whereDescripcion('Super pale')->first() != null || $loteria->drawRelations->count() >= 2)
+                        $idSorteo = 4;
                }
                else if(strlen($d['jugada']) == 6){
                     $idSorteo = 3;
                }
     
-               $loteria = Lotteries::whereId($d['idLoteria'])->first();
+               //$loteria = Lotteries::whereId($d['idLoteria'])->first();
     
                if(Branches::whereId($datos['idBanca'])->first()->loteriaExiste($loteria->id) == false){
                     return Response::json([
@@ -443,7 +498,7 @@ class PrincipalController extends Controller
                     ], 201);
                 }
     
-               if(!$loteria->sorteoExiste($d['jugada'])){
+               if(!$loteria->sorteoExiste($idSorteo)){
                     return Response::json([
                         'errores' => 1,
                         'mensaje' => 'El sorteo no existe para la loteria' . $loteria->descripcion
@@ -563,12 +618,17 @@ class PrincipalController extends Controller
         });
     
         foreach($jugadasLoterias as $d){
+
+            $loteria = Lotteries::whereId($d['idLoteria'])->first();
             
             if(strlen($d['jugada']) == 2){
                 $idSorteo = 1;
            }
            else if(strlen($d['jugada']) == 4){
-                $idSorteo = 2;
+                if($loteria->sorteos()->whereDescripcion('Super pale')->first() == null || $loteria->drawRelations->count() <= 1)
+                    $idSorteo = 2;
+                else if($loteria->sorteos()->whereDescripcion('Super pale')->first() != null || $loteria->drawRelations->count() >= 2)
+                    $idSorteo = 4;
            }
            else if(strlen($d['jugada']) == 6){
                 $idSorteo = 3;
@@ -677,13 +737,16 @@ class PrincipalController extends Controller
     
         $idDia = Days::whereWday($fecha['wday'])->first()->id;
     
-        
+        $loteria = Lotteries::whereId($datos['idLoteria'])->first();
     
        if(strlen($datos['jugada']) == 2){
             $idSorteo = 1;
        }
        else if(strlen($datos['jugada']) == 4){
-            $idSorteo = 2;
+            if($loteria->sorteos()->whereDescripcion('Super pale')->first() == null || $loteria->drawRelations->count() <= 1)
+                $idSorteo = 2;
+            else if($loteria->sorteos()->whereDescripcion('Super pale')->first() != null || $loteria->drawRelations->count() >= 2)
+                $idSorteo = 4;
        }
        else if(strlen($datos['jugada']) == 6){
             $idSorteo = 3;

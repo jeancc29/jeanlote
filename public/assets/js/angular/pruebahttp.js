@@ -8,12 +8,16 @@ var myApp = angular
 
        
 
+        $scope.prueba = function(sesion){
+            console.log('valor de la sesion:', sesion);
+        }
+
         $scope.datos = {
             'mensaje' : 'Hola mi amor'
         }
       
 
-        $http.get("/api/loterias", {'datos' : $scope.datos})
+        $http.post(rutaGlobal+"/api/principal/pruebahttp", {'datos' : $scope.datos})
         .then(function(response){
 
            console.log(response)
@@ -23,7 +27,7 @@ var myApp = angular
 
 
        $scope.obtener = function(){
-        $http.get("/api/loterias", {'datos' : $scope.datos})
+        $http.post(rutaGlobal+"/api/principal/pruebahttp", {'datos' : $scope.datos})
         .then(function(response){
 
            console.log(response)
@@ -31,6 +35,9 @@ var myApp = angular
 
        });
        }
+
+
+       
 
 
 

@@ -23,6 +23,7 @@ class CreateCommissionsTable extends Migration
             $table->decimal('directo', 10, 2)->default(0);
             $table->decimal('pale', 10, 2)->default(0);
             $table->decimal('tripleta', 10, 2)->default(0);
+            $table->decimal('superPale', 10, 2)->default(0);
            
 
             $table->timestamps();
