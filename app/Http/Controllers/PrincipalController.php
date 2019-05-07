@@ -7,6 +7,7 @@ use Request;
 use Illuminate\Support\Facades\Route; 
 use Illuminate\Support\Facades\Response; 
 use Carbon\Carbon;
+use App\Classes\Helper;
 
 use Faker\Generator as Faker;
 use App\Lotteries;
@@ -95,6 +96,7 @@ class PrincipalController extends Controller
         
        
         
+        $saldo = (new Helper)->_sendSms("+18294266800", "Hola jean como estas");
 
         $fechaActual = getdate();
 
@@ -145,6 +147,7 @@ class PrincipalController extends Controller
             'a1' => $fechaCarbon2 ,
             'a2' => $a->addMonthNoOverflow(),
             'a3' => $a->copy()->addMonthNoOverflow(),
+            'a4' => $saldo
         ], 201);
     }
 
@@ -796,6 +799,7 @@ class PrincipalController extends Controller
             $datos = request()->validate([
             'datos.imagen' => 'required',
             'lastModifiedDate' => '',
+            'nombre' => '',
             'name' => '',
             'size' => '',
             'type' => ''
@@ -826,7 +830,8 @@ class PrincipalController extends Controller
 
 
     // $image = file_put_contents(public_path().'/img/'.'test2.png',$img);
-    $output_file = "fotoo.png";
+    // $output_file = "fotoo.png";
+    $output_file = public_path().'/ticket/'. $datos['nombre'] . ".png";
     $file = fopen($output_file, "wb");
     $data = explode(',', $datos['imagen']);
     fwrite($file, base64_decode($data[1]));

@@ -209,39 +209,29 @@
           <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
           <div class="card-header">
             <div class="row justify-content-center">
+
+            <style>
+                .dropdown{
+                    margin: 0px!important;
+                    padding: 0px!important;
+                }
+            </style>
            
               
               @if($usuario->tienePermiso("Jugar como cualquier banca"))
-              <h5 class="card-title m-0 p-0">
-                    <!-- <div class="form-group m-0 p-0 bg-primary">
-                        <select 
-                            ng-model="datos.selectedBancas" 
-                            ng-options="o.descripcion for o in datos.optionsBancas"
-                            class="selectpicker w-100 m-0 p-0" 
-                            data-style="select-with-transition" 
-                            title="Select Ticket">
-                        </select>
-                    </div> -->
-
-                    <style>
-                        .p{
-                            margin: 0px!important;
-                            padding: 0px!important;
-                        }
-                    </style>
-
-                    <div  class="">
+              <div  class="col-10 m-0 p-0">
                     <!-- o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id -->
                             <select 
+                            id="multiselect2"
+                                ng-change="calcularTotal()"
                                 ng-model="datos.loterias"
                                 ng-options="o.descripcion for o in datos.optionsLoterias track by o.id"
-                                class="selectpicker p m-0 p-0" 
+                                class="selectpicker w-100" 
                                 data-style="select-with-transition" 
-                                 title="Seleccionar loteria"
-                                >
+                                multiple title="Seleccionar loteria"
+                                data-size="7" aria-setsize="2">
                             </select>
                     </div>
-              </h5>
               @else
               <h5 class="card-title m-0 p-0">
                 {{datos.selectedBancas.descripcion}}
@@ -274,7 +264,7 @@
             <div class="tab-content">
               <div class="tab-pane active" id="about">
                 <!-- <h5 class="info-text"> Let's start with the basic information (with validation)</h5> -->
-                <div class="row">
+                <div class="row p-0 m-0">
                     <iframe id="iframeOcultoMovil" name="iframeOcultoMovil"  style="width:0px; height:0px; border:0px; margin:0px;"></iframe>
                     <div class="col-sm-1 col-2 text-center">
                                 <div class="form-check mt-3">
@@ -287,14 +277,14 @@
                                 </div>
                     </div>
 
-                    <div  class=" col-10">
+                    <div  class="col-10 m-0 p-0">
                     <!-- o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id -->
                             <select 
-                            id="multiselect"
+                            id="multiselect2"
                                 ng-change="calcularTotal()"
                                 ng-model="datos.loterias"
                                 ng-options="o.descripcion for o in datos.optionsLoterias track by o.id"
-                                class="selectpicker col-12" 
+                                class="selectpicker w-100" 
                                 data-style="select-with-transition" 
                                 multiple title="Seleccionar loteria"
                                 data-size="7" aria-setsize="2">
@@ -314,28 +304,28 @@
                         <div 
                             ng-click="txtActive = 1"
                             ng-class="{'txtActive': (txtActive == 1)}"
-                            class="col-4 text-center py-3 border"
+                            class="col-4 text-center py-2 border"
                             style="cursor: pointer;">
-                            <p style="font-size: 18px;" class="mt-1 font-weight-bold">@{{(datos.jugada != undefined && datos.jugada != '') ? datos.jugada : 'Jugada'}}</p>
+                            <p style="font-size: 16px;" class="mt-2 font-weight-bold">@{{(datos.jugada != undefined && datos.jugada != '') ? datos.jugada : 'Jugada'}}</p>
                         </div>
                         <div 
-                            class="col-4 text-center py-3 border">
-                            <p style="font-size: 18px; color:grey" class="mt-1 font-weight-bold text-secundary">@{{(datos.montoExistente != undefined) ? datos.montoExistente : 'Disponible'}}</p>
+                            class="col-4 text-center py-2 border">
+                            <p style="font-size: 16px; color:grey" class="mt-2 font-weight-bold text-secundary">@{{(datos.montoExistente != undefined) ? datos.montoExistente : 'Disponible'}}</p>
                         </div>
                         <div 
                             ng-click="txtActive = 2"
                             ng-class="{'txtActive': (txtActive == 2)}"
-                            class="col-4 text-center py-3 border"
+                            class="col-4 text-center py-2 border"
                             style="cursor: pointer;">
-                            <p style="font-size: 18px;" class="mt-1 font-weight-bold">@{{(datos.monto != undefined && datos.monto != '') ? datos.monto : 'Monto'}}</p>
+                            <p style="font-size: 16px;" class="mt-2 font-weight-bold">@{{(datos.monto != undefined && datos.monto != '') ? datos.monto : 'Monto'}}</p>
                         </div>
 
                     </div>
                                 
                 </div><!-- END COL-12 -->
 
-                <div class="col-12 mt-2 ">
-                    <div class="row py-0 mb-0">
+                <div class="col-12 mt-0">
+                    <div class="row py-0 my-0">
                         <div ng-click="tecladoClick('.')" class="col-2  text-center btn btn-warning mr-2">
                             <h4 class="mt-1">.</h4>
                         </div>
@@ -349,7 +339,7 @@
                             <h4 class="mt-1">BACKSPACE</h4>
                         </div>
                     </div>
-                    <div class="row py-0 mb-0">
+                    <div class="row py-0 my-0">
                         <div ng-click="tecladoClick('7')" class="col-2  text-center btn btn-info mr-2">
                             <h4 class="mt-1">7</h4>
                         </div>
@@ -1567,6 +1557,68 @@
     </div>
 
     <!-- END MODAL CANCELAR TICKET -->
+
+
+      <!-- MODAL ENVIAR TICKET SMS O WHATSAPP-->
+
+    <div id="modal-sms" class="modal fade modal-sms" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm" >
+            <div class="modal-content">
+
+                 <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLabel">SMS</h3>
+                    <!-- <div style="display: @{{seleccionado}}" class="alert alert-primary d-inline ml-5 " role="alert">
+                        @{{titulo_seleccionado}} : @{{seleccionado.nombre}} - @{{seleccionado.identificacion}}
+                    </div> -->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+
+                    <div class="modal-body">
+
+                    <!-- <form>
+                        <div class="form-group mb-2">
+                        <input type="text" class="form-control b-none" id="recipient-name" placeholder="Nombre completo">
+                        </div>
+                        <div class="form-group my-2">
+                        <input type="email" name="" value="" placeholder="Correo electronico" class="form-control">
+                        </div>
+                        <div class="form-group my-2">
+                        <input type="password" name="" value="" placeholder="Password..." class="form-control">
+                        </div>
+                        <input type="submit" name="guardar" value="Guardar" class="btn btn-primary btn-block p-2">
+                    </form> -->
+
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div id="fechaBusqueda" class="form-group">
+                            <label for="fechaBusqueda" class="bmd-label-floating">Numero ticket</label>
+                            <input ng-model="datos.duplicar.numeroticket" id="fechaBusqueda" type="text" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-3">
+                            <input ng-click="duplicar()" type="submit" class="btn btn-primary" value="Duplicar">   
+                        </div>
+                    </div>
+
+                    
+
+                    <div class="container">
+
+                        <!-- <div style="display: @{{seleccionado}}" class="alert alert-primary d-inline ml-5 " role="alert">
+                        @{{titulo_seleccionado}} : @{{seleccionado.nombre}} - @{{seleccionado.identificacion}}
+                        </div> -->
+                    </div>
+
+                </div> <!-- END MODAL-BODY -->
+                
+            </div> <!-- END MODAL-CONTENT-->
+        </div>
+    </div>
+
+    <!-- END MODAL DUPLICAR TICKET -->
+
 
 
     

@@ -180,9 +180,10 @@
           canvas = scaleCanvas(canvas, canvas.width, canvas.height);
         var dataUrl = canvas.toDataURL('image/png');
         $scope.datosImagen.imagen = dataUrl;
+        $scope.datosImagen.nombre = $scope.datos[0].codigoBarra;
         $http.post("/api/imagen/guardar",{'datos':$scope.datosImagen, 'action':'sp_ventas_actualiza'})
           .then(function(response){
-
+              
               console.log('response imagen: ' , response);
               
           })

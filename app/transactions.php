@@ -22,6 +22,7 @@ class transactions extends Model
         'nota',
         'nota_grupo',
         'status',
+        'idGasto',
     ];
 
 

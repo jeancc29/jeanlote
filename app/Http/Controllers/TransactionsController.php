@@ -236,6 +236,7 @@ class TransactionsController extends Controller
             ->where('idTipoEntidad1', $condicionTipoEntidad, $datos['idTipoEntidad'])
             ->where('idEntidad1', $condicionEntidad, $datos['idEntidad'])
             ->where('idTipo', $condicionTipo, $datos['idTipo'])
+            ->whereStatus(1)
         ->get();
 
         return Response::json([

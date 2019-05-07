@@ -26,6 +26,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('transacciones:gastos')
                  ->everyMinute();
+        $schedule->command('prueba:a')
+                 ->everyMinute();
                 //  ->hourly();
                 // ->cron('* * * * *');
     }

@@ -1048,7 +1048,7 @@ var myApp = angular
         $scope.gastoEditar = function(esNuevo, d){
             $('#fechaGasto').addClass('is-filled');
             
-           
+            $('#myModal').modal('show')
 
             if(esNuevo){
                 $scope.rbxFrecuenciasChanged($scope.datos.radioFrecuencias[0]);
@@ -1075,7 +1075,7 @@ var myApp = angular
                 }
 
 
-                $('#modal-gasto').modal('toggle');
+                //$('#modal-gasto').modal('toggle');
 
                 
                 $timeout(function() {

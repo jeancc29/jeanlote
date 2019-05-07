@@ -1,4 +1,12 @@
+<?php
 
+if($controlador != "login"){
+    if(!isset($_SESSION['idUsuario'])){
+
+    }
+}
+
+?>
 
 <!DOCTYPE html>
 <html lang="en" ng-app='myModule'>
@@ -817,7 +825,9 @@
 
 <?php 
 
+
 if(session('idUsuario') == null && $controlador != 'login'){
+    
     redirect()->route('login');
 }
 

@@ -953,7 +953,7 @@
                                 
                                 
                                 <td>
-                                  <a style="cursor: pointer" data-toggle="modal" data-target=".modal-gasto" ng-click="gastoEditar(false, c)" class="ion-edit d-inline bg-primary py-1 text-white rounded abrir-wizard-editar"><i class="material-icons">edit</i></a>
+                                  <a style="cursor: pointer"  ng-click="gastoEditar(false, c)" class="ion-edit d-inline bg-primary py-1 text-white rounded abrir-wizard-editar"><i class="material-icons">edit</i></a>
                                   <a style="cursor: pointer" ng-click="gastoEliminar(c)" class="ion-android-delete d-inline  ml-2 bg-danger py-1 text-white rounded"><i class="material-icons">delete_forever</i></a>
                                 </td>
                             </tr>

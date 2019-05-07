@@ -4,6 +4,9 @@ namespace App\Classes;
 use App\transactions;
 use App\Types;
 
+use Log;
+use Twilio\Rest\Client;
+use Twilio\Exceptions\TwilioException;
 
 class Helper{
     public function saldo($id, $es_banca = true){
@@ -45,4 +48,43 @@ class Helper{
 
        return $saldo_inicial;
     }
+
+    public function _sendSms($to, $message)
+    {
+        $accountSid = env('AC2380875a2809c90354752c05ab783704');
+        $authToken = env('6f48c6fcd85eac850dd032d2515ba79b');
+        $twilioNumber = env('+12055486063');
+        $client = new Client($accountSid, $authToken);
+        try {
+            $client->messages->create(
+                $to,
+                [
+                    "body" => $message,
+                    "from" => $twilioNumber
+                    //   On US phone numbers, you could send an image as well!
+                    //  'mediaUrl' => $imageUrl
+                ]
+            );
+            return 'Message sent to ' . $twilioNumber;
+            Log::info('Message sent to ' . $twilioNumber);
+        } catch (TwilioException $e) {
+            return 'Error ' . $e;
+            Log::error(
+                'Could not send SMS notification.' .
+                ' Twilio replied with: ' . $e
+            );
+        }
+    }
+
+
+    function verificar_session()
+    {
+        if(!isset($_SESSION['idUsuario']))
+        {
+              header('location:' . url("login") );
+        }
+
+    }
+
+
 }
