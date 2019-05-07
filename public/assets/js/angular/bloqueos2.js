@@ -428,7 +428,6 @@ var myApp = angular
         // else
         //     $scope.datos.bancas.push($scope.datos.selectedBanca);
             
-           
           $http.post(rutaGlobal+"/api/bloqueos/loterias/guardar", {'action':'sp_bancas_actualizar', 'datos': $scope.datos})
              .then(function(response){
                 console.log(response.data);

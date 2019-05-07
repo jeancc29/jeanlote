@@ -28,6 +28,8 @@ var myApp = angular
         "descuentoPorcentaje":0,
         "descuentoMonto":0,
         "hayDescuento":0,
+        "sms":true,
+        "whatsapp":0,
         "estado":0,
         "loterias": [],
         "jugadas":[],
@@ -103,6 +105,8 @@ var myApp = angular
             'codigoBarra' : null,
             'razon' : null,
         },
+        'enviarSMS' : {}
+        
     }
         $scope.inicializarDatos = function(response = null){
 
@@ -161,8 +165,8 @@ var myApp = angular
 
                 $scope.datos.optionsBancas = response.data.bancas;
                 let idx = 0;
-                if($scope.datos.optionsBancas.find(x => x.id == $scope.datos.idBanca) != undefined)
-                    idx = $scope.datos.optionsBancas.findIndex(x => x.id == $scope.datos.idBanca);
+                if($scope.datos.optionsBancas.find(x => x.id == $scope.datos.idBanca && x.idUsuario == idUsuario) != undefined)
+                    idx = $scope.datos.optionsBancas.findIndex(x => x.id == $scope.datos.idBanca && x.idUsuario == idUsuario);
                 $scope.datos.selectedBancas = $scope.datos.optionsBancas[idx];
 
                 $scope.datos.optionsVentas = (response.data.ventas != undefined) ? response.data.ventas : [{'id': 1, 'codigoBarra' : 'No hay ventas'}];
@@ -343,7 +347,7 @@ var myApp = angular
                    
                     $http.post(rutaGlobal+"/api/principal/montodisponible",{'datos':$scope.datos, 'action':'sp_jugadas_obtener_montoDisponible'})
                       .then(function(response){
-                            // console.log(response);
+                            console.log(response);
                          $scope.datos.montoExistente = response.data.monto;
                           $('#inputMonto').focus();
                           return;
@@ -699,10 +703,13 @@ var myApp = angular
  
                     if(response.data.errores == 0)
                         {
-                            // console.log(response);
+                            //console.log(response);
                           alert(response.data.mensaje);
                           $scope.inicializarDatos();
                           $scope.imprimirTicket(response.data.venta, (e == 1) ? true : false);
+                          $scope.datos.enviarSMS.codigoBarra = response.data.venta.codigoBarra;
+                          $scope.abrirVentanaSms();
+                          
                         }
                     else{
                         alert(response.data.mensaje);
@@ -748,6 +755,17 @@ var myApp = angular
                    
             //     })
             // }
+        }
+
+        $scope.abrirVentanaSms = function(){
+            if($scope.datos.sms == true || $scope.datos.whatsapp == true){
+                if($scope.datos.sms != true)
+                    $scope.datos.numSms = null;
+                if($scope.datos.whatsapp != true)
+                    $scope.datos.numWhatsapp = null;
+
+                $('#modal-sms').modal('show');
+            }
         }
 
         $scope.recargar = function(){
@@ -944,11 +962,19 @@ var myApp = angular
                     var jsonJugadas = response.data.jugadas;
                     jsonJugadas.forEach(function(valor, indice, array){
                         //Si la jugada ya existe dentro de la variable $scope.datos.jugadas entonces vamos continuar con la siguiente jugada
-                        if(Object.keys($scope.datos.loterias).length > 1 && $scope.datos.jugadas.find(x => x.jugada == array[indice].jugada) != undefined)
+                        if($scope.datos.jugadas.find(x => x.jugada == array[indice].jugada && x.idLoteria == array[indice].idLoteria) != undefined)
                         {
 
                         }else{
-                            $scope.datos.jugadas.push({'jugada':array[indice].jugada, 'monto':array[indice].monto, 'tam': array[indice].jugada.length});
+                            var idx = $scope.datos.optionsLoterias.findIndex(x => x.id == array[indice].idLoteria);
+                            $scope.datos.jugadas.push({
+                                    'jugada':array[indice].jugada, 'monto':array[indice].monto, 
+                                    'tam': array[indice].jugada.length, 
+                                    'idLoteria': array[indice].idLoteria,
+                                    'descripcion':$scope.datos.optionsLoterias[idx].descripcion, 
+                                    'abreviatura' : $scope.datos.optionsLoterias[idx].abreviatura
+                                });
+                            //$scope.datos.jugadas.push({'jugada':array[indice].jugada, 'monto':array[indice].monto, 'tam': array[indice].jugada.length});
                         }
 
                         //$scope.datos.jugadas.push({'jugada':array[indice].jugada, 'monto':array[indice].monto, 'tam': array[indice].jugada.length});
@@ -1173,6 +1199,43 @@ var myApp = angular
                 return 'Perdedor';
             else
                 return 'Cancelado';
+        }
+
+        $scope.empty = function(valor, tipo){
+            if(tipo === 'number'){
+                if(Number(valor) == undefined || valor == '' || valor == null || Number(valor) <= 0)
+                    return true;
+            }
+            if(tipo === 'string'){
+                if(valor == undefined || valor == '' || valor == null)
+                    return true;
+            }
+
+            return false;
+        }
+
+        $scope.enviarSMS = function(){
+            
+
+            if($scope.empty($scope.datos.numSms, 'number' == true) && $scope.datos.sms == true){
+                alert("El numero sms no es valido");
+                return
+            }
+            if($scope.empty($scope.datos.numWhatsapp, 'number' == true) && $scope.datos.whatsapp == true){
+                alert("El numero whatsapp no es valido");
+                return
+            }
+
+            $scope.datos.enviarSMS.sms = $scope.datos.sms;
+            $scope.datos.enviarSMS.whatsapp = $scope.datos.whatsapp;
+            $scope.datos.enviarSMS.numSms = $scope.datos.numSms;
+            $scope.datos.enviarSMS.numWhatsapp = $scope.datos.numWhatsapp;
+            $scope.datos.enviarSMS.idUsuario = idUsuario;
+            $http.post(rutaGlobal+"/api/principal/sms", {'action':'sp_ventas_cancelar', 'datos': $scope.datos.enviarSMS})
+             .then(function(response){
+                console.log(response.data);
+            });
+
         }
 
 

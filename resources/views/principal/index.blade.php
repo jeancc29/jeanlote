@@ -207,8 +207,8 @@
         >
         <form novalidate>
           <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
-          <div class="card-header">
-            <div class="row justify-content-center">
+          <div class="card-header m-0 p-0 mb-1">
+            <div class="row justify-content-center m-0 p-0">
 
             <style>
                 .dropdown{
@@ -219,18 +219,44 @@
            
               
               @if($usuario->tienePermiso("Jugar como cualquier banca"))
-              <div  class="col-10 m-0 p-0">
+              <div  class="col-6 m-0 p-0">
                     <!-- o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id -->
                             <select 
                             id="multiselect2"
-                                ng-change="calcularTotal()"
-                                ng-model="datos.loterias"
-                                ng-options="o.descripcion for o in datos.optionsLoterias track by o.id"
+                                ng-model="datos.selectedBancas"
+                                ng-options="o.descripcion for o in datos.optionsBancas track by o.id"
                                 class="selectpicker w-100" 
                                 data-style="select-with-transition" 
-                                multiple title="Seleccionar loteria"
+                                title="Seleccionar loteria"
                                 data-size="7" aria-setsize="2">
                             </select>
+                    </div>
+
+
+                    <div class="col-sm-1 col-2 ">
+                                <div class="form-check mt-3">
+                                <label class="form-check-label">
+                                    <input ng-model="datos.sms"  class="form-check-input" type="checkbox" value=""> sms
+                                    <!-- <i class="material-icons text-success" style="font-size: 24px;">chat</i> -->
+                                    
+                                    <span class="form-check-sign">
+                                    <span class="check"></span>
+                                    </span>
+                                </label>
+                                </div>
+                    </div>
+
+                     <div class="col-sm-1 col-3 text-right">
+                                <div class="form-check mt-3">
+                                <label class="form-check-label">
+                                    <input ng-model="datos.whatsapp" class="form-check-input" type="checkbox" value=""> whatsapp
+                                    <!-- <i class="fa fa-whatsapp text-success" style="font-size: 24px" ></i> -->
+                                    
+                                    <span class="form-check-sign">
+                                    <span class="check"></span>
+                                    </span>
+                                </label>
+                                </div>
                     </div>
               @else
               <h5 class="card-title m-0 p-0">
@@ -1591,14 +1617,20 @@
                     </form> -->
 
                     <div class="row">
-                        <div class="col-sm-8">
+                        <div class="col-sm-12">
                             <div id="fechaBusqueda" class="form-group">
-                            <label for="fechaBusqueda" class="bmd-label-floating">Numero ticket</label>
-                            <input ng-model="datos.duplicar.numeroticket" id="fechaBusqueda" type="text" class="form-control" required>
+                            <label for="fechaBusqueda" class="bmd-label-floating">SMS</label>
+                            <input ng-disabled="datos.sms != true" ng-model="datos.numSms" id="fechaBusqueda" type="number" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div id="fechaBusqueda" class="form-group">
+                            <label for="fechaBusqueda" class="bmd-label-floating">WHATSAPP</label>
+                            <input ng-disabled="datos.whatsapp != true" ng-model="datos.numWhatsapp" id="fechaBusqueda" type="number" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-group col-sm-3">
-                            <input ng-click="duplicar()" type="submit" class="btn btn-primary" value="Duplicar">   
+                            <input ng-click="enviarSMS()" type="submit" class="btn btn-primary" value="Enviar ticket">   
                         </div>
                     </div>
 

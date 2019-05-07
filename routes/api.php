@@ -62,6 +62,7 @@ Route::post('/principal/duplicar', 'PrincipalController@duplicar');
 Route::post('/principal/cancelar', 'PrincipalController@cancelar');
 
 Route::post('/imagen/guardar', 'PrincipalController@imagen');
+Route::post('/principal/sms', 'PrincipalController@sms');
 
 
 Route::get('/loterias', 'LotteriesController@index');

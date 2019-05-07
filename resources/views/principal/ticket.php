@@ -16,7 +16,7 @@
 
 </head>
 <body ng-controller="myController" ng-init="load('<?php echo url('principal');?>')">
-<img src="{{datos.imagen}}" alt="">
+<!-- <img src="{{datos.imagen}}" alt=""> -->
 <div id="hola" class="row">
   <div class="col-4 bg-primary">
     <h1>Holaa</h1>
@@ -26,7 +26,7 @@
     <div id="imprimir" class="col-12 col-sm-4 bg-primary text-center" style="min-width: 300px; max-width: 302px;">
         <h5 class="text-center my-0">**ORIGINAL**</h5>
         <h5 class="text-center my-0">{{datos[0].usuario}}</h5>
-        <p class="text-center my-0">{{datos[0].codigo + '-' + datos[0].idTicket}}</p>
+        <p class="text-center my-0">{{datos[0].codigo + '-' + toSecuencia(datos[0].idTicket)}}</p>
         <p class="text-center my-0">Fecha: {{toFecha(datos[0].created_at.date) | date:"dd/MM/yyyy hh:mm a"}}</p>
         <h5 class="text-center my-0 font-weight-bold">{{datos[0].codigoBarra}}</h5>
         <div class="row justify-content-center"  ng-repeat="l in loterias">
@@ -85,6 +85,13 @@
   var myApp = angular
     .module("myApp", [])
     .controller("myController", function($scope,$http, $window, $document){
+
+      $scope.toSecuencia = function(idTicket){
+            var str = "" + idTicket;
+            var pad = "000000000";
+            var ans = pad.substring(0, pad.length - str.length) + str;
+            return ans;
+        }
       
       var datos = [
         {"jugada" : "02-99-05", "monto" : "20.00"},
@@ -173,7 +180,8 @@
       var filename = "htmltoimage";
       var blob = '';
       $scope.datosImagen = {
-        "imagen" : null
+        "imagen" : null,
+        "nombre" : null
       };
         html2canvas(elm).then(function(canvas){
 
@@ -181,6 +189,8 @@
         var dataUrl = canvas.toDataURL('image/png');
         $scope.datosImagen.imagen = dataUrl;
         $scope.datosImagen.nombre = $scope.datos[0].codigoBarra;
+        console.log('response imagen: ' ,$scope.datosImagen);
+        
         $http.post("/api/imagen/guardar",{'datos':$scope.datosImagen, 'action':'sp_ventas_actualiza'})
           .then(function(response){
               

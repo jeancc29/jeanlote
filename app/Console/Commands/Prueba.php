@@ -57,6 +57,7 @@ class Prueba extends Command
         // file_put_contents($fichero, $actual);
 
         
-        $this->info(public_path());
+        $this->info(public_path("assets") . "\\");
+        $this->info(".." . config('twilio.TWILIO_SID'));
     }
 }

@@ -49,26 +49,38 @@ class Helper{
        return $saldo_inicial;
     }
 
-    public function _sendSms($to, $message)
+    public function _sendSms($to, $codigoBarra, $sms = true)
     {
-        $accountSid = env('AC2380875a2809c90354752c05ab783704');
-        $authToken = env('6f48c6fcd85eac850dd032d2515ba79b');
-        $twilioNumber = env('+12055486063');
+        $accountSid = config('twilio.TWILIO_SID');
+        // $accountSid ='AC2380875a2809c90354752c05ab783704';
+        $authToken = config('twilio.TWILIO_TOKEN');
+        // $authToken = '6f48c6fcd85eac850dd032d2515ba79b';
+        if($sms){
+            $twilioNumber = config('twilio.TWILIO_SMS_NUMBER');
+            $to ='+'. $to;
+        }
+        else{
+            $twilioNumber ="whatsapp:" . config('twilio.TWILIO_WHATSAPP_NUMBER');
+            $to ="whatsapp:" . '+'. $to;
+        }
+
         $client = new Client($accountSid, $authToken);
         try {
             $client->messages->create(
                 $to,
                 [
-                    "body" => $message,
-                    "from" => $twilioNumber
+                    "body" => "",
+                    "from" => $twilioNumber,
+                    'MediaUrl' => url('public/assets/ticket') . "\\" . $codigoBarra . "png"
                     //   On US phone numbers, you could send an image as well!
                     //  'mediaUrl' => $imageUrl
                 ]
             );
-            return 'Message sent to ' . $twilioNumber;
-            Log::info('Message sent to ' . $twilioNumber);
+            return array('errores' => 0, 'mensaje' => 'Message sent to ' . $twilioNumber);
+            //Log::info('Message sent to ' . $twilioNumber);
         } catch (TwilioException $e) {
-            return 'Error ' . $e;
+            // return 'Error ' . $e;
+            return 'mensaje' . $e;
             Log::error(
                 'Could not send SMS notification.' .
                 ' Twilio replied with: ' . $e

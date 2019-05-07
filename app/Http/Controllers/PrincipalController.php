@@ -799,7 +799,7 @@ class PrincipalController extends Controller
             $datos = request()->validate([
             'datos.imagen' => 'required',
             'lastModifiedDate' => '',
-            'nombre' => '',
+            'datos.nombre' => '',
             'name' => '',
             'size' => '',
             'type' => ''
@@ -831,7 +831,8 @@ class PrincipalController extends Controller
 
     // $image = file_put_contents(public_path().'/img/'.'test2.png',$img);
     // $output_file = "fotoo.png";
-    $output_file = public_path().'/ticket/'. $datos['nombre'] . ".png";
+    // $output_file = public_path().'/ticket/'. $datos['nombre'] . ".png";
+    $output_file = public_path() . "\\assets\\ticket\\" . $datos['nombre'] . ".png";
     $file = fopen($output_file, "wb");
     $data = explode(',', $datos['imagen']);
     fwrite($file, base64_decode($data[1]));
@@ -880,6 +881,44 @@ class PrincipalController extends Controller
             'errores' => 0,
             'mensaje' => 'Se ha guardado correctamente',
             'temp' => $temp_name
+        ], 201);
+    }
+
+
+
+    public function sms(Request $request)
+    {
+            $datos = request()->validate([
+            'datos.idUsuario' => 'required',
+            'datos.codigoBarra' => 'required',
+            'datos.sms' => 'required',
+            'datos.whatsapp' => 'required',
+            'datos.numSms' => '',
+            'datos.numWhatsapp' => '',
+        ])['datos'];
+
+        $colleccion = [];
+
+
+        if($datos["sms"] == 1){
+            $arreglo = (new Helper)->_sendSms($datos["numSms"], $datos["codigoBarra"]);
+            $colleccion = collect([$arreglo ]);
+        }
+        if($datos["whatsapp"] == 1){
+            $arreglo = (new Helper)->_sendSms($datos["numSms"], $datos["codigoBarra"], false);
+            if($colleccion == null){
+                $colleccion = collect([$arreglo ]);
+            }else{
+                $colleccion->push($arreglo);
+            }
+        }
+
+
+
+        return Response::json([
+            'errores' => 0,
+            'mensaje' => 'Se ha guardado correctamente',
+            "errrores" => $colleccion
         ], 201);
     }
 
