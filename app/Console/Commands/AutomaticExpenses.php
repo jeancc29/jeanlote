@@ -13,7 +13,7 @@ use App\Entity;
 use App\Days;
 use App\Classes\Helper;
 use App\Http\Resources\AutomaticexpensesResource;
-date_default_timezone_set("America/Santiago");
+
 
 
 class AutomaticExpenses extends Command

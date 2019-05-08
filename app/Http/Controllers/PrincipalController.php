@@ -116,7 +116,7 @@ class PrincipalController extends Controller
         });
         
 
-        $timezone = date_default_timezone_get();
+  
 
        
         $fechaCarbon = Carbon::now();
@@ -142,7 +142,7 @@ class PrincipalController extends Controller
             'bancas' => BranchesResource::collection($bancas),
             'busqueda' => strpos($cadena, $buscar),
             'fechaActual' => $fechaActual,
-            'timezone' => $timezone,
+            // 'timezone' => $timezone,
             'a' => $fechaCarbon,
             'a1' => $fechaCarbon2 ,
             'a2' => $a->addMonthNoOverflow(),

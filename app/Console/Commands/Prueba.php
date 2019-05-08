@@ -13,7 +13,6 @@ use App\Users;
 use App\Entity;
 use App\Classes\Helper;
 use App\Http\Resources\AutomaticexpensesResource;
-date_default_timezone_set("America/Santiago");
 
 class Prueba extends Command
 {
