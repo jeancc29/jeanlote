@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
 use App\Classes\Helper;
 
-use Faker\Generator as Faker;
+// use Faker\Generator as Faker;
 use App\Lotteries;
 use App\Generals;
 use App\Sales;
@@ -387,7 +387,7 @@ class PrincipalController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Faker $faker)
+    public function store(Request $request)
     {
         $datos = request()->validate([
             'datos.idUsuario' => 'required',
@@ -458,7 +458,8 @@ class PrincipalController extends Controller
     
         //Generamos y guardamos codigo de barra
         while($codigoBarraCorrecto != true){
-            $codigoBarra = $faker->isbn10;
+            // $codigoBarra = $faker->isbn10;
+            $codigoBarra = rand(1111111111, getrandmax());
             //return 'codiog: ' . $codigoBarra . ' faker: ' . $faker->isbn10;
             //Verificamos de que el codigo de barra no exista
             if(Tickets::where('codigoBarra', $codigoBarra)->get()->first() == null){
@@ -832,15 +833,24 @@ class PrincipalController extends Controller
     // $image = file_put_contents(public_path().'/img/'.'test2.png',$img);
     // $output_file = "fotoo.png";
     // $output_file = public_path().'/ticket/'. $datos['nombre'] . ".png";
+    
     $output_file = public_path() . "\\assets\\ticket\\" . $datos['nombre'] . ".png";
     $file = fopen($output_file, "wb");
-    $data = explode(',', $datos['imagen']);
-    fwrite($file, base64_decode($data[1]));
+    $imagenBase64SinComaillas = explode(',', $datos['imagen']);
+    fwrite($file, base64_decode($imagenBase64SinComaillas[1]));
     fclose($file);
+
+    $ticket = Tickets::where('codigoBarra', $datos['nombre'])->first();
+    if($ticket != null){
+        $ticket->imageBase64 = $imagenBase64SinComaillas[1];
+        $ticket->save();
+    }
 
         return Response::json([
             'errores' => 0,
             'mensaje' => 'Se ha guardado correctamente',
+            'imagenBase64' => $imagenBase64SinComaillas[1],
+            'nombre' => $datos['nombre'],
             'blob' => $output_file,
             'request' => request()->all(),
             'base_decode' => $output_file

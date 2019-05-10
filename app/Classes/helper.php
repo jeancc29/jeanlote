@@ -71,7 +71,7 @@ class Helper{
                 [
                     "body" => "",
                     "from" => $twilioNumber,
-                    'MediaUrl' => url('public/assets/ticket') . "\\" . $codigoBarra . "png"
+                    'MediaUrl' => url('public/assets/ticket') . "/" . $codigoBarra . ".png"
                     //   On US phone numbers, you could send an image as well!
                     //  'mediaUrl' => $imageUrl
                 ]

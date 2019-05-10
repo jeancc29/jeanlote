@@ -110,6 +110,7 @@ var myApp = angular
     }
         $scope.inicializarDatos = function(response = null){
 
+            
            
             
             $scope.datos.idVenta = 0;
@@ -708,7 +709,8 @@ var myApp = angular
                           $scope.inicializarDatos();
                           $scope.imprimirTicket(response.data.venta, (e == 1) ? true : false);
                           $scope.datos.enviarSMS.codigoBarra = response.data.venta.codigoBarra;
-                          $scope.abrirVentanaSms();
+                        //   $scope.print();
+                          //$scope.abrirVentanaSms();
                           
                         }
                     else{
@@ -780,6 +782,7 @@ var myApp = angular
 
         $scope.imprimirTicket = function(ticket, es_movil){
             // window.print();
+            console.log('imprimirTicekt: ', ticket);
             $window.sessionStorage.removeItem('ticket');
             $window.sessionStorage.setItem('ticket', JSON.stringify(ticket));
             // console.log(ruta);
@@ -1214,17 +1217,30 @@ var myApp = angular
             return false;
         }
 
-        $scope.enviarSMS = function(){
+        var getData = function(){
+            var json = [];
+            // var contador = 0;
+            // $.each($window.sessionStorage, function(i, v){
+            //   json.push(angular.fromJson(v));
+            // });
+            return json;
+          }
+
+        $scope.print = function(){
             
 
-            if($scope.empty($scope.datos.numSms, 'number' == true) && $scope.datos.sms == true){
-                alert("El numero sms no es valido");
-                return
-            }
-            if($scope.empty($scope.datos.numWhatsapp, 'number' == true) && $scope.datos.whatsapp == true){
-                alert("El numero whatsapp no es valido");
-                return
-            }
+            // if($scope.empty($scope.datos.numSms, 'number' == true) && $scope.datos.sms == true){
+            //     alert("El numero sms no es valido");
+            //     return
+            // }
+            // if($scope.empty($scope.datos.numWhatsapp, 'number' == true) && $scope.datos.whatsapp == true){
+            //     alert("El numero whatsapp no es valido");
+            //     return
+            // }
+
+            console.log('print function llamada desde ticket: ');
+            return;
+            
 
             $scope.datos.enviarSMS.sms = $scope.datos.sms;
             $scope.datos.enviarSMS.whatsapp = $scope.datos.whatsapp;

@@ -55,8 +55,11 @@ class Prueba extends Command
         // // Escribe el contenido al fichero
         // file_put_contents($fichero, $actual);
 
+        rand(111111111, getrandmax());
+
         
         $this->info(public_path("assets") . "\\");
-        $this->info(".." . config('twilio.TWILIO_SID'));
+        $this->info(".." . rand(1111111111, getrandmax()));
+
     }
 }

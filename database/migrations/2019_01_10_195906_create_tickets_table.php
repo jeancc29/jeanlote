@@ -17,6 +17,7 @@ class CreateTicketsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedInteger('idBanca');
             $table->string('codigoBarra', 20);
+            $table->longText('imageBase64')->nullable();
             $table->timestamps();
 
             $table->foreign('idBanca')->references('id')->on('branches');

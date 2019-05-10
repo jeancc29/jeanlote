@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="myApp">
+<html lang="en" ng-app="myModule">
 <head>
   <meta charset="UTF-8">
   <title>Document</title>
@@ -25,10 +25,10 @@
   <div class="row">
     <div id="imprimir" class="col-12 col-sm-4 bg-primary text-center" style="min-width: 300px; max-width: 302px;">
         <h5 class="text-center my-0">**ORIGINAL**</h5>
-        <h5 class="text-center my-0">{{datos[0].usuario}}</h5>
-        <p class="text-center my-0">{{datos[0].codigo + '-' + toSecuencia(datos[0].idTicket)}}</p>
-        <p class="text-center my-0">Fecha: {{toFecha(datos[0].created_at.date) | date:"dd/MM/yyyy hh:mm a"}}</p>
-        <h5 class="text-center my-0 font-weight-bold">{{datos[0].codigoBarra}}</h5>
+        <h5 class="text-center my-0">{{datos[1].usuario}}</h5>
+        <p class="text-center my-0">{{datos[1].codigo + '-' + toSecuencia(datos[1].idTicket)}}</p>
+        <p class="text-center my-0">Fecha: {{toFecha(datos[1].created_at.date) | date:"dd/MM/yyyy hh:mm a"}}</p>
+        <h5 class="text-center my-0 font-weight-bold">{{datos[1].codigoBarra}}</h5>
         <div class="row justify-content-center"  ng-repeat="l in loterias">
           <div class="col-12 text-center">
             <p style="border-top-style: dashed; border-bottom-style: dashed;" class="text-center font-weight-bold py-1 mt-2 mb-0">{{l.descripcion}}: {{ l.total | number:2}}</p>
@@ -79,11 +79,14 @@
   $(document).ready(function(){
    
     //window.print();
+    
+    //https://www.indalcasa.com/programacion/javascript/llamar-a-una-funcion-de-un-padre-desde-iframe/
+    //https://stackoverflow.com/questions/23648458/call-angularjs-function-using-jquery-javascript/23648641
   });
 </script>
 <script>
   var myApp = angular
-    .module("myApp", [])
+    .module("myModule", [])
     .controller("myController", function($scope,$http, $window, $document){
 
       $scope.toSecuencia = function(idTicket){
@@ -139,6 +142,8 @@
         $scope.count = getValue();
         $scope.datos = getData();
     }
+
+    
     
     $scope.removeItem = function(id){
       $window.sessionStorage.removeItem(id);
@@ -150,10 +155,10 @@
     }
 
 
-    $scope.imprime = function(){
-      $scope.addItem(datos);
-     // a=window.frames['iframeOculto'].src='index.php';
-    }
+    // $scope.imprime = function(){
+    //   $scope.addItem(datos);
+    //  // a=window.frames['iframeOculto'].src='index.php';
+    // }
 
     $scope.toFecha = function(fecha){
         return new Date(fecha);
@@ -188,16 +193,21 @@
           canvas = scaleCanvas(canvas, canvas.width, canvas.height);
         var dataUrl = canvas.toDataURL('image/png');
         $scope.datosImagen.imagen = dataUrl;
-        $scope.datosImagen.nombre = $scope.datos[0].codigoBarra;
+        $scope.datosImagen.nombre = $scope.datos[1].codigoBarra;
         console.log('response imagen: ' ,$scope.datosImagen);
         
         $http.post("/api/imagen/guardar",{'datos':$scope.datosImagen, 'action':'sp_ventas_actualiza'})
           .then(function(response){
               
               console.log('response imagen: ' , response);
+              //El metodo send que esta en el archivo header.blade.php se encarga de enviar la foto del ticket a traves del printer, sms o whatsapp
+              window.parent.send(response.data.nombre, response.data.imagenBase64, false);
+              //$scope.addImageBase64(response.data.imagenBase64)
               
-          })
-
+            },
+            function(response) {
+                alert('Error imagen ticket');
+            });
       
      
         
@@ -295,9 +305,11 @@ function scaleCanvas (canvas, width, height) {
     
      $scope.datos = getData();
     $scope.count = getValue();
-    $scope.loterias = $scope.datos[0].loterias;
+    $scope.loterias = $scope.datos[1].loterias;
     $scope.jugadas = [];
     $scope.jugadas2 = [];
+
+    
 
       $scope.loterias.forEach(function(v, i, a){
 
@@ -307,9 +319,8 @@ function scaleCanvas (canvas, width, height) {
         $scope.loterias[idx].total = 0;
         var total = 0;
         
-        $scope.datos[0].jugadas.forEach(function(valor, indice, array){
+        $scope.datos[1].jugadas.forEach(function(valor, indice, array){
             if(a[i].id == array[indice].idLoteria){
-              console.log(a[i].descripcion, ' ', array[indice]);
               total += Number(array[indice].monto);
               $scope.loterias[idx].jugadasTodas.push(array[indice]);
             }
@@ -346,6 +357,7 @@ function scaleCanvas (canvas, width, height) {
           }else{
             $scope.loterias[idx].jugadas1 = a[i].jugadasTodas;
             $scope.loterias[idx].tamJugadas = Object.keys(a[i].jugadasTodas).length;
+            // console.log('JugadasTodas: ', a[i].jugadasTodas[1]);
             total += Number(a[i].jugadasTodas[0].monto);
           }
 
@@ -357,9 +369,9 @@ function scaleCanvas (canvas, width, height) {
       convertHmtl2Canvas();
     
 
-    // if(Object.keys($scope.datos[0].jugadas).length > 1){
-    //   var mitad = Object.keys($scope.datos[0].jugadas).length / 2;
-    //   $scope.datos[0].jugadas.forEach(function(valor, indice, array){
+    // if(Object.keys($scope.datos[1].jugadas).length > 1){
+    //   var mitad = Object.keys($scope.datos[1].jugadas).length / 2;
+    //   $scope.datos[1].jugadas.forEach(function(valor, indice, array){
     //       if((indice + 1) <= mitad){
     //         $scope.jugadas.push(array[indice]);
     //       }else{
@@ -367,7 +379,7 @@ function scaleCanvas (canvas, width, height) {
     //       }
     //   });
     // }else{
-    //   $scope.jugadas = $scope.datos[0].jugadas;
+    //   $scope.jugadas = $scope.datos[1].jugadas;
     // }
 
       

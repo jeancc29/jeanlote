@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Tickets extends Model
 {
     protected $fillable = [
-        'idBanca', 'codigoBarra',
+        'idBanca', 'codigoBarra', 'imageBase64'
     ];
 }

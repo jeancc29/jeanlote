@@ -219,7 +219,7 @@
            
               
               @if($usuario->tienePermiso("Jugar como cualquier banca"))
-              <div  class="col-6 m-0 p-0">
+              <div  class="col-5 m-0 p-0">
                     <!-- o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id -->
                             <select 
                             id="multiselect2"
@@ -231,7 +231,21 @@
                                 data-size="7" aria-setsize="2">
                             </select>
                     </div>
+                @endif
 
+
+                    <div class="col-sm-1 col-2 ">
+                                <div class="form-check mt-3">
+                                <label class="form-check-label">
+                                    <input ng-model="datos.print"  class="form-check-input" type="checkbox" value=""> print
+                                    <!-- <i class="material-icons text-success" style="font-size: 24px;">chat</i> -->
+                                    
+                                    <span class="form-check-sign">
+                                    <span class="check"></span>
+                                    </span>
+                                </label>
+                                </div>
+                    </div>
 
                     <div class="col-sm-1 col-2 ">
                                 <div class="form-check mt-3">
@@ -246,10 +260,10 @@
                                 </div>
                     </div>
 
-                     <div class="col-sm-1 col-3 text-right">
+                     <div class="col-sm-1 col-2 text-right">
                                 <div class="form-check mt-3">
                                 <label class="form-check-label">
-                                    <input ng-model="datos.whatsapp" class="form-check-input" type="checkbox" value=""> whatsapp
+                                    <input ng-model="datos.whatsapp" class="form-check-input" type="checkbox" value=""> wtsapp
                                     <!-- <i class="fa fa-whatsapp text-success" style="font-size: 24px" ></i> -->
                                     
                                     <span class="form-check-sign">
@@ -258,11 +272,11 @@
                                 </label>
                                 </div>
                     </div>
-              @else
+              <!--
               <h5 class="card-title m-0 p-0">
-                {{datos.selectedBancas.descripcion}}
+                @{{datos.selectedBancas.descripcion}}
               </h5>
-              @endif
+               -->
            
             </div>
            
@@ -292,7 +306,7 @@
                 <!-- <h5 class="info-text"> Let's start with the basic information (with validation)</h5> -->
                 <div class="row p-0 m-0">
                     <iframe id="iframeOcultoMovil" name="iframeOcultoMovil"  style="width:0px; height:0px; border:0px; margin:0px;"></iframe>
-                    <div class="col-sm-1 col-2 text-center">
+                    <div class="col-sm-1 col-3 text-center">
                                 <div class="form-check mt-3">
                                 <label class="form-check-label">
                                     <input ng-model="datos.hayDescuento" ng-change="calcularTotal()" class="form-check-input" type="checkbox" value=""> Desc
@@ -303,7 +317,7 @@
                                 </div>
                     </div>
 
-                    <div  class="col-10 m-0 p-0">
+                    <div  class="col-9 m-0 p-0">
                     <!-- o.descripcion disable when validarHora(o.horaCierre, o.descripcion) for o in datos.optionsLoterias track by o.id -->
                             <select 
                             id="multiselect2"

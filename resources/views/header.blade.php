@@ -59,6 +59,15 @@ if($controlador != "login"){
 <script>
     window.rutaGlobal = (false) ? "<?php echo url('') ?>" : '';
     window.idUsuario = "<?php echo session('idUsuario') ?>";
+
+    var prueba = function(){
+        alert("Preuba");
+    }
+
+    var send = function(titleImage, base64Image, sms = true){
+        alert('que es: ', typeof Android.showToast);
+        //Android.sendSMS(titleImage, base64Image, sms);
+    }
     // function setRuta(r){
     //     rutaGlobal = r;
     //     console.log('header ruta:', rutaGlobal);
