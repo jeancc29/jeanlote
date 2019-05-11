@@ -65,7 +65,13 @@ if($controlador != "login"){
     }
 
     var send = function(titleImage, base64Image, sms = true){
-        alert('que es: ', typeof Android.showToast);
+        if(typeof Android != 'undefined'){
+            alert('que es: ', typeof Android);
+        }else{
+            alert('que es: undefined');
+        }
+        
+        console.log('Send que es:', typeof Android);
         //Android.sendSMS(titleImage, base64Image, sms);
     }
     // function setRuta(r){

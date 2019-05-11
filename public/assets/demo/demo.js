@@ -323,7 +323,7 @@ demo = {
             /********* Modificado por mi *********/
             //Obtener el li menu
             var liMenu = document.getElementById( "nav-pills-menu" );
-
+            console.log('demojs, limenu: ', liMenu);
             //Verificamos si existe
             if(liMenu != undefined){
                 //Obtenemos el index del liMenu
