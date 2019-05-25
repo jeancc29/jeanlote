@@ -202,7 +202,8 @@ class ReportesController extends Controller
     {
         $datos = request()->validate([
             'datos.fecha' => 'required',
-            'datos.idUsuario' => 'required'
+            'datos.idUsuario' => 'required',
+            'datos.idBanca' => ''
         ])['datos'];
     
         $usuario = Users::whereId($datos['idUsuario'])->first();
@@ -211,6 +212,14 @@ class ReportesController extends Controller
                 'errores' => 1,
                 'mensaje' => 'No tiene permisos para realizar esta accion'
             ], 201);
+        }
+
+        $datos['idBanca'] = Branches::where(['idBanca' => $datos['idBanca'], 'status' => 1])->first();
+
+        if($datos['idBanca'] != null){
+            $datos['idBanca'] = $datos['idBanca']->id;
+        }else{
+            $datos['idBanca'] = Branches::where(['idUsuario' => $datos['idUsuario'], 'status' => 1])->first()->id;
         }
         
     
@@ -236,6 +245,8 @@ class ReportesController extends Controller
     
     
         $monitoreo = Sales::whereBetween('sales.created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    ->where('idBanca', $datos['idBanca'])
+                    ->orderBy('id', 'desc')
                     ->get();
     
        // return $ventas;
