@@ -614,14 +614,95 @@ class PrincipalController extends Controller
     
        /***************** Insertar el datelle ventas ***********************/
     
-       foreach($datos['loterias'] as $l){
+    //    foreach($datos['loterias'] as $l){
     
-        $coleccionJugadas = collect($datos['jugadas']);
-        list($jugadasLoterias, $no) = $coleccionJugadas->partition(function($j) use($l){
-            return $j['idLoteria'] == $l['id'];
-        });
+    //     $coleccionJugadas = collect($datos['jugadas']);
+    //     list($jugadasLoterias, $no) = $coleccionJugadas->partition(function($j) use($l){
+    //         return $j['idLoteria'] == $l['id'];
+    //     });
     
-        foreach($jugadasLoterias as $d){
+    //     foreach($jugadasLoterias as $d){
+
+    //         $loteria = Lotteries::whereId($d['idLoteria'])->first();
+            
+    //         if(strlen($d['jugada']) == 2){
+    //             $idSorteo = 1;
+    //        }
+    //        else if(strlen($d['jugada']) == 4){
+    //             if($loteria->sorteos()->whereDescripcion('Super pale')->first() == null || $loteria->drawRelations->count() <= 1)
+    //                 $idSorteo = 2;
+    //             else if($loteria->sorteos()->whereDescripcion('Super pale')->first() != null || $loteria->drawRelations->count() >= 2)
+    //                 $idSorteo = 4;
+    //        }
+    //        else if(strlen($d['jugada']) == 6){
+    //             $idSorteo = 3;
+    //        }
+    
+    //        $stock = Stock::where(['idLoteria' => $d['idLoteria'],'idBanca' => $datos['idBanca'], 'jugada' => $d['jugada']])
+    //                 ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))->first();
+                    
+    //            //Verificamos que la variable $stock no sea nula
+    //            if($stock != null){
+    //                //Restamos el monto jugado a la tabla stock y guardamos
+    //                $stock['monto'] = $stock['monto'] - $d['monto'];
+    //                $stock->save();
+    //            }else{
+    //                //Obtenemos el stock de la tabla bloqueo jugadas
+    //                 $stock = Blocksplays::where(
+    //                     ['idBanca' => $datos['idBanca'], 
+    //                     'idLoteria' => $d['idLoteria'],
+    //                     'jugada' => $d['jugada'], 'status' => 1])
+    //                     ->where('fechaDesde', '<=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00')
+    //                     ->where('fechaHasta', '>=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00')->first();
+                
+    //                 //Verificamos que no sea nulo
+    //                 if($stock != null){
+    //                     //Si el monto en la variable $stock es mejor que el monto que se jugara entonces no hay exitencia suficiente
+    //                     Stock::create([
+    //                         'idBanca' => $datos['idBanca'],
+    //                         'idLoteria' => $d['idLoteria'],
+    //                         'idSorteo' => $idSorteo,
+    //                         'jugada' => $d['jugada'],
+    //                         'montoInicial' => $stock['monto'],
+    //                         'monto' => $stock['monto'] - $d['monto']
+    //                     ]);
+    //                 }else{
+    //                     $stock = Blockslotteries::where([
+    //                         'idBanca' => $datos['idBanca'], 
+    //                         'idLoteria' => $d['idLoteria'], 
+    //                         'idSorteo' => $idSorteo
+    //                     ])->first();
+    
+    //                     Stock::create([
+    //                         'idBanca' => $datos['idBanca'],
+    //                         'idLoteria' => $d['idLoteria'],
+    //                         'idSorteo' => $idSorteo,
+    //                         'jugada' => $d['jugada'],
+    //                         'montoInicial' => $stock['monto'],
+    //                         'monto' => $stock['monto'] - $d['monto']
+    //                     ]);
+    //                 }
+    //            }
+    
+    //      Salesdetails::create([
+    //          'idVenta' => Sales::where('idTicket', $idTicket)->value('id'),
+    //          'idLoteria' => $d['idLoteria'],
+    //          'idSorteo' => $idSorteo,
+    //          'jugada' => $d['jugada'],
+    //          'monto' => $d['monto'],
+    //          'premio' => 0,
+    //          'monto' => $d['monto'],
+    //      ]);
+    
+    //     }
+    // } //End foreach
+
+    $coleccionJugadas = collect($datos['jugadas']);
+        // list($jugadasLoterias, $no) = $coleccionJugadas->partition(function($j) use($l){
+        //     return $j['idLoteria'] == $l['id'];
+        // });
+
+        foreach($datos['jugadas'] as $d){
 
             $loteria = Lotteries::whereId($d['idLoteria'])->first();
             
@@ -693,13 +774,14 @@ class PrincipalController extends Controller
              'premio' => 0,
              'monto' => $d['monto'],
          ]);
+
+         
     
         }
-    }
-    
-        if($errores == 0){
-            $mensaje = 'Se ha guardado correctamente';
-        }
+
+        if($errores == 0)
+            $mensaje = "Se ha guardado correctamente";
+
     
     } //END if validacion si hay errores
     
