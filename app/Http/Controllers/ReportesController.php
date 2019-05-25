@@ -214,14 +214,13 @@ class ReportesController extends Controller
             ], 201);
         }
 
-        $datos['idBanca'] = Branches::where(['idBanca' => $datos['idBanca'], 'status' => 1])->first();
-
-        if($datos['idBanca'] != null){
-            $datos['idBanca'] = $datos['idBanca']->id;
+        if(isset($datos['idBanca'])){
+            $datos['idBanca'] = Branches::where(['id' => $datos['idBanca'], 'status' => 1])->first();
+            if($datos['idBanca'] != null)
+                $datos['idBanca'] = $datos['idBanca']->id;
         }else{
             $datos['idBanca'] = Branches::where(['idUsuario' => $datos['idUsuario'], 'status' => 1])->first()->id;
         }
-        
     
         $fecha = getdate(strtotime($datos['fecha']));
     
@@ -245,7 +244,7 @@ class ReportesController extends Controller
     
     
         $monitoreo = Sales::whereBetween('sales.created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
-                    ->where('idBanca', $datos['idBanca'])
+                    ->where(['idBanca', $datos['idBanca'], 'status' => 1])
                     ->orderBy('id', 'desc')
                     ->get();
     
