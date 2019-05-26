@@ -3,6 +3,11 @@ namespace App\Classes;
 
 use App\transactions;
 use App\Types;
+use App\Days;
+use App\Lotteries;
+use App\Stock;
+use App\Blocksplays;
+use App\Blockslotteries;
 
 use Log;
 use Twilio\Rest\Client;
@@ -96,6 +101,64 @@ class Helper{
               header('location:' . url("login") );
         }
 
+    }
+
+    function montodisponible($jugada, $idLoteria, $idBanca){
+        $fecha = getdate();
+        $idSorteo = 0;
+        $bloqueo = 0;
+    
+        $idDia = Days::whereWday($fecha['wday'])->first()->id;
+    
+        $loteria = Lotteries::whereId($idLoteria)->first();
+    
+       if(strlen($jugada) == 2){
+            $idSorteo = 1;
+       }
+       else if(strlen($jugada) == 4){
+            if($loteria->sorteos()->whereDescripcion('Super pale')->first() == null || $loteria->drawRelations->count() <= 1)
+                $idSorteo = 2;
+            else if($loteria->sorteos()->whereDescripcion('Super pale')->first() != null || $loteria->drawRelations->count() >= 2)
+                $idSorteo = 4;
+       }
+       else if(strlen($jugada) == 6){
+            $idSorteo = 3;
+       }
+    
+       $bloqueo = Stock::where([   
+           'idLoteria' => $idLoteria, 
+           'idBanca' => $idBanca, 
+           'jugada' => $jugada
+        ])
+       ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))->value('monto');
+       
+    //Verificamos que la variable $stock no sea nula
+    if($bloqueo == null){
+        $bloqueo = Blocksplays::where(
+            [
+                'idBanca' => $idBanca,
+                'idLoteria' => $idLoteria, 
+                'jugada' => $jugada,
+                'status' => 1
+            ])
+            ->where('fechaDesde', '<=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00')
+            ->where('fechaHasta', '>=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00')->value('monto');
+    
+        if($bloqueo == null){
+            $bloqueo = Blockslotteries::where([
+                'idBanca' => $idBanca, 
+                'idLoteria' => $idLoteria, 
+                'idDia' => $idDia,
+                'idSorteo' => $idSorteo
+            ])->value('monto');
+        }
+    }
+    
+       
+    
+       if($bloqueo == null) $bloqueo = 0;
+    
+        return $bloqueo;
     }
 
 

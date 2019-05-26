@@ -57,9 +57,10 @@ class Prueba extends Command
 
         rand(111111111, getrandmax());
 
-        
-        $this->info(public_path("assets") . "\\");
-        $this->info(".." . rand(1111111111, getrandmax()));
+        $monto = (new Helper)->montodisponible("55", 1, 1);
+        $this->info("Montodisponible: " . $monto);
+        // $this->info(public_path("assets") . "\\");
+        // $this->info(".." . rand(1111111111, getrandmax()));
 
     }
 }

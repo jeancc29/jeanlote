@@ -538,61 +538,66 @@ class PrincipalController extends Controller
                     'jugada' => $d['jugada']])
                     ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))->first();
                    
-                   
-               //Verificamos que la variable $stock no sea nula
-               if($stock != null){
-                   //Si el monto en la variable $stock es menor que el monto que se jugara entonces no hay exitencia suficiente
-                    if($stock['monto'] < $d['monto']){
+                if((new Helper)->montodisponible("55", 1, 1) < $d['monto']){
                         $errores = 1;
                         $mensaje = 'No hay existencia suficiente para la jugada ' . $d['jugada'] .' en la loteria ' . $d['descripcion'];
                         break;
-                    }
-               }else{
+                }
+                   
+            //    //Verificamos que la variable $stock no sea nula
+            //    if($stock != null){
+            //        //Si el monto en la variable $stock es menor que el monto que se jugara entonces no hay exitencia suficiente
+            //         if($stock['monto'] < $d['monto']){
+            //             $errores = 1;
+            //             $mensaje = 'No hay existencia suficiente para la jugada ' . $d['jugada'] .' en la loteria ' . $d['descripcion'];
+            //             break;
+            //         }
+            //    }else{
     
-                    //Obtenemos el stock de la jugada en el bloqueo jugada
-                    $stock = Blocksplays::where(
-                        [
-                        'idBanca' => $datos['idBanca'],
-                        'idLoteria' => $d['idLoteria'], 
-                        'jugada' => $d['jugada'], 'status' => 1])
-                        ->where('fechaDesde', '<=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00')
-                        ->where('fechaHasta', '>=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00')->first();
+            //         //Obtenemos el stock de la jugada en el bloqueo jugada
+            //         $stock = Blocksplays::where(
+            //             [
+            //             'idBanca' => $datos['idBanca'],
+            //             'idLoteria' => $d['idLoteria'], 
+            //             'jugada' => $d['jugada'], 'status' => 1])
+            //             ->where('fechaDesde', '<=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00')
+            //             ->where('fechaHasta', '>=', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00')->first();
                 
-                    //Verificamos que no sea nulo
-                    if($stock != null){
-                        //Si el monto en la variable $stock es mejor que el monto que se jugara entonces no hay exitencia suficiente
-                        if($stock['monto'] < $d['monto']){
-                            $errores = 1;
-                            $mensaje = 'No hay existencia suficiente para la jugada ' . $d['jugada'] .' en la loteria ' . $d['descripcion'];
-                            break;
-                        }
-                    }else{
-                        //Como la variable $stock esta nula porque no se encontro bloqueo de la jugada entonces vamos a obtener el bloqueo de la loteria para el sorteo
-                        $stock = Blockslotteries::where([
-                            'idBanca' => $datos['idBanca'],
-                            'idLoteria' => $d['idLoteria'], 
-                            'idDia' => $fecha['wday'],
-                            'idSorteo' => $idSorteo
-                        ])->first();
+            //         //Verificamos que no sea nulo
+            //         if($stock != null){
+            //             //Si el monto en la variable $stock es mejor que el monto que se jugara entonces no hay exitencia suficiente
+            //             if($stock['monto'] < $d['monto']){
+            //                 $errores = 1;
+            //                 $mensaje = 'No hay existencia suficiente para la jugada ' . $d['jugada'] .' en la loteria ' . $d['descripcion'];
+            //                 break;
+            //             }
+            //         }else{
+            //             //Como la variable $stock esta nula porque no se encontro bloqueo de la jugada entonces vamos a obtener el bloqueo de la loteria para el sorteo
+            //             $stock = Blockslotteries::where([
+            //                 'idBanca' => $datos['idBanca'],
+            //                 'idLoteria' => $d['idLoteria'], 
+            //                 'idDia' => $fecha['wday'],
+            //                 'idSorteo' => $idSorteo
+            //             ])->first();
     
     
-                        //Verificamos que la variable $stock no sea nula
-                        if($stock != null){
-                            //Si el monto en la variable $stock es mejor que el monto que se jugara entonces no hay exitencia suficiente
-                            if($stock['monto'] < $d['monto']){
-                                $errores = 1;
-                                $mensaje = 'No hay existencia suficiente para la jugada ' . $d['jugada'] .' en la loteria ' . $d['descripcion'];
-                                break;
-                            }
-                        }else{
-                            //Como la variable $stock esta nula porque no se encontro bloqueo de la loteria entonces no hay existencia
-                            $errores = 1;
-                            $mensaje = 'No hay existencia suficiente para la jugada ' . $d['jugada'] .' en la loteria ' . $d['descripcion'];
-                            break;
-                        }
-                    }
+            //             //Verificamos que la variable $stock no sea nula
+            //             if($stock != null){
+            //                 //Si el monto en la variable $stock es mejor que el monto que se jugara entonces no hay exitencia suficiente
+            //                 if($stock['monto'] < $d['monto']){
+            //                     $errores = 1;
+            //                     $mensaje = 'No hay existencia suficiente para la jugada ' . $d['jugada'] .' en la loteria ' . $d['descripcion'];
+            //                     break;
+            //                 }
+            //             }else{
+            //                 //Como la variable $stock esta nula porque no se encontro bloqueo de la loteria entonces no hay existencia
+            //                 $errores = 1;
+            //                 $mensaje = 'No hay existencia suficiente para la jugada ' . $d['jugada'] .' en la loteria ' . $d['descripcion'];
+            //                 break;
+            //             }
+            //         }
     
-               }
+            //    }
                
             }
         //}
