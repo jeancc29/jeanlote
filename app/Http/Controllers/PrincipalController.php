@@ -53,11 +53,30 @@ class PrincipalController extends Controller
             return view('principal.index', compact('controlador', 'usuario'));
         }
 
+        $idBanca = 0;
+        
 
+        $datos = request()->validate([
+            'datos.idUsuario' => ''
+        ])['datos'];
+
+        if(isset($datos['idUsuario'])){
+            $idBanca = Branches::where(['id' => $datos['idUsuario'], 'status' => 1])->first();
+            if($idBanca != null)
+                $idBanca = $idBanca->id;
+        }
        
         $fecha = getdate();
-        $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
-                ->where('status', '!=', 0)->get();
+   
+        if($idBanca == 0){
+            $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+            ->where('status', '!=', 0)->get();
+        }else{
+            $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+            ->where('status', '!=', 0)
+            ->where('idBanca', $idBanca)
+            ->get();
+        }
     
         $idVentas = collect($ventas)->map(function($id){
             return $id->id;
@@ -77,6 +96,49 @@ class PrincipalController extends Controller
 
         
         
+    }
+
+    public function indexPost()
+    {
+        $idBanca = 0;
+        
+
+        $datos = request()->validate([
+            'datos.idUsuario' => 'required'
+        ])['datos'];
+
+        if(isset($datos['idUsuario'])){
+            $idBanca = Branches::where(['id' => $datos['idUsuario'], 'status' => 1])->first();
+            if($idBanca != null)
+                $idBanca = $idBanca->id;
+        }
+       
+        $fecha = getdate();
+   
+        if($idBanca == 0){
+            $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+            ->where('status', '!=', 0)->get();
+        }else{
+            $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+            ->where('status', '!=', 0)
+            ->where('idBanca', $idBanca)
+            ->get();
+        }
+    
+        $idVentas = collect($ventas)->map(function($id){
+            return $id->id;
+        });
+    
+    
+    
+        return Response::json([
+            'loterias' => Lotteries::whereStatus(1)->get(),
+            'caracteristicasGenerales' =>  Generals::all(),
+            'total_ventas' => Sales::whereIn('id', $idVentas)->sum('total'),
+            'total_jugadas' => Salesdetails::whereIn('idVenta', $idVentas)->count('jugada'),
+            'ventas' => SalesResource::collection($ventas),
+            'bancas' => Branches::whereStatus(1)->get()
+        ], 201);
     }
 
     public function ticket()
@@ -186,7 +248,15 @@ class PrincipalController extends Controller
     
         
     
-        
+        // $jugadas = collect($jugadas)->map(function($d){
+        //     $loteria = Lotteries::whereId($d['idLoteria'])->first();
+        //     return ['id' => $d['id'], 'idVenta' => $d['idVenta'], 
+        //             'idLoteria' => $d['idLoteria'], 'idSorteo' => $d['idSorteo'], 
+        //             'jugada' => $d['jugada'], 'monto' => $d['monto'],
+        //             'premio' => $d['premio'],
+        //             'status' => $d['status'],
+        //             ]
+        // });
       
         
     

@@ -244,7 +244,7 @@ class ReportesController extends Controller
     
     
         $monitoreo = Sales::whereBetween('sales.created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
-                    ->where(['idBanca', $datos['idBanca'], 'status' => 1])
+                    ->where('idBanca', $datos['idBanca'])
                     ->orderBy('id', 'desc')
                     ->get();
     

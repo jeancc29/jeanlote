@@ -159,7 +159,7 @@ var myApp = angular
                   return;
             }
 
-            $http.get(rutaGlobal+"/api/principal")
+            $http.post(rutaGlobal+"/api/principal/indexPost", {'datos':$scope.datos, 'action':'sp_jugadas_obtener_montoDisponible'})
              .then(function(response){
 
                 console.log(response)
