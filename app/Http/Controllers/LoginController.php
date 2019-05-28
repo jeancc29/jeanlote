@@ -3,9 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Users;
-use Illuminate\Http\Request;
+use Request;
 use Illuminate\Support\Facades\Route; 
 use Illuminate\Support\Facades\Crypt; 
+use Illuminate\Support\Facades\Response;
+use Carbon\Carbon;
+
+
+use App\Lotteries;
+use App\Generals;
+use App\Sales;
+use App\Salesdetails;
+use App\Blockslotteries;
+use App\Blocksplays;
+use App\Stock;
+use App\Tickets;
+use App\Cancellations;
+use App\Days;
+use App\Payscombinations;
+use App\Awards;
+use App\Draws;
+use App\Roles;
+use App\Commissions;
+use App\Permissions;
+use App\Frecuency;
+use App\Automaticexpenses;
+
+use App\Http\Resources\LotteriesResource;
+use App\Http\Resources\SalesResource;
+use App\Http\Resources\BranchesResource;
+use App\Http\Resources\RolesResource;
+use App\Http\Resources\UsersResource;
+
 
 class LoginController extends Controller
 {
@@ -63,6 +92,47 @@ class LoginController extends Controller
       
 
        return redirect()->route('principal');
+    }
+
+    public function accederApi(Request $request)
+    {
+        $data = request()->validate([
+            'usuario' => 'required',
+            'password' => 'required'
+        ])['datos'];
+
+       // dd($data);
+
+        
+
+        $u = Users::where(['usuario' => $data['usuario']])->get()->first();
+
+    
+        
+   
+
+        if($u == null){
+            return redirect('login')->withErrors([
+                'usuario' => 'Usuario o contraseña incorrectos'
+            ]);
+        }
+
+        if(Crypt::decryptString($u->password) != $data['password']){
+            return redirect('login')->withErrors([
+                'password' => 'Contraseña incorrecta'
+            ]);
+        }
+        
+        //Session::put('idUsuario', $u->id);
+
+       session(['idUsuario' => $u->id]);
+       session(['permisos' => $u->permisos]);
+
+      
+       return Response::json([
+        'idUsuario' => $u->id,
+        'permisos' => $u->permisos
+    ], 201);
     }
 
     /**
