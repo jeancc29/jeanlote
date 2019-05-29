@@ -224,7 +224,8 @@ class ReportesController extends Controller
             'premios' => $premios,
             'neto_final' => ($ventas - $premios - $descuentos),
             'loterias' => $loterias,
-            'ticketsGanadores' => SalesResource::collection($ticketsGanadores)
+            'ticketsGanadores' => SalesResource::collection($ticketsGanadores),
+            'banca' => Branches::whereId($datos['idBanca'])->first()
         ], 201);
     }
 
