@@ -26,6 +26,7 @@ use App\Users;
 use App\Roles;
 use App\Commissions;
 use App\Permissions;
+use App\Classes\Helper;
 
 use App\Http\Resources\LotteriesResource;
 use App\Http\Resources\SalesResource;
@@ -160,6 +161,11 @@ class ReportesController extends Controller
         $ganadores = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->whereStatus('2')
                     ->count();
+        $premios = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
+            ->whereStatus('2')
+            ->sum("premios");
+                    
+                
         $perdedores = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->whereStatus('3')
                     ->count();
@@ -215,6 +221,7 @@ class ReportesController extends Controller
             ->get();
     
         return Response::json([
+            'balance' => (new Helper)->saldo($datos['idBanca'], true),
             'pendientes' => $pendientes,
             'perdedores' => $perdedores,
             'ganadores' => $ganadores,
@@ -225,7 +232,8 @@ class ReportesController extends Controller
             'neto_final' => ($ventas - $premios - $descuentos),
             'loterias' => $loterias,
             'ticketsGanadores' => SalesResource::collection($ticketsGanadores),
-            'banca' => Branches::whereId($datos['idBanca'])->first()
+            'banca' => Branches::whereId($datos['idBanca'])->first(),
+            'premios' => $premios
         ], 201);
     }
 
