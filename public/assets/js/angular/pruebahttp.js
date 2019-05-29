@@ -27,7 +27,7 @@ var myApp = angular
 
 
        $scope.obtener = function(){
-        $http.post(rutaGlobal+"/api/principal/pruebahttp", {'datos' : $scope.datos})
+        $http.post(rutaGlobal+"/api/acceder", {'datos' : $scope.datos})
         .then(function(response){
 
            console.log(response)

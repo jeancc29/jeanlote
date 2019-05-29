@@ -113,31 +113,62 @@ class ReportesController extends Controller
 
     public function ventas()
     {
-        $fecha = request()->validate([
-            'datos.fecha' => 'required'
+        $datos = request()->validate([
+            'datos.idUsuario' => 'required',
+            'datos.idBanca' => '',
+            'datos.fecha' => 'required',
+            'datos.fechaFinal' => '',
         ])['datos'];
     
+        if(!isset($fecha['fechaHasta'])){
+            $fecha = getdate(strtotime($datos['fecha']));
+            $fechaInicial = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00';
+            $fechaFinal = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00';
+        }else{
+            $fecha = getdate(strtotime($datos['fecha']));
+            $fechaF = getdate(strtotime($datos['fechaFinal']));
+            $fechaInicial = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00';
+            $fechaFinal = $fechaF['year'].'-'.$fechaF['mon'].'-'.$fechaF['mday'] . ' 23:50:00';
+        }
         
     
-        $fecha = getdate(strtotime($fecha['fecha']));
+
+        $usuario = Users::whereId($datos['idUsuario'])->first();
+        if(!$usuario->tienePermiso("Monitorear ticket")){
+            return Response::json([
+                'errores' => 1,
+                'mensaje' => 'No tiene permisos para realizar esta accion'
+            ], 201);
+        }
+
+        if(isset($datos['idBanca'])){
+            $datos['idBanca'] = Branches::where(['id' => $datos['idBanca'], 'status' => 1])->first();
+            if($datos['idBanca'] != null)
+                $datos['idBanca'] = $datos['idBanca']->id;
+        }else{
+            $datos['idBanca'] = Branches::where(['idUsuario' => $datos['idUsuario'], 'status' => 1])->first()->id;
+        }
+    
+        $fecha = getdate(strtotime($datos['fecha']));
+        
     
         $pendientes = Sales::
-                    whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->whereStatus(1)
                     ->count();
     
-        $ganadores = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+        $ganadores = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->whereStatus('2')
                     ->count();
-        $perdedores = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+        $perdedores = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->whereStatus('3')
                     ->count();
     
-        $total = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+        $total = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->whereIn('status', array(1,2,3))
                     ->count();
     
-                    $ventas = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    $ventas = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->where('status', '!=', '0')
                     ->sum('total');
     
@@ -145,11 +176,11 @@ class ReportesController extends Controller
     
                     //AQUI TERMINAN LAS COMISIONES
     
-                    $descuentos = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    $descuentos = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->where('status', '!=', 0)
                     ->sum('descuentoMonto');
     
-                    $premios = Sales::whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+                    $premios = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->whereIn('status', array(1,2))
                     ->sum('premios');
     
@@ -157,8 +188,7 @@ class ReportesController extends Controller
     
                     
     
-                    $fechaInicial = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00';
-                    $fechaFinal = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00';
+                    
                     $loterias = Lotteries::
                             selectRaw('
                                 id, 
@@ -181,7 +211,7 @@ class ReportesController extends Controller
         $ticketsGanadores = Sales::
             whereStatus(2)
             ->wherePagado(0)
-            ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))
+            ->whereBetween('created_at', array($fechaInicial, $fechaFinal))
             ->get();
     
         return Response::json([

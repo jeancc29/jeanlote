@@ -96,31 +96,39 @@ class LoginController extends Controller
 
     public function accederApi(Request $request)
     {
-        $data = request()->validate([
-            'usuario' => 'required',
-            'password' => 'required'
+     
+        $datos = request()->validate([
+            'datos.usuario' => 'required',
+            'datos.password' => 'required'
         ])['datos'];
-
        // dd($data);
 
         
 
-        $u = Users::where(['usuario' => $data['usuario']])->get()->first();
+        $u = Users::where(['usuario' => $datos['usuario']])->get()->first();
 
     
         
    
 
         if($u == null){
-            return redirect('login')->withErrors([
-                'usuario' => 'Usuario o contraseña incorrectos'
-            ]);
+            return Response::json([
+                'errores' => 1,
+                'mensaje' => 'Usuario o contraseña incorrectos'
+            ], 201);
+            // return redirect('login')->withErrors([
+            //     'usuario' => 'Usuario o contraseña incorrectos'
+            // ]);
         }
 
-        if(Crypt::decryptString($u->password) != $data['password']){
-            return redirect('login')->withErrors([
-                'password' => 'Contraseña incorrecta'
-            ]);
+        if(Crypt::decryptString($u->password) != $datos['password']){
+            return Response::json([
+                'errores' => 1,
+                'mensaje' => 'Contraseña incorrecta'
+            ], 201);
+            // return redirect('login')->withErrors([
+            //     'password' => 'Contraseña incorrecta'
+            // ]);
         }
         
         //Session::put('idUsuario', $u->id);
@@ -130,6 +138,8 @@ class LoginController extends Controller
 
       
        return Response::json([
+        'errores' => 0,
+        'mensaje' => '',
         'idUsuario' => $u->id,
         'permisos' => $u->permisos
     ], 201);

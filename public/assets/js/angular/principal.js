@@ -1073,6 +1073,7 @@ var myApp = angular
 
             
 
+            $scope.datos.ventasReporte.idUsuario = idUsuario;
           
           $http.post(rutaGlobal+"/api/reportes/ventas", {'action':'sp_reporteVentas_buscar', 'datos': $scope.datos.ventasReporte})
              .then(function(response){
