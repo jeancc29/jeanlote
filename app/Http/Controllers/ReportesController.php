@@ -121,7 +121,7 @@ class ReportesController extends Controller
             'datos.fechaFinal' => '',
         ])['datos'];
     
-        if(!isset($fecha['fechaHasta'])){
+        if(!isset($datos['fechaFinal'])){
             $fecha = getdate(strtotime($datos['fecha']));
             $fechaInicial = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00';
             $fechaFinal = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00';
@@ -131,6 +131,7 @@ class ReportesController extends Controller
             $fechaInicial = $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00';
             $fechaFinal = $fechaF['year'].'-'.$fechaF['mon'].'-'.$fechaF['mday'] . ' 23:50:00';
         }
+        
         
     
 
