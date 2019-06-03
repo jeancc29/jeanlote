@@ -1378,12 +1378,16 @@
                                     <th scope="row" colspan="3"  class="text-center">Total en prestamos: 1000</th>
                                     </tr>
                                     <tr>
+                                        <th scope="row" class="text-center">Balance hasta la fecha</th>
+                                        <td class="text-center">@{{datos.ventasReporte.ventas.balanceHastaLaFecha | currency}}</td>
+                                    </tr>
+                                    <tr>
                                         <th scope="row" class="text-center">Banca</th>
-                                        <td class="text-center">MD62</td>
+                                        <td class="text-center">@{{datos.ventasReporte.ventas.banca.descripcion}}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row" class="text-center">Codigo</th>
-                                        <td class="text-center">003-0062</td>
+                                        <td class="text-center">@{{datos.ventasReporte.ventas.banca.codigo}}</td>
                                     </tr>
                                     <tr>
                                         <th scope="row" class="text-center">Pendientes</th>
@@ -1427,7 +1431,7 @@
                                     </tr>
                                     <tr>
                                         <th scope="row" class="text-center">Balance</th>
-                                        <td class="text-center">@{{datos.ventasReporte.ventas.balance}}</td>
+                                        <td class="text-center">@{{datos.ventasReporte.ventas.balanceActual | currency}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1450,7 +1454,7 @@
                                     <tr ng-repeat="c in datos.ventasReporte.loterias">
                                     <th scope="row" class="text-center">@{{c.descripcion}}</th>
                                     <td class="text-center">@{{c.ventas ? c.ventas : 0}}</td>
-                                    <td class="text-center">@{{0}}</td>
+                                    <td class="text-center">@{{c.comisiones ? c.comisiones : 0}}</td>
                                     <td class="text-center">@{{ (c.premios > 0) ? c.premios : 0}}</td>
                                     <td class="text-center" ng-init="neto = c.ventas - c.premios" ng-class="{'bg-rosado text-rosado-oscuro': (neto < 0), 'bg-azul-claro text-azul-oscuro': (neto > 0)}">@{{neto}}</td>
                                     </tr>

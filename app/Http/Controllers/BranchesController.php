@@ -92,6 +92,7 @@ class BranchesController extends Controller
             'datos.ip' => 'required|min:1|max:15',
             'datos.codigo' => 'required',
             'datos.idUsuario' => 'required',
+            'datos.idUsuarioBanca' => 'required',
             'datos.dueno' => 'required',
             'datos.localidad' => 'required',
     
@@ -140,17 +141,17 @@ class BranchesController extends Controller
     
         if($banca != null){
     
-            // if(Branches::where(['idUsuario'=> $datos['idUsuario'], 'status' => 1])->whereNotIn('id', [$banca->id])->first() != null){
-            //     return Response::json([
-            //         'errores' => 1,
-            //         'mensaje' => 'Este usuario ya tiene una banca registrada y solo se permite un usaurio por banca'
-            //     ], 201);
-            // }
+            if(Branches::where(['idUsuario'=> $datos['idUsuarioBanca'], 'status' => 1])->whereNotIn('id', [$banca->id])->first() != null){
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'Este usuario ya tiene una banca registrada y solo se permite un usaurio por banca'
+                ], 201);
+            }
             
             $banca['descripcion'] = $datos['descripcion'];
             $banca['ip'] = $datos['ip'];
             $banca['codigo'] = $datos['codigo'];
-            $banca['idUsuario'] = $datos['idUsuario'];
+            $banca['idUsuario'] = $datos['idUsuarioBanca'];
             $banca['dueno'] = $datos['dueno'];
             $banca['localidad'] = $datos['localidad'];
             $banca['limiteVenta'] = $datos['limiteVenta'];
@@ -166,18 +167,18 @@ class BranchesController extends Controller
             $banca->save();
     
         }else{
-            // if(Branches::where(['idUsuario'=> $datos['idUsuario'], 'status' => 1])->count() > 0)
-            // {
-            //     return Response::json([
-            //         'errores' => 1,
-            //         'mensaje' => 'Este usuario ya tiene una banca registrada y solo se permite un usaurio por banca'
-            //     ], 201);
-            // }
+            if(Branches::where(['idUsuario'=> $datos['idUsuarioBanca'], 'status' => 1])->count() > 0)
+            {
+                return Response::json([
+                    'errores' => 1,
+                    'mensaje' => 'Este usuario ya tiene una banca registrada y solo se permite un usaurio por banca'
+                ], 201);
+            }
             $banca = Branches::create([
                 'descripcion' => $datos['descripcion'],
                 'ip' => $datos['ip'],
                 'codigo' => $datos['codigo'],
-                'idUsuario' => $datos['idUsuario'],
+                'idUsuario' => $datos['idUsuarioBanca'],
                 'dueno' => $datos['dueno'],
                 'localidad' => $datos['localidad'],
                 'limiteVenta' => $datos['limiteVenta'],

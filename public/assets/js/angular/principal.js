@@ -136,9 +136,10 @@ var myApp = angular
             if(response != null){
                 $scope.datos.optionsBancas = response.data.bancas;
                 let idx = 0;
-                if($scope.datos.optionsBancas.find(x => x.id == $scope.datos.idBanca) != undefined)
-                    idx = $scope.datos.optionsBancas.findIndex(x => x.id == $scope.datos.idBanca);
+                if($scope.datos.optionsBancas.find(x => x.id == response.data.idBanca) != undefined)
+                    idx = $scope.datos.optionsBancas.findIndex(x => x.id == response.data.idBanca);
                 $scope.datos.selectedBancas = $scope.datos.optionsBancas[idx];
+                $scope.datos.idBanca = response.data.idBanca;
 
 
                 $scope.datos.optionsVentas = (response.data.ventas != undefined) ? response.data.ventas : [{'id': 1, 'codigoBarra' : 'No hay ventas'}];
@@ -166,9 +167,10 @@ var myApp = angular
 
                 $scope.datos.optionsBancas = response.data.bancas;
                 let idx = 0;
-                if($scope.datos.optionsBancas.find(x => x.id == $scope.datos.idBanca && x.idUsuario == idUsuario) != undefined)
-                    idx = $scope.datos.optionsBancas.findIndex(x => x.id == $scope.datos.idBanca && x.idUsuario == idUsuario);
+                if($scope.datos.optionsBancas.find(x => x.id == response.data.idBanca) != undefined)
+                    idx = $scope.datos.optionsBancas.findIndex(x => x.id == response.data.idBanca);
                 $scope.datos.selectedBancas = $scope.datos.optionsBancas[idx];
+                $scope.datos.idBanca = response.data.idBanca;
 
                 $scope.datos.optionsVentas = (response.data.ventas != undefined) ? response.data.ventas : [{'id': 1, 'codigoBarra' : 'No hay ventas'}];
                 $scope.datos.selectedVentas = $scope.datos.optionsVentas[0];
@@ -209,7 +211,7 @@ var myApp = angular
             console.log('ROOT_PATH: ', ruta);
             $scope.inicializarDatos();
 
-          $scope.datos.idUsuario = codigo_usuario; //parseInt(codigo_usuario);
+          $scope.datos.idUsuario = idUsuario; //parseInt(codigo_usuario);
           $scope.datos.idBanca = idBanca; //parseInt(codigo_usuario);
 
           var a = new Hola("Jean", "Contreras");
@@ -345,6 +347,7 @@ var myApp = angular
                     
 
                     $scope.datos.idLoteria = $scope.datos.loterias[0].id;
+                    $scope.datos.idBanca = $scope.datos.selectedBancas.id;
                    
                     $http.post(rutaGlobal+"/api/principal/montodisponible",{'datos':$scope.datos, 'action':'sp_jugadas_obtener_montoDisponible'})
                       .then(function(response){
@@ -695,12 +698,15 @@ var myApp = angular
 
                 $scope.datos.total = $scope.datos.monto_a_pagar;
                 $scope.datos.idBanca = $scope.datos.selectedBancas.id;
-                
 
+            
+                
+                
+                $scope.datos.subTotal = Number($scope.datos.monto_a_pagar) - Number($scope.datos.descuentoMonto);
                 $http.post(rutaGlobal+"/api/principal/guardar",{'datos':$scope.datos, 'action':'sp_ventas_actualiza'})
                 .then(function(response){
 
-                    console.log(response);
+                    console.log('Principal.js venta_guardar : ', response.data);
  
                     if(response.data.errores == 0)
                         {
@@ -822,6 +828,7 @@ var myApp = angular
             console.log('monitoreo after addClass',$scope.datos.monitoreo);
             
             $scope.datos.monitoreo.idUsuario = $scope.datos.idUsuario;
+            $scope.datos.monitoreo.layout = 'Principal';
           
           $http.post(rutaGlobal+"/api/reportes/monitoreo", {'action':'sp_ventas_buscar', 'datos': $scope.datos.monitoreo})
              .then(function(response){
@@ -1074,16 +1081,21 @@ var myApp = angular
             
 
             $scope.datos.ventasReporte.idUsuario = idUsuario;
+            $scope.datos.ventasReporte.layout = 'Principal';
+
           
           $http.post(rutaGlobal+"/api/reportes/ventas", {'action':'sp_reporteVentas_buscar', 'datos': $scope.datos.ventasReporte})
              .then(function(response){
 
-                // console.log('ventasReporte_buscar: ', response);
+                console.log('ventasReporte_buscar: ', response);
 
-                $scope.datos.ventasReporte.loterias =response.data.loterias;
+                if(response.data.errores == 0){
+                    $scope.datos.ventasReporte.loterias =response.data.loterias;
                 $scope.datos.ventasReporte.ticketsGanadores =response.data.ticketsGanadores;
 
                 var jsonVentas =response.data;
+                $scope.datos.ventasReporte.ventas.banca = jsonVentas.banca;
+                $scope.datos.ventasReporte.ventas.balanceHastaLaFecha = jsonVentas.balanceHastaLaFecha;
                 $scope.datos.ventasReporte.ventas.pendientes = jsonVentas.pendientes;
                 $scope.datos.ventasReporte.ventas.ganadores = jsonVentas.ganadores;
                 $scope.datos.ventasReporte.ventas.perdedores = jsonVentas.perdedores;
@@ -1092,9 +1104,15 @@ var myApp = angular
                 $scope.datos.ventasReporte.ventas.comisiones = jsonVentas.comisiones;
                 $scope.datos.ventasReporte.ventas.descuentos = jsonVentas.descuentos;
                 $scope.datos.ventasReporte.ventas.premios = jsonVentas.premios;
-                $scope.datos.ventasReporte.ventas.neto = jsonVentas.neto_final;
+                $scope.datos.ventasReporte.ventas.neto = jsonVentas.neto;
+                $scope.datos.ventasReporte.ventas.balanceActual = jsonVentas.balanceActual;
+                }else if(response.data.errores == 1){
+                    alert(response.data.mensaje);
+                }
                 //$scope.datos.ventasReporte.ventas.balance = jsonVentas.balance;
 
+
+console.log('ventasReporte_buscar2: ', $scope.datos.ventasReporte.ventas.balanceHastaLaFecha);
 
        
                 // $scope.datos.ventasReporte.loterias =JSON.parse(response.data[0].loterias);

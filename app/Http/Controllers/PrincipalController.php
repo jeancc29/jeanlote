@@ -108,7 +108,7 @@ class PrincipalController extends Controller
         ])['datos'];
 
         if(isset($datos['idUsuario'])){
-            $idBanca = Branches::where(['id' => $datos['idUsuario'], 'status' => 1])->first();
+            $idBanca = Branches::where(['idUsuario' => $datos['idUsuario'], 'status' => 1])->first();
             if($idBanca != null)
                 $idBanca = $idBanca->id;
         }
@@ -137,7 +137,9 @@ class PrincipalController extends Controller
             'total_ventas' => Sales::whereIn('id', $idVentas)->sum('total'),
             'total_jugadas' => Salesdetails::whereIn('idVenta', $idVentas)->count('jugada'),
             'ventas' => SalesResource::collection($ventas),
-            'bancas' => Branches::whereStatus(1)->get()
+            'bancas' => Branches::whereStatus(1)->get(),
+            'idUsuario' => $datos['idUsuario'],
+            'idBanca' => $idBanca
         ], 201);
     }
 
@@ -549,26 +551,39 @@ class PrincipalController extends Controller
             foreach($datos['jugadas'] as $d){
                 
                 $loteria = Lotteries::whereId($d['idLoteria'])->first();
+
+               $idSorteo = (new Helper)->determinarSorteo($d['jugada'], $loteria->id);
                 
-                if(strlen($d['jugada']) == 2){
-                    $idSorteo = 1;
-               }
-               else if(strlen($d['jugada']) == 4){
-                   if($loteria->sorteos()->whereDescripcion('Super pale')->first() == null || $loteria->drawRelations->count() <= 1)
-                        $idSorteo = 2;
-                    else if($loteria->sorteos()->whereDescripcion('Super pale')->first() != null || $loteria->drawRelations->count() >= 2)
-                        $idSorteo = 4;
-               }
-               else if(strlen($d['jugada']) == 6){
-                    $idSorteo = 3;
-               }
+            //     if(strlen($d['jugada']) == 2){
+            //         $idSorteo = 1;
+            //    }
+            //    else if(strlen($d['jugada']) == 4){
+            //        if($loteria->sorteos()->whereDescripcion('Super pale')->first() == null || $loteria->drawRelations->count() <= 1)
+            //             $idSorteo = 2;
+            //         else if($loteria->sorteos()->whereDescripcion('Super pale')->first() != null || $loteria->drawRelations->count() >= 2)
+            //             $idSorteo = 4;
+            //    }
+            //    else if(strlen($d['jugada']) == 6){
+            //         $idSorteo = 3;
+            //    }
+
+
     
                //$loteria = Lotteries::whereId($d['idLoteria'])->first();
     
-               if(Branches::whereId($datos['idBanca'])->first()->loteriaExiste($loteria->id) == false){
+            //    if(Branches::whereId($datos['idBanca'])->first()->loteriaExiste($loteria->id) == false){
+            //         return Response::json([
+            //             'errores' => 1,
+            //             'mensaje' => 'La loteria ' . $loteria->descripcion . ' no esta permitida en esta banca'
+            //         ], 201);
+            //     }
+
+            $banca = Branches::whereId($datos['idBanca'])->first();
+            $sorteo = Draws::whereId($idSorteo)->first();
+                if(!$banca->loteriaExisteYTienePagoCombinaciones($d['idLoteria'], $idSorteo)){
                     return Response::json([
                         'errores' => 1,
-                        'mensaje' => 'La loteria ' . $loteria->descripcion . ' no esta permitida en esta banca'
+                        'mensaje' => 'La loteria ' . $loteria->descripcion . ' no esta permitida en esta banca, o no tiene combinaciones para el sorteo ' . $sorteo->descripcion
                     ], 201);
                 }
     
@@ -608,7 +623,7 @@ class PrincipalController extends Controller
                     'jugada' => $d['jugada']])
                     ->whereBetween('created_at', array($fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 00:00:00', $fecha['year'].'-'.$fecha['mon'].'-'.$fecha['mday'] . ' 23:50:00'))->first();
                    
-                if((new Helper)->montodisponible("55", 1, 1) < $d['monto']){
+                if((new Helper)->montodisponible($d['jugada'], $d['idLoteria'], $datos['idBanca']) < $d['monto']){
                         $errores = 1;
                         $mensaje = 'No hay existencia suficiente para la jugada ' . $d['jugada'] .' en la loteria ' . $d['descripcion'];
                         break;
@@ -847,7 +862,7 @@ class PrincipalController extends Controller
              'jugada' => $d['jugada'],
              'monto' => $d['monto'],
              'premio' => 0,
-             'monto' => $d['monto'],
+             'monto' => $d['monto']
          ]);
 
          

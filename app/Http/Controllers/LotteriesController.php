@@ -111,6 +111,22 @@ class LotteriesController extends Controller
             'datos.loterias' => '',
     
         ])['datos'];
+
+
+        //Validamos que cuando el sorteo super pale este seleccionado entonces no se permiten mas sorteos
+        $sorteoCollection = collect($datos['sorteos']);
+        $es_superpale = false;
+        foreach($sorteoCollection as $s){
+            if($s['descripcion'] == "Super pale" || $s['id'] == 4)
+                $es_superpale = true;
+        }
+
+        if($es_superpale == true && count($sorteoCollection) > 1){
+            return Response::json([
+                'errores' => 1,
+                'mensaje' => 'Cuando el sorteo Super pale esta seleccionado no se permiten mas sorteos'
+            ], 201);
+        }
     
         $errores = 0;
         $mensaje = '';
@@ -122,6 +138,7 @@ class LotteriesController extends Controller
 
         
         foreach($loterias_seleccionadas as $s){
+            //Verificamos que las loterias seleccionada para super pale deben tener el sorteo pale asignados a ellas
             if(Lotteries::whereId($s['id'])->first()->sorteos()->whereDescripcion('Pale')->first() == null){
                 return Response::json([
                     'errores' => 1,
@@ -129,6 +146,8 @@ class LotteriesController extends Controller
                 ], 201);
             }
         }
+
+       
     
     
         $loteria = Lotteries::whereId($datos['id'])->get()->first();

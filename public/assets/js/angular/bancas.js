@@ -170,32 +170,32 @@ var myApp = angular
 
 
             'lunes' : {
-                'apertura': hora_convertir("23:00:00"),
-                'cierre' : hora_convertir("24:00:00")
+                'apertura': hora_convertir("01:00:00"),
+                'cierre' : hora_convertir("23:00:00")
             },
             'martes' : {
-                'apertura': hora_convertir("23:00:00"),
-                'cierre' : hora_convertir("24:00:00")
+                'apertura': hora_convertir("01:00:00"),
+                'cierre' : hora_convertir("23:00:00")
             },
             'miercoles' : {
-                'apertura': hora_convertir("23:00:00"),
-                'cierre' : hora_convertir("24:00:00")
+                'apertura': hora_convertir("01:00:00"),
+                'cierre' : hora_convertir("23:00:00")
             },
             'jueves' : {
-                'apertura': hora_convertir("23:00:00"),
-                'cierre' : hora_convertir("24:00:00")
+                'apertura': hora_convertir("01:00:00"),
+                'cierre' : hora_convertir("23:00:00")
             },
             'viernes' : {
-                'apertura': hora_convertir("23:00:00"),
-                'cierre' : hora_convertir("24:00:00")
+                'apertura': hora_convertir("01:00:00"),
+                'cierre' : hora_convertir("23:00:00")
             },
             'sabado' : {
-                'apertura': hora_convertir("23:00:00"),
-                'cierre' : hora_convertir("24:00:00")
+                'apertura': hora_convertir("01:00:00"),
+                'cierre' : hora_convertir("23:00:00")
             },
             'domingo' : {
-                'apertura': hora_convertir("23:00:00"),
-                'cierre' : hora_convertir("24:00:00")
+                'apertura': hora_convertir("01:00:00"),
+                'cierre' : hora_convertir("23:00:00")
             },
             'comisiones' :{
                 'loterias' : [],
@@ -219,7 +219,7 @@ var myApp = angular
         }
 
         
-        $scope.inicializarDatos = function(todos, idUsuario = 0){
+        $scope.inicializarDatos = function(todos, idUsuarioBanca = 0){
                
             $http.get(rutaGlobal+"/api/bancas")
              .then(function(response){
@@ -314,8 +314,8 @@ var myApp = angular
 
                 $scope.datos.optionsUsuarios = response.data.usuarios;
                 let idx = 0;
-                if(idUsuario > 0)
-                    idx = $scope.datos.optionsUsuarios.findIndex(x => x.id == idUsuario);
+                if(idUsuarioBanca > 0)
+                    idx = $scope.datos.optionsUsuarios.findIndex(x => x.id == idUsuarioBanca);
 
 
                 $scope.datos.selectedUsuario = $scope.datos.optionsUsuarios[idx];
@@ -373,6 +373,22 @@ var myApp = angular
                     array[indice].existe = true;
 
                  });
+                 $scope.datos.lunes.apertura = hora_convertir("01:00:00");
+                 $scope.datos.lunes.cierre = hora_convertir("23:00:00");
+                 $scope.datos.martes.apertura = hora_convertir("01:00:00");
+                 $scope.datos.martes.cierre = hora_convertir("23:00:00");
+                 $scope.datos.miercoles.apertura = hora_convertir("01:00:00");
+                 $scope.datos.miercoles.cierre = hora_convertir("23:00:00");
+                 $scope.datos.jueves.apertura = hora_convertir("01:00:00");
+                 $scope.datos.jueves.cierre = hora_convertir("23:00:00");
+                 $scope.datos.viernes.apertura = hora_convertir("01:00:00");
+                 $scope.datos.viernes.cierre = hora_convertir("23:00:00");
+                 $scope.datos.sabado.apertura = hora_convertir("01:00:00");
+                 $scope.datos.sabado.cierre = hora_convertir("23:00:00");
+                 $scope.datos.domingo.apertura = hora_convertir("01:00:00");
+                 $scope.datos.domingo.cierre = hora_convertir("23:00:00");
+
+                 
 
                 //  $scope.rbxLoteriasComisionesChanged($scope.datos.ckbLoterias[0], false);
                 //  $scope.rbxLoteriasPagosCombinacionesChanged($scope.datos.ckbLoterias[0], false);
@@ -693,7 +709,8 @@ var myApp = angular
             
             
             $scope.datos.status = ($scope.datos.estado) ? 1 : 0;
-            $scope.datos.idUsuario = $scope.datos.selectedUsuario.id;
+            $scope.datos.idUsuario = idUsuario;
+            $scope.datos.idUsuarioBanca = $scope.datos.selectedUsuario.id;
             $scope.datos.loteriasSeleccionadas = $scope.datos.ckbLoterias;
 
             console.log('gastos bancas: ', $scope.datos.gastos);

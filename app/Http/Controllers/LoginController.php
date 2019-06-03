@@ -16,6 +16,7 @@ use App\Sales;
 use App\Salesdetails;
 use App\Blockslotteries;
 use App\Blocksplays;
+use App\Branches;
 use App\Stock;
 use App\Tickets;
 use App\Cancellations;
@@ -34,6 +35,7 @@ use App\Http\Resources\SalesResource;
 use App\Http\Resources\BranchesResource;
 use App\Http\Resources\RolesResource;
 use App\Http\Resources\UsersResource;
+use App\Classes\Helper;
 
 
 class LoginController extends Controller
@@ -67,7 +69,7 @@ class LoginController extends Controller
         
 
         $u = Users::where(['usuario' => $data['usuario']])->get()->first();
-
+        $idBanca = Branches::where('idUsuario', $u->id)->first()->id;
     
         
    
@@ -87,6 +89,7 @@ class LoginController extends Controller
         //Session::put('idUsuario', $u->id);
 
        session(['idUsuario' => $u->id]);
+       session(['idBanca' => $idBanca]);
        session(['permisos' => $u->permisos]);
 
       
@@ -143,6 +146,17 @@ class LoginController extends Controller
         'idUsuario' => $u->id,
         'permisos' => $u->permisos
     ], 201);
+    }
+
+    public function cerrarSesion(Request $request)
+    {
+     
+        $datos = request()->validate([
+            'cerrar' => 'required'
+        ]);
+       
+        (new Helper)->cerrar_session();
+        return redirect()->route('login');
     }
 
     /**

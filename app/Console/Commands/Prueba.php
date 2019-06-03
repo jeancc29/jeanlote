@@ -12,6 +12,7 @@ use App\Types;
 use App\Users;
 use App\Entity;
 use App\Classes\Helper;
+use App\Classes\AwardsClass;
 use App\Http\Resources\AutomaticexpensesResource;
 
 class Prueba extends Command
@@ -57,8 +58,16 @@ class Prueba extends Command
 
         rand(111111111, getrandmax());
 
+
+
         $monto = (new Helper)->montodisponible("55", 1, 1);
-        $this->info("Montodisponible: " . $monto);
+
+        $a = new AwardsClass(2);
+        $a->primera = "";
+        $a->segunda = 02;
+        $a->tercera = 23;
+
+        $this->info("Awardsclasss: " . $a->combinacionesNula());
         // $this->info(public_path("assets") . "\\");
         // $this->info(".." . rand(1111111111, getrandmax()));
 

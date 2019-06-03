@@ -66,6 +66,8 @@ class PermissionRoleSeeder extends Seeder
 
           // BANQUERO
          DB::table('permission_role')->insert(['idRole' => $banquero,'idPermiso' => 12]);
+         DB::table('permission_role')->insert(['idRole' => $banquero,'idPermiso' => 8]);
+
           
     }
 }

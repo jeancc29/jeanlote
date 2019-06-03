@@ -59,6 +59,7 @@ if($controlador != "login"){
 <script>
     window.rutaGlobal = (false) ? "<?php echo url('') ?>" : '';
     window.idUsuario = "<?php echo session('idUsuario') ?>";
+    window.idBanca = "<?php echo session('idBanca') ?>";
 
     var prueba = function(){
         alert("Preuba");
@@ -993,11 +994,9 @@ if(session('idUsuario') == null && $controlador != 'login'){
             </li>
 
             <li class="nav-item ">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{{route('cerrarSesion')}}?cerrar=si">
                     <i class="material-icons">format_list_numbered</i>
-                    <p> Numero ganadores 
-                       
-                    </p>
+                    <p> Cerrar </p>
                 </a>
             </li>
 

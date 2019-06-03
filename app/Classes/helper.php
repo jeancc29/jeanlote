@@ -96,11 +96,41 @@ class Helper{
 
     function verificar_session()
     {
-        if(!isset($_SESSION['idUsuario']))
+        if(!session()->has('idUsuario'))
         {
-              header('location:' . url("login") );
+            redirect()->route('login');
         }
 
+    }
+
+    function cerrar_session()
+    {
+        if(session()->has('idUsuario')){
+            session()->forget('idUsuario');
+            session()->forget('idBanca');
+            session()->forget('permisos');
+            
+            redirect()->route('login');
+        }
+    }
+
+    public function determinarSorteo($jugada, $idLoteria){
+        $loteria = Lotteries::whereId($idLoteria)->first();
+        $idSorteo = 0;
+        if(strlen($jugada) == 2){
+            $idSorteo = 1;
+       }
+       else if(strlen($jugada) == 4){
+           if($loteria->sorteos()->whereDescripcion('Super pale')->first() == null || $loteria->drawRelations->count() <= 1)
+                $idSorteo = 2;
+            else if($loteria->sorteos()->whereDescripcion('Super pale')->first() != null || $loteria->drawRelations->count() >= 2)
+                $idSorteo = 4;
+       }
+       else if(strlen($jugada) == 6){
+            $idSorteo = 3;
+       }
+
+       return $idSorteo;
     }
 
     function montodisponible($jugada, $idLoteria, $idBanca){

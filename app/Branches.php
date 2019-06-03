@@ -75,6 +75,45 @@ class Branches extends Model
             return false;
     }
 
+    public function loteriaExisteYTienePagoCombinaciones($idLoteria, $idSorteo){
+        if($this->loterias()->wherePivot('idLoteria', $idLoteria)->first() != null){
+            $d = $this->pagosCombinaciones()->where('idLoteria', $idLoteria)->first();
+            if($d != null){
+                if($idSorteo == 1){
+                    if((int)$d['primera'] == 0)
+                        return false;
+                    if((int)$d['segunda'] == 0)
+                        return false;
+                    if((int)$d['tercera'] == 0)
+                        return false;
+                }
+                else if($idSorteo == 2){
+                    if((int)$d['primeraSegunda'] == 0)
+                        return false;
+                    if((int)$d['primeraTercera'] == 0)
+                        return false;
+                    if((int)$d['segundaTercera'] == 0)
+                        return false;
+                }
+                else if($idSorteo == 3){
+                    if((int)$d['tresNumeros'] == 0)
+                        return false;
+                    if((int)$d['dosNumeros'] == 0)
+                        return false;
+                }
+                else if($idSorteo == 4){
+                    if((int)$d['primerPago'] == 0)
+                        return false;
+                }
+            }else
+                return false;
+        }
+        else
+            return false;
+
+        return true;
+    }    
+
     public function cerrada(){
         $cerrado = false;
         $fecha = getdate();
@@ -118,6 +157,7 @@ class Branches extends Model
 
         return ($ventas > $this->limiteVenta);
     }
+   
    
 
 }

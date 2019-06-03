@@ -251,38 +251,38 @@ var myApp = angular
                 $scope.datos.ckbDias = [];
                 jsonLoterias.forEach(function(valor, indice, array){
                     array[indice].lunes = {};
-                    array[indice].lunes.apertura = hora_convertir("23:00:00");
-                    array[indice].lunes.cierre = hora_convertir("24:00:00");
+                    array[indice].lunes.apertura = hora_convertir("01:00:00");
+                    array[indice].lunes.cierre = hora_convertir("23:00:00");
                     array[indice].lunes.status = 1;
                     
                     array[indice].martes = {};
-                    array[indice].martes.apertura = hora_convertir("23:00:00");
-                    array[indice].martes.cierre = hora_convertir("24:00:00");
+                    array[indice].martes.apertura = hora_convertir("01:00:00");
+                    array[indice].martes.cierre = hora_convertir("23:00:00");
                     array[indice].martes.status = 1;
 
                     array[indice].miercoles = {};
-                    array[indice].miercoles.apertura = hora_convertir("23:00:00");
-                    array[indice].miercoles.cierre = hora_convertir("24:00:00");
+                    array[indice].miercoles.apertura = hora_convertir("01:00:00");
+                    array[indice].miercoles.cierre = hora_convertir("23:00:00");
                     array[indice].miercoles.status = 1;
 
                     array[indice].jueves = {};
-                    array[indice].jueves.apertura = hora_convertir("23:00:00");
-                    array[indice].jueves.cierre = hora_convertir("24:00:00");
+                    array[indice].jueves.apertura = hora_convertir("01:00:00");
+                    array[indice].jueves.cierre = hora_convertir("23:00:00");
                     array[indice].jueves.status = 1;
 
                     array[indice].viernes = {};
-                    array[indice].viernes.apertura = hora_convertir("23:00:00");
-                    array[indice].viernes.cierre = hora_convertir("24:00:00");
+                    array[indice].viernes.apertura = hora_convertir("01:00:00");
+                    array[indice].viernes.cierre = hora_convertir("23:00:00");
                     array[indice].viernes.status = 1;
 
                     array[indice].sabado = {};
-                    array[indice].sabado.apertura = hora_convertir("23:00:00");
-                    array[indice].sabado.cierre = hora_convertir("24:00:00");
+                    array[indice].sabado.apertura = hora_convertir("01:00:00");
+                    array[indice].sabado.cierre = hora_convertir("23:00:00");
                     array[indice].sabado.status = 1;
 
                     array[indice].domingo = {};
-                    array[indice].domingo.apertura = hora_convertir("23:00:00");
-                    array[indice].domingo.cierre = hora_convertir("24:00:00");
+                    array[indice].domingo.apertura = hora_convertir("01:00:00");
+                    array[indice].domingo.cierre = hora_convertir("23:00:00");
                     array[indice].domingo.status = 1;
                     
 
