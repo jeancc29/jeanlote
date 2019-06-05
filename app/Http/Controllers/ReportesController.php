@@ -286,6 +286,17 @@ class ReportesController extends Controller
                                     ->sum('monto');
                             }
                         }
+                        $comisionesMonto = round($comisionesMonto);
+                        if($d->ventas == null)
+                            $d->ventas = 0;
+                        if($d->premios == null)
+                            $d->premios = 0;
+                        if($d->primera == null)
+                            $d->primera = "";
+                        if($d->segunda == null)
+                            $d->segunda = "";
+                        if($d->tercera == null)
+                            $d->tercera = "";
                         return ['id' => $d->id, 'descripcion' => $d->descripcion, 'comisiones' => $comisionesMonto, 'ventas' => $d->ventas, 'premios' => $d->premios, 'primera' => $d->primera, 'segunda' => $d->segunda, 'tercera' => $d->tercera, 'neto' => ($d->ventas) - ($d->premios + $comisionesMonto)];
                     });
     
@@ -363,13 +374,13 @@ class ReportesController extends Controller
             'ventas' => $ventas,
             'descuentos' => $descuentos,
             'premios' => $premios,
-            'neto' => $neto,
+            'neto' => round($neto),
             'loterias' => $loterias,
             'ticketsGanadores' => SalesResource::collection($ticketsGanadores),
             'banca' => Branches::whereId($datos['idBanca'])->first(),
             'premios' => $premios,
-            'balanceActual' => ($balanceHastaLaFecha + $neto),
-            'comisiones' => $comisionesMonto
+            'balanceActual' => round(($balanceHastaLaFecha + $neto)),
+            'comisiones' => round($comisionesMonto)
         ], 201);
     }
 

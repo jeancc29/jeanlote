@@ -133,18 +133,28 @@ class LoginController extends Controller
             //     'password' => 'Contraseña incorrecta'
             // ]);
         }
+
+        $banca = Branches::where(['idUsuario' => $u->id, 'status' => 1])->first();
+        if($banca == null){
+            return Response::json([
+                'errores' => 1,
+                'mensaje' => 'Este usuario no tiene banca asignada'
+            ], 201);
+        }
         
         //Session::put('idUsuario', $u->id);
 
-       session(['idUsuario' => $u->id]);
-       session(['permisos' => $u->permisos]);
+    //    session(['idUsuario' => $u->id]);
+    //    session(['permisos' => $u->permisos]);
 
       
        return Response::json([
         'errores' => 0,
         'mensaje' => '',
         'idUsuario' => $u->id,
-        'permisos' => $u->permisos
+        'permisos' => $u->permisos,
+        'banca' => $banca->descripcion,
+        'idBanca' => $banca->id
     ], 201);
     }
 
