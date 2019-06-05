@@ -197,7 +197,7 @@ class ReportesController extends Controller
                     $ventas = Sales::whereBetween('created_at', array($fechaInicial, $fechaFinal))
                     ->where('status', '!=', '0')
                     ->where('idBanca', $datos['idBanca'])
-                    ->sum('total');
+                    ->sum('subTotal');
     
                     //AQUI COMIENSA LAS COMISIONES
     
@@ -458,7 +458,7 @@ class ReportesController extends Controller
             'monitoreo' => SalesResource::collection($monitoreo),
             'loterias' => Lotteries::whereStatus(1)->get(),
             'caracteristicasGenerales' =>  Generals::all(),
-            'total_ventas' => Sales::sum('total'),
+            'total_ventas' => Sales::sum('subTotal'),
             'total_jugadas' => Salesdetails::count('jugada'),
             'errores' => 0
         ], 201);
